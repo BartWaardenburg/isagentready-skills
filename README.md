@@ -28,6 +28,12 @@ Scan your website at [isagentready.com](https://isagentready.com) first to ident
 
 Install the skills in your AI coding agent of choice:
 
+### Quick Install (Any Agent)
+
+```bash
+npx skills add bartwaardenburg/isagentready-skills
+```
+
 ### Claude Code
 
 ```bash
