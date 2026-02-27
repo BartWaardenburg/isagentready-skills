@@ -1,0 +1,81 @@
+name: Validate Skills
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON files..."
+          find . -name "*.json" -not -path "./.git/*" -print0 | while IFS= read -r -d '' f; do
+            echo "  ✓ $f"
+            python3 -m json.tool "$f" > /dev/null || { echo "  ✗ Invalid JSON: $f"; exit 1; }
+          done
+          echo "All JSON files valid."
+
+      - name: Validate SKILL.md frontmatter
+        run: |
+          echo "Validating SKILL.md frontmatter..."
+          find . -name "SKILL.md" -print0 | while IFS= read -r -d '' f; do
+            # Extract frontmatter (between first --- and second ---)
+            frontmatter=$(awk '/^---$/{if(++c==2)exit}c==1' "$f")
+            if [ -z "$frontmatter" ]; then
+              echo "  ✗ Missing frontmatter in $f"
+              exit 1
+            fi
+            if ! echo "$frontmatter" | grep -q "^name:"; then
+              echo "  ✗ Missing 'name' in frontmatter of $f"
+              exit 1
+            fi
+            if ! echo "$frontmatter" | grep -q "^description:"; then
+              echo "  ✗ Missing 'description' in frontmatter of $f"
+              exit 1
+            fi
+            echo "  ✓ $f"
+          done
+          echo "All SKILL.md frontmatter valid."
+
+      - name: Check SKILL.md line count
+        run: |
+          echo "Checking SKILL.md line counts..."
+          find . -name "SKILL.md" -print0 | while IFS= read -r -d '' f; do
+            lines=$(wc -l < "$f")
+            if [ "$lines" -gt 500 ]; then
+              echo "  ✗ $f exceeds 500 lines ($lines lines)"
+              exit 1
+            fi
+            echo "  ✓ $f ($lines lines)"
+          done
+          echo "All SKILL.md files within limit."
+
+      - name: Check for hardcoded paths
+        run: |
+          echo "Checking for hardcoded paths..."
+          find . -name "*.md" -not -path "./.git/*" -print0 | while IFS= read -r -d '' f; do
+            if grep -qE '/Users/|/home/|C:\\' "$f"; then
+              echo "  ✗ Hardcoded path found in $f"
+              exit 1
+            fi
+          done
+          echo "No hardcoded paths found."
+
+      - name: Check version sync
+        run: |
+          echo "Checking version sync..."
+          plugin_version=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json'))['version'])")
+          marketplace_version=$(python3 -c "import json; print(json.load(open('.claude-plugin/marketplace.json'))['version'])")
+          echo "  plugin.json:      $plugin_version"
+          echo "  marketplace.json: $marketplace_version"
+          if [ "$plugin_version" != "$marketplace_version" ]; then
+            echo "  ✗ Version mismatch: plugin.json ($plugin_version) != marketplace.json ($marketplace_version)"
+            exit 1
+          fi
+          echo "  ✓ Versions in sync."

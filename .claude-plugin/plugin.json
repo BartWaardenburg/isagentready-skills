@@ -1,0 +1,29 @@
+{
+  "name": "isagentready",
+  "version": "1.0.0",
+  "description": "AI agent readiness skills — fix website issues identified by IsAgentReady.com across content discovery, structured data, semantics, agent protocols, and security",
+  "author": {
+    "name": "Bart Waardenburg",
+    "url": "https://github.com/bartwaardenburg"
+  },
+  "homepage": "https://github.com/bartwaardenburg/isagentready-skills",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bartwaardenburg/isagentready-skills.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ai-readiness",
+    "seo",
+    "structured-data",
+    "webmcp",
+    "a2a",
+    "mcp",
+    "security-headers",
+    "robots-txt",
+    "json-ld",
+    "schema-org",
+    "agent-protocols",
+    "llms-txt"
+  ]
+}
