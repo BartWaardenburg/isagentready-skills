@@ -1,21 +1,13 @@
 {
   "name": "isagentready-skills",
-  "version": "1.0.0",
   "owner": {
     "name": "Bart Waardenburg"
-  },
-  "metadata": {
-    "description": "Fix AI agent readiness issues on websites — robots.txt, structured data, semantic HTML, agent protocols, and security headers"
   },
   "plugins": [
     {
       "name": "isagentready",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/bartwaardenburg/isagentready-skills.git"
-      },
-      "description": "AI agent readiness skills — fix website issues identified by IsAgentReady.com across content discovery, structured data, semantics, agent protocols, and security",
-      "version": "1.0.0"
+      "source": "./",
+      "description": "AI agent readiness skills — fix website issues identified by IsAgentReady.com across content discovery, structured data, semantics, agent protocols, and security"
     }
   ]
 }
