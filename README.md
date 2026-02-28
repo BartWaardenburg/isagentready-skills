@@ -37,7 +37,7 @@ npx skills add bartwaardenburg/isagentready-skills
 ### Claude Code
 
 ```bash
-/install bartwaardenburg/isagentready-skills
+/plugin marketplace add bartwaardenburg/isagentready-skills
 ```
 
 ### Cursor
