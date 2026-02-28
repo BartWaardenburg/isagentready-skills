@@ -10,7 +10,10 @@
   "plugins": [
     {
       "name": "isagentready",
-      "source": "./",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/bartwaardenburg/isagentready-skills.git"
+      },
       "description": "AI agent readiness skills — fix website issues identified by IsAgentReady.com across content discovery, structured data, semantics, agent protocols, and security",
       "version": "1.0.0"
     }
