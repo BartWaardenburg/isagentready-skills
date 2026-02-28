@@ -7,10 +7,7 @@
     "url": "https://github.com/bartwaardenburg"
   },
   "homepage": "https://github.com/bartwaardenburg/isagentready-skills",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/bartwaardenburg/isagentready-skills.git"
-  },
+  "repository": "https://github.com/bartwaardenburg/isagentready-skills",
   "license": "MIT",
   "keywords": [
     "ai-readiness",
