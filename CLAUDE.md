@@ -1,6 +1,6 @@
 # isagentready-skills
 
-Agent skills for fixing AI agent readiness issues identified by [IsAgentReady.com](https://isagentready.com).
+Agent skills for fixing AI agent readiness issues identified by [IsAgentReady.com](https://isagentready.com). Companion to the [isagentready-mcp](https://github.com/bartwaardenburg/isagentready-mcp) server for scanning websites directly from your agent.
 
 ## Repository Structure
 

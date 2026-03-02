@@ -22,6 +22,8 @@
     "agent-protocols",
     "security-headers",
     "webmcp",
-    "a2a"
+    "a2a",
+    "mcp",
+    "isagentready"
   ]
 }

@@ -1,6 +1,7 @@
 # isagentready-skills
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-compatible-purple.svg)](https://modelcontextprotocol.io)
 [![CI](https://github.com/bartwaardenburg/isagentready-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/bartwaardenburg/isagentready-skills/actions/workflows/validate.yml)
 
 Agent skills for fixing AI agent readiness issues identified by [IsAgentReady.com](https://isagentready.com). Works with any agent that supports the [Agent Skills](https://agentskills.io) specification — Claude Code, Cursor, OpenAI Codex, Windsurf, GitHub Copilot, Gemini CLI, Amp, and more.
@@ -11,18 +12,28 @@ Agent skills for fixing AI agent readiness issues identified by [IsAgentReady.co
 - **Framework-agnostic** — generic instructions that work with any web stack
 - **Copy-paste templates** for robots.txt, JSON-LD, semantic HTML, agent protocols, and security headers
 - **Server configurations** for Nginx, Apache, Caddy, Vercel, Netlify, Cloudflare, and more
-- **Companion skills** to the [IsAgentReady.com](https://isagentready.com) scanner
+- **Companion skills** to the [IsAgentReady.com](https://isagentready.com) scanner and [isagentready-mcp](https://github.com/bartwaardenburg/isagentready-mcp) server
 
 ## How It Works
 
-1. Scan your website at [isagentready.com](https://isagentready.com)
+1. Scan your website at [isagentready.com](https://isagentready.com) or via the [isagentready-mcp](https://github.com/bartwaardenburg/isagentready-mcp) server
 2. Install these skills in your AI coding agent
 3. Ask your agent to fix the failing checkpoints
 4. Re-scan to verify improvements
 
 ## Prerequisites
 
-Scan your website at [isagentready.com](https://isagentready.com) first to identify which checkpoints are failing. The scan results tell you exactly which skills to use.
+Scan your website first to identify which checkpoints are failing. The scan results tell you exactly which skills to use.
+
+**Option A — Web scanner:** Visit [isagentready.com](https://isagentready.com)
+
+**Option B — MCP server (recommended):** Install the [isagentready-mcp](https://github.com/bartwaardenburg/isagentready-mcp) server so your agent can scan, fix, and re-verify without leaving the editor:
+
+```bash
+claude mcp add isagentready-mcp -- npx isagentready-mcp
+```
+
+The MCP server provides `scan_website`, `get_scan_results`, and `get_rankings` tools that let your agent scan directly and act on the results using these skills.
 
 ## Installation
 
@@ -129,7 +140,8 @@ See [CLAUDE.md](CLAUDE.md) for repository structure, skill creation guidelines, 
 
 ## Related
 
-- [IsAgentReady.com](https://isagentready.com) — The scanner that identifies these issues
+- [isagentready-mcp](https://github.com/bartwaardenburg/isagentready-mcp) — MCP server for scanning websites from your agent
+- [IsAgentReady.com](https://isagentready.com) — The web scanner that identifies these issues
 - [spaceship-skills](https://github.com/bartwaardenburg/spaceship-skills) — Domain management skills using the same pattern
 
 ## License
