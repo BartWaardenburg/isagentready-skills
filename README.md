@@ -7,7 +7,7 @@ Agent skills for fixing AI agent readiness issues identified by [IsAgentReady.co
 
 ## Features
 
-- **32 checkpoints** across 5 categories with step-by-step fix workflows
+- **36 checkpoints** across 5 categories with step-by-step fix workflows
 - **Framework-agnostic** — generic instructions that work with any web stack
 - **Copy-paste templates** for robots.txt, JSON-LD, semantic HTML, agent protocols, and security headers
 - **Server configurations** for Nginx, Apache, Caddy, Vercel, Netlify, Cloudflare, and more
@@ -84,9 +84,9 @@ Clone or copy the skill directory into your agent's skills location. These skill
 
 | Skill | Category | Weight | Description |
 |-------|----------|--------|-------------|
-| [ai-content-discovery](ai-content-discovery/) | Discovery | 30% | robots.txt, AI crawlers, sitemaps, llms.txt, meta robots |
-| [structured-data](structured-data/) | Search Signals | 20% | JSON-LD, Schema.org types, entity linking, breadcrumbs |
-| [content-semantics](content-semantics/) | Semantics | 20% | SSR, headings, semantic HTML, ARIA, alt text, language |
+| [ai-content-discovery](ai-content-discovery/) | Discovery | 30% | robots.txt, AI crawlers, sitemaps, llms.txt, meta robots, freshness |
+| [structured-data](structured-data/) | Search Signals | 20% | JSON-LD, Schema.org types, entity linking, breadcrumbs, FAQ, author |
+| [content-semantics](content-semantics/) | Semantics | 20% | SSR, headings, semantic HTML, ARIA, alt text, language, question H2s |
 | [agent-protocols](agent-protocols/) | Protocols | 15% | WebMCP, A2A, MCP discovery, OpenAPI, agents.json |
 | [security-trust](security-trust/) | Security | 15% | HTTPS, HSTS, CSP, XCTO, frame protection, CORS, referrer |
 

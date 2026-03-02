@@ -9,19 +9,19 @@ Agent skills for fixing AI agent readiness issues identified by [IsAgentReady.co
   marketplace.json          # Marketplace metadata (version must sync with plugin.json)
   plugin.json               # Plugin metadata (keywords, author, license)
 ai-content-discovery/       # Category 1: AI Content Discovery (30%)
-  SKILL.md                  # 6 checkpoints: robots.txt, AI crawlers, sitemap, llms.txt, meta robots, bot access
+  SKILL.md                  # 7 checkpoints: robots.txt, AI crawlers, sitemap, llms.txt, meta robots, bot access, content freshness
   references/
     robots-txt-guide.md     # robots.txt syntax, AI user-agents, testing
     llms-txt-guide.md       # llms.txt spec, content structure, site-type examples
     gotchas.md              # 12 pitfalls with correct vs incorrect examples
 structured-data/            # Category 2: Structured Data (20%)
-  SKILL.md                  # 6 checkpoints: JSON-LD, Organization/WebSite, high-value types, @id, breadcrumbs, validation
+  SKILL.md                  # 8 checkpoints: JSON-LD, Organization/WebSite, high-value types, @id, breadcrumbs, validation, FAQPage, author
   references/
     schema-types.md         # JSON-LD templates for 19 Schema.org types
     json-ld-patterns.md     # @graph, entity linking, SearchAction, combining types
     gotchas.md              # 11 pitfalls with correct vs incorrect examples
 content-semantics/          # Category 3: Content & Semantics (20%)
-  SKILL.md                  # 7 checkpoints: SSR, headings, semantic HTML, ARIA, alt text, lang, link text
+  SKILL.md                  # 8 checkpoints: SSR, headings, semantic HTML, ARIA, alt text, lang, link text, question headings
   references/
     semantic-html-guide.md  # Semantic elements, ARIA mapping, heading patterns
     ssr-strategies.md       # Framework-specific SSR guides (Next.js, Nuxt, Astro, Remix, SvelteKit, Angular)

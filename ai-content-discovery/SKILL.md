@@ -1,11 +1,11 @@
 ---
 name: ai-content-discovery
-description: Fixes AI content discovery issues — creates and optimizes robots.txt, AI crawler directives, XML sitemaps, llms.txt, and meta robots tags so AI systems can find, crawl, and understand website content. Use when asked to "fix robots.txt", "add llms.txt", "create a sitemap", "allow AI crawlers", "fix AI discoverability", "improve AI content discovery score", "make site crawlable by AI", or any robots.txt, sitemap, or llms.txt task.
+description: Fixes AI content discovery issues — creates and optimizes robots.txt, AI crawler directives, XML sitemaps, llms.txt, meta robots tags, and content freshness signals so AI systems can find, crawl, and understand website content. Use when asked to "fix robots.txt", "add llms.txt", "create a sitemap", "allow AI crawlers", "fix AI discoverability", "improve AI content discovery score", "make site crawlable by AI", "add dateModified", "fix content freshness", or any robots.txt, sitemap, or llms.txt task.
 ---
 
 # AI Content Discovery
 
-Fixes Category 1 (AI Content Discovery, 30% weight) issues from [IsAgentReady.com](https://isagentready.com). This category checks whether AI systems can find, crawl, and understand your website's content. It evaluates 6 checkpoints worth 90 points total.
+Fixes Category 1 (AI Content Discovery, 30% weight) issues from [IsAgentReady.com](https://isagentready.com). This category checks whether AI systems can find, crawl, and understand your website's content. It evaluates 7 checkpoints worth 100 points total.
 
 ## When to Use
 
@@ -15,6 +15,7 @@ Fixes Category 1 (AI Content Discovery, 30% weight) issues from [IsAgentReady.co
 - Creating llms.txt or llms-full.txt files
 - Removing restrictive meta robots tags (noindex, noai)
 - Fixing WAF/CDN bot blocking issues
+- Adding content freshness signals (dateModified, article:modified_time)
 - Any task to "improve AI discoverability" or "make site crawlable by AI"
 
 ## When NOT to Use
@@ -34,6 +35,7 @@ Fixes Category 1 (AI Content Discovery, 30% weight) issues from [IsAgentReady.co
 | 1.3 | XML Sitemap                 | 15         | Valid XML sitemap with `<urlset>` or `<sitemapindex>`           |
 | 1.4 | llms.txt                    | 15         | /llms.txt with markdown heading + URLs; bonus for /llms-full.txt|
 | 1.5 | Meta robots / X-Robots-Tag  | 15         | No restrictive directives (noindex, noai, noimageai)            |
+| 1.6 | Content freshness signals   | 10         | dateModified in JSON-LD, article:modified_time, or Last-Modified|
 
 ## Checkpoint 1.8: HTTP Bot Accessibility (15 pts)
 
@@ -107,43 +109,16 @@ Fixes Category 1 (AI Content Discovery, 30% weight) issues from [IsAgentReady.co
    ```
    User-agent: *
    Allow: /
-
-   # Allow AI crawlers explicitly
    User-agent: GPTBot
    Allow: /
-
    User-agent: ClaudeBot
    Allow: /
-
    User-agent: Google-Extended
    Allow: /
-
    Sitemap: https://example.com/sitemap.xml
    ```
 
-3. **Ensure correct Content-Type** — the server must return `text/plain`:
-
-   **Nginx:**
-   ```nginx
-   location = /robots.txt {
-     default_type text/plain;
-   }
-   ```
-
-   **Apache (`.htaccess`):**
-   ```apache
-   <Files "robots.txt">
-     ForceType text/plain
-   </Files>
-   ```
-
-   **Express/Node.js:**
-   ```javascript
-   app.get('/robots.txt', (req, res) => {
-     res.type('text/plain');
-     res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
-   });
-   ```
+3. **Ensure correct Content-Type** — must return `text/plain`. Nginx: `default_type text/plain;` in the location block. Apache: `ForceType text/plain` in a `<Files>` directive.
 
 4. **Verify:**
    ```bash
@@ -188,43 +163,31 @@ Fixes Category 1 (AI Content Discovery, 30% weight) issues from [IsAgentReady.co
 
 2. **Add explicit Allow directives** for each AI crawler to your robots.txt:
    ```
-   # AI Crawlers — explicitly allow
+   # AI Crawlers — explicitly allow (one block per agent)
    User-agent: GPTBot
    Allow: /
-
    User-agent: ChatGPT-User
    Allow: /
-
    User-agent: OAI-SearchBot
    Allow: /
-
    User-agent: ClaudeBot
    Allow: /
-
    User-agent: Claude-User
    Allow: /
-
    User-agent: Claude-SearchBot
    Allow: /
-
    User-agent: Google-Extended
    Allow: /
-
    User-agent: Amazonbot
    Allow: /
-
    User-agent: Bytespider
    Allow: /
-
    User-agent: CCBot
    Allow: /
-
    User-agent: PerplexityBot
    Allow: /
-
    User-agent: Applebot-Extended
    Allow: /
-
    User-agent: meta-externalagent
    Allow: /
    ```
@@ -374,27 +337,7 @@ Most frameworks have sitemap plugins — prefer automated generation over manual
    Inline API documentation or detailed summaries of endpoints.
    ```
 
-3. **Ensure correct Content-Type** — must be `text/plain` or `text/markdown`:
-
-   **Nginx:**
-   ```nginx
-   location = /llms.txt {
-     default_type text/plain;
-   }
-   location = /llms-full.txt {
-     default_type text/plain;
-   }
-   ```
-
-   **Apache:**
-   ```apache
-   <Files "llms.txt">
-     ForceType text/plain
-   </Files>
-   <Files "llms-full.txt">
-     ForceType text/plain
-   </Files>
-   ```
+3. **Ensure correct Content-Type** — must be `text/plain` or `text/markdown`. Same server config as robots.txt (see checkpoint 1.1).
 
 4. **Verify:**
    ```bash
@@ -472,6 +415,52 @@ The scanner checks both:
 
 ---
 
+## Checkpoint 1.6: Content Freshness Signals (10 pts)
+
+**What passes:** `dateModified` in JSON-LD or `article:modified_time` meta tag (10 pts).
+**Partial:** Only `datePublished`, `article:published_time`, or `<time datetime>` (7 pts). Only `Last-Modified` header (5 pts).
+**What fails:** No freshness signals detected (0 pts).
+
+**Why it matters:** ChatGPT shows 3.2x preference for content with fresh date signals. AI systems use dates to prioritize recent, authoritative content.
+
+### Fix Workflow
+
+1. **Check current signals:**
+   ```bash
+   curl -sI https://example.com/ | grep -i last-modified
+   curl -s https://example.com/ | grep -iE 'dateModified|article:modified_time'
+   ```
+
+2. **Add `dateModified` and `datePublished` to JSON-LD** (best — 10 pts):
+   ```json
+   {
+     "@context": "https://schema.org",
+     "@type": "Article",
+     "datePublished": "2024-01-15T09:00:00Z",
+     "dateModified": "2024-03-01T14:30:00Z"
+   }
+   ```
+
+3. **Add Open Graph meta tags** (also 10 pts):
+   ```html
+   <meta property="article:published_time" content="2024-01-15T09:00:00Z">
+   <meta property="article:modified_time" content="2024-03-01T14:30:00Z">
+   ```
+
+4. **`Last-Modified` HTTP header** scores only 5 pts — use JSON-LD or meta tags for full credit.
+
+5. **`<time datetime>` element** scores 7 pts as a fallback:
+   ```html
+   <time datetime="2024-03-01T14:30:00Z">March 1, 2024</time>
+   ```
+
+6. **Verify:**
+   ```bash
+   curl -s https://example.com/ | grep -iE 'dateModified|article:modified_time'
+   ```
+
+---
+
 ## Key Gotchas
 
 1. **robots.txt returns HTML** — 404 page served instead of a real robots.txt file
@@ -480,6 +469,7 @@ The scanner checks both:
 4. **Sitemap is not valid XML** — JSON or HTML page served at `/sitemap.xml`
 5. **llms.txt has no URLs** — File exists but is just plain text without any links
 6. **noai vs noindex confusion** — `noai` costs 7 points, `noindex` costs all 15
+7. **Last-Modified header only** — scores 5/10; add `dateModified` in JSON-LD for full 10 points
 
 > See [references/gotchas.md](references/gotchas.md) for detailed correct vs incorrect examples of each.
 

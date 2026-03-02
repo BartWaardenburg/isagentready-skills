@@ -1,6 +1,6 @@
 ---
 name: content-semantics
-description: Fixes content and semantic HTML issues — implements server-side rendering, heading hierarchy, semantic HTML elements, ARIA landmarks, image alt text, language attributes, and descriptive link texts so AI agents can navigate and understand page content via the accessibility tree. Use when asked to "fix semantic HTML", "add SSR", "fix heading hierarchy", "add alt text", "improve semantics score", "fix accessibility for AI", "add ARIA landmarks", "fix language attribute", or any semantic HTML task.
+description: Fixes content and semantic HTML issues — implements server-side rendering, heading hierarchy, semantic HTML elements, ARIA landmarks, image alt text, language attributes, descriptive link texts, and question-based headings so AI agents can navigate and understand page content via the accessibility tree. Use when asked to "fix semantic HTML", "add SSR", "fix heading hierarchy", "add alt text", "improve semantics score", "fix accessibility for AI", "add ARIA landmarks", "fix language attribute", "add question headings", or any semantic HTML task.
 ---
 
 # Content & Semantics
@@ -10,7 +10,7 @@ Fixes Category 3 (Content & Semantics, 20% weight) issues from [IsAgentReady.com
 ## When to Use
 
 - IsAgentReady scan shows issues in **Content & Semantics** category
-- Site has low scores on checkpoints 3.1–3.7
+- Site has low scores on checkpoints 3.1–3.8
 - User asks to fix semantic HTML, headings, SSR, alt text, ARIA, or link texts
 - Building a new site and want AI agent readiness from the start
 
@@ -31,8 +31,9 @@ Fixes Category 3 (Content & Semantics, 20% weight) issues from [IsAgentReady.com
 | 3.5 | Image alt text              | 15     | Important   |
 | 3.6 | Language attribute           | 5      | Nice-to-have|
 | 3.7 | Descriptive link texts      | 10     | Nice-to-have|
+| 3.8 | Question-based headings     | 10     | Important   |
 
-Total: 100 points. Category weight: 20% of overall score.
+Total: 110 points. Category weight: 20% of overall score.
 
 ---
 
@@ -61,36 +62,7 @@ Total: 100 points. Category weight: 20% of overall score.
    curl -s https://example.com | grep -E '<div id="(root|app|__next)"></div>'
    ```
 
-3. **Implement SSR** — see [references/ssr-strategies.md](references/ssr-strategies.md) for framework-specific guides:
-
-   **Next.js (App Router — default SSR):**
-   ```tsx
-   // app/page.tsx — Server Component by default
-   export default async function Page() {
-     const data = await fetch('https://api.example.com/data');
-     const items = await data.json();
-
-     return (
-       <main>
-         <h1>Products</h1>
-         {items.map(item => (
-           <article key={item.id}>
-             <h2>{item.name}</h2>
-             <p>{item.description}</p>
-           </article>
-         ))}
-       </main>
-     );
-   }
-   ```
-
-   **Next.js (Pages Router):**
-   ```tsx
-   export async function getServerSideProps() {
-     const data = await fetchData();
-     return { props: { data } };
-   }
-   ```
+3. **Implement SSR** — see [references/ssr-strategies.md](references/ssr-strategies.md) for framework-specific guides (Next.js, Nuxt, Astro, Remix, SvelteKit, Angular).
 
 4. **Add `<noscript>` fallback** (partial credit if full SSR isn't feasible):
    ```html
@@ -426,6 +398,53 @@ See [references/semantic-html-guide.md](references/semantic-html-guide.md) for t
 
 ---
 
+## Checkpoint 3.8: Question-Based Headings (10 pts)
+
+**What the scanner checks:** H2 headings that use question format — ending with `?` or starting with a question word (how, what, why, when, where, which, who, can, does, do, is, are, will, should, would, could, shall).
+
+**Scoring:**
+- 10 pts — 2+ question-format H2 headings, or (3 or fewer total H2s and at least 30% are questions)
+- 5 pts — At least 1 question-format H2
+- 0 pts — H2 headings exist but none are questions
+- Skip (0/0) — No H2 headings present
+
+**Why it matters:** 78.4% of ChatGPT citations come from pages with question-based H2 headings. Question headings match how users query AI systems, making your content more likely to be selected as a source for AI-generated answers.
+
+### Fix Workflow
+
+1. **Audit current H2 headings:**
+   ```bash
+   curl -s https://example.com | grep -oE '<h2[^>]*>.*?</h2>'
+   ```
+
+2. **Rewrite H2 headings as questions:**
+   ```html
+   <!-- WRONG -->
+   <h2>AI Agent Readiness</h2>
+   <h2>Content Discovery by AI Systems</h2>
+
+   <!-- CORRECT -->
+   <h2>What Is AI Agent Readiness?</h2>
+   <h2>How Do AI Systems Discover Your Content?</h2>
+   <h2>Why Does Structured Data Matter for AI?</h2>
+   ```
+
+3. **Recognized question starters:** how, what, why, when, where, which, who, can, does, do, is, are, will, should, would, could, shall — or any heading ending with `?`.
+
+4. **Not all headings need to be questions** — aim for 2+ question H2s on pages with 4+ H2s, or 30%+ on pages with 3 or fewer.
+
+5. **Pair with FAQPage schema** (checkpoint 2.7) for maximum AI citation potential — match H2 questions with JSON-LD Question/Answer pairs.
+
+6. **Verify:**
+   ```bash
+   curl -s https://example.com | grep -oE '<h2[^>]*>.*?</h2>' | grep -iE '(\?|>(How|What|Why|When|Where|Which|Who|Can|Does|Do|Is|Are|Will|Should|Would|Could|Shall) )'
+   ```
+
+**References:**
+- [MDN Heading Elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
+
+---
+
 ## Quick Wins Checklist
 
 For the fastest score improvement, fix in this order:
@@ -436,7 +455,8 @@ For the fastest score improvement, fix in this order:
 4. **Add ARIA attributes** — `aria-label` on duplicate navs, `aria-current="page"` (checkpoint 3.4)
 5. **Add alt text** to all images (checkpoint 3.5)
 6. **Fix generic link texts** — replace "click here" and "read more" (checkpoint 3.7)
-7. **Implement SSR** — largest effort but highest single-checkpoint score (checkpoint 3.1)
+7. **Rewrite H2s as questions** — match how users query AI systems (checkpoint 3.8)
+8. **Implement SSR** — largest effort but highest single-checkpoint score (checkpoint 3.1)
 
 ## Key Gotchas
 
@@ -447,6 +467,7 @@ Common mistakes that cause checkpoint failures:
 3. **SPA with empty shell** — `<div id="root"></div>` scores 0 without SSR
 4. **Missing alt vs empty alt** — `<img src="...">` (no alt) fails; `<img src="..." alt="">` (empty) is valid for decorative images
 5. **Generic link text** — "Click here" and "Read more" provide no context for AI agents
+6. **Statement headings instead of questions** — "AI Agent Readiness" scores 0; "What Is AI Agent Readiness?" scores points
 
 > See [references/gotchas.md](references/gotchas.md) for detailed correct vs incorrect examples of each.
 

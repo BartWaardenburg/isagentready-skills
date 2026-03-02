@@ -1,6 +1,6 @@
 ---
 name: structured-data
-description: Fixes structured data issues — adds and validates JSON-LD markup with Schema.org types including Organization, WebSite, Product, Article, FAQPage, BreadcrumbList, and entity linking so AI search engines can understand and cite website content. Use when asked to "add JSON-LD", "fix structured data", "add schema markup", "improve structured data score", "add Organization schema", "add BreadcrumbList", "fix Schema.org", "add product markup", or any JSON-LD or Schema.org task.
+description: Fixes structured data issues — adds and validates JSON-LD markup with Schema.org types including Organization, WebSite, Product, Article, FAQPage, BreadcrumbList, entity linking, and author attribution so AI search engines can understand and cite website content. Use when asked to "add JSON-LD", "fix structured data", "add schema markup", "improve structured data score", "add Organization schema", "add BreadcrumbList", "fix Schema.org", "add product markup", "add FAQ schema", "add author markup", or any JSON-LD or Schema.org task.
 ---
 
 # Structured Data
@@ -11,8 +11,8 @@ Fixes Category 2 (AI Search Signals, 20% weight) issues from [IsAgentReady.com](
 
 - User asks to add or fix JSON-LD / structured data / schema markup
 - IsAgentReady scan shows low Category 2 (AI Search Signals) score
-- Specific checkpoint failures: 2.1 through 2.6
-- User wants Organization, WebSite, Product, Article, FAQ, or BreadcrumbList markup
+- Specific checkpoint failures: 2.1 through 2.8
+- User wants Organization, WebSite, Product, Article, FAQ, BreadcrumbList, or author markup
 - User asks to improve visibility in AI search (Perplexity, ChatGPT, AI Overviews)
 
 ## When NOT to Use
@@ -33,8 +33,10 @@ Fixes Category 2 (AI Search Signals, 20% weight) issues from [IsAgentReady.com](
 | 2.4 | Entity linking (@id)          | 10     | Entities with @id + cross-references between them            |
 | 2.5 | BreadcrumbList markup         | 10     | Valid BreadcrumbList with position, name, item per element    |
 | 2.6 | Schema validation             | 10     | No duplicate @type, no missing/empty required fields         |
+| 2.7 | FAQPage schema                | 10     | FAQPage JSON-LD with valid Question + acceptedAnswer items   |
+| 2.8 | Author attribution            | 10     | JSON-LD author with Person/Organization, meta author, or rel |
 
-**Total: 85 points. Partial credit available for 2.2, 2.3, 2.4, 2.5, 2.6.**
+**Total: 105 points. Partial credit available for 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8.**
 
 ---
 
@@ -366,6 +368,94 @@ See [references/gotchas.md](references/gotchas.md) for common validation pitfall
 
 ---
 
+## Checkpoint 2.7: FAQPage Schema (10 pts)
+
+### What the scanner checks
+JSON-LD with `@type: FAQPage` and `mainEntity` array containing `Question` items with valid `acceptedAnswer`.
+
+### Scoring
+- Full (10 pts): Valid Question items with `acceptedAnswer` of type `Answer`
+- Partial (5 pts): FAQPage present but missing/invalid Question or acceptedAnswer structure
+- Fail (0 pts): No FAQPage schema
+
+### Why it matters
+Sites with FAQPage schema are 8x more likely to be cited by ChatGPT. FAQ structure maps directly to question-answer patterns AI models use.
+
+### Fix workflow
+
+1. **Add FAQPage JSON-LD** — each Question needs `name` and `acceptedAnswer` with `@type: Answer`:
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is AI agent readiness?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "AI agent readiness measures how well your website can be discovered and understood by AI systems."
+      }
+    }
+  ]
+}
+```
+
+2. **Common mistakes** (cause partial 5 pts): Question without `acceptedAnswer`, acceptedAnswer missing `@type: Answer`, empty `mainEntity` array.
+
+3. **Validate** with [Google Rich Results Test](https://search.google.com/test/rich-results). Full template: [references/schema-types.md](references/schema-types.md).
+
+---
+
+## Checkpoint 2.8: Author Attribution (10 pts)
+
+### What the scanner checks
+Author signals in JSON-LD, meta tags, or link elements.
+
+### Scoring
+- Full (10 pts): JSON-LD `author` with `@type` Person/Organization and `name`
+- Partial (7 pts): `<meta name="author" content="...">`
+- Partial (5 pts): `<link rel="author">` or `<a rel="author">`
+- Fail (0 pts): No author signals
+
+### Why it matters
+96% of Google AI Overview sources show E-E-A-T signals. Claude and ChatGPT prefer content with clear author attribution.
+
+### Fix workflow
+
+1. **Add JSON-LD author** (best — 10 pts):
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Your Article Title",
+  "author": {
+    "@type": "Person",
+    "name": "Jane Smith",
+    "url": "https://example.com/authors/jane-smith"
+  }
+}
+```
+   For company content, use `"@type": "Organization"` instead of `"Person"`.
+
+2. **Meta author tag** as fallback (7 pts):
+   ```html
+   <meta name="author" content="Jane Smith">
+   ```
+
+3. **Rel author link** as minimum (5 pts):
+   ```html
+   <link rel="author" href="https://example.com/authors/jane-smith">
+   ```
+
+4. **Verify:**
+   ```bash
+   curl -s https://example.com/ | grep -iE '"author"|name="author"|rel="author"'
+   ```
+
+---
+
 ## Quick Wins: Maximum Score Path
 
 For a site with no structured data, add these in order for the fastest score improvement:
@@ -375,50 +465,20 @@ For a site with no structured data, add these in order for the fastest score imp
 3. **Wrap in @graph with @id** and cross-references (solves 2.4 = 10 pts)
 4. **Add BreadcrumbList** on non-homepage pages (solves 2.5 = 10 pts)
 5. **Validate** — fix any duplicate types or empty fields (solves 2.6 = 10 pts)
+6. **Add FAQPage schema** for pages with Q&A content (solves 2.7 = 10 pts)
+7. **Add author attribution** in JSON-LD (solves 2.8 = 10 pts)
 
-**Combined @graph example** that covers checkpoints 2.1-2.4 + 2.6:
-
-```html
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": "https://example.com/#organization",
-      "name": "Your Company",
-      "url": "https://example.com",
-      "logo": "https://example.com/logo.png"
-    },
-    {
-      "@type": "WebSite",
-      "@id": "https://example.com/#website",
-      "name": "Your Company",
-      "url": "https://example.com",
-      "publisher": { "@id": "https://example.com/#organization" }
-    },
-    {
-      "@type": "SoftwareApplication",
-      "@id": "https://example.com/#app",
-      "name": "Your App",
-      "operatingSystem": "Web",
-      "applicationCategory": "BusinessApplication",
-      "author": { "@id": "https://example.com/#organization" }
-    }
-  ]
-}
-</script>
-```
+**Combined @graph example** covering 2.1-2.4 + 2.6 + 2.8 — see [references/json-ld-patterns.md](references/json-ld-patterns.md) for the full template with Organization, WebSite, content type, @id cross-references, and author.
 
 ## Key Gotchas
-
-Common mistakes that cause checkpoint failures:
 
 1. **Missing @context** — JSON without `"@context": "https://schema.org"` is not recognized
 2. **Trailing commas in JSON** — JSON-LD must be valid JSON; trailing commas break parsing
 3. **Duplicate @type in same @graph** — Two Organization entities trigger validation warnings
 4. **Empty required fields** — `"name": ""` counts as missing
 5. **Wrong @type casing** — `"organization"` or `"ORGANIZATION"` won't match; use PascalCase `"Organization"`
+6. **FAQPage with empty mainEntity** — `"mainEntity": []` fails; include at least one Question with acceptedAnswer
+7. **Author without @type** — `"author": "Jane Smith"` (string) fails; use `"author": { "@type": "Person", "name": "Jane Smith" }`
 
 > See [references/gotchas.md](references/gotchas.md) for detailed correct vs incorrect examples of each.
 

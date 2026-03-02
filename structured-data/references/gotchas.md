@@ -456,3 +456,110 @@ Structured data formats should not conflict. If you have microdata in HTML attri
 ```
 
 **Rule:** Pick one structured data format and use it consistently. JSON-LD is recommended by Google and is the only format checked by IsAgentReady.com.
+
+---
+
+## 12. FAQPage without proper Question/Answer structure
+
+Adding FAQPage but with incomplete or missing Question items.
+
+### WRONG — Questions without acceptedAnswer
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does your product do?"
+    }
+  ]
+}
+```
+
+### WRONG — acceptedAnswer missing @type
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does your product do?",
+      "acceptedAnswer": {
+        "text": "It helps with automation."
+      }
+    }
+  ]
+}
+```
+
+### CORRECT — Full structure
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does your product do?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It helps with automation."
+      }
+    }
+  ]
+}
+```
+
+**Rule:** Every Question in mainEntity must have an `acceptedAnswer` with `@type: Answer` and a non-empty `text` property. Missing any of these gives partial credit (5/10 pts).
+
+---
+
+## 13. Author as a plain string instead of typed object
+
+Passing the author name as a string instead of a structured Person or Organization object.
+
+### WRONG — String author
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "My Article",
+  "author": "Jane Smith"
+}
+```
+
+### WRONG — Object without @type
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "My Article",
+  "author": {
+    "name": "Jane Smith"
+  }
+}
+```
+
+### CORRECT — Typed Person object
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "My Article",
+  "author": {
+    "@type": "Person",
+    "name": "Jane Smith",
+    "url": "https://example.com/authors/jane-smith"
+  }
+}
+```
+
+**Rule:** The `author` property must be an object with `@type` of `Person` or `Organization` and a non-empty `name` property. A plain string or an object without `@type` will not score full points.

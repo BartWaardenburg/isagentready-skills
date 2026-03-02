@@ -353,3 +353,37 @@ Disallow: /
 Blocks the entire site for GPTBot.
 
 **Tip:** Use explicit `Allow: /` instead of `Disallow:` (empty) to make intent clear.
+
+---
+
+## 13. Last-Modified Header Without JSON-LD Dates
+
+Relying solely on the `Last-Modified` HTTP header for freshness only scores 5/10 points. AI systems prefer structured date data.
+
+**WRONG — Only server header:**
+```
+HTTP/2 200
+Last-Modified: Fri, 01 Mar 2024 14:30:00 GMT
+```
+This scores partial credit (5 pts) because AI systems cannot always access HTTP headers when processing cached content.
+
+**CORRECT — JSON-LD dates (full credit):**
+```html
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Your Article",
+  "datePublished": "2024-01-15T09:00:00Z",
+  "dateModified": "2024-03-01T14:30:00Z"
+}
+</script>
+```
+
+**Also full credit — Open Graph meta tags:**
+```html
+<meta property="article:published_time" content="2024-01-15T09:00:00Z">
+<meta property="article:modified_time" content="2024-03-01T14:30:00Z">
+```
+
+**Rule:** Always include `dateModified` in JSON-LD or `article:modified_time` in Open Graph tags. Add `Last-Modified` header as a supplement, not a replacement.

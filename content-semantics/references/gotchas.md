@@ -456,3 +456,32 @@ Wrapping semantic elements in unnecessary `<div>` containers for styling, which 
 ```
 
 **Note:** `<header>` only has the implicit `banner` role when it's a direct child of `<body>`. Nesting it inside a `<div>` can change its semantic meaning in some assistive technologies.
+
+---
+
+## 12. Statement Headings Instead of Questions
+
+H2 headings written as statements instead of questions miss the 78.4% citation advantage from ChatGPT.
+
+**WRONG:**
+```html
+<h2>AI Agent Readiness Overview</h2>
+<h2>Benefits of Structured Data</h2>
+<h2>Getting Started Guide</h2>
+```
+All statement-format headings. Score: 0/10 for checkpoint 3.8.
+
+**CORRECT:**
+```html
+<h2>What Is AI Agent Readiness?</h2>
+<h2>Why Does Structured Data Matter?</h2>
+<h2>How Do You Get Started?</h2>
+```
+Question-format headings that match how users query AI systems.
+
+**Also valid — ending with a question mark:**
+```html
+<h2>Ready for AI Agents?</h2>
+```
+
+**Rule:** Aim for at least 2 question-format H2 headings on pages with 4+ H2s, or at least 30% on pages with 3 or fewer. Question words: how, what, why, when, where, which, who, can, does, do, is, are, will, should, would, could, shall — or any heading ending with `?`.
