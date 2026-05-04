@@ -39,9 +39,27 @@ jobs:
               echo "  ✗ Missing 'description' in frontmatter of $f"
               exit 1
             fi
+            skill_dir=$(basename "$(dirname "$f")")
+            skill_name=$(echo "$frontmatter" | awk '/^name:/{print $2; exit}')
+            if [ "$skill_name" != "$skill_dir" ]; then
+              echo "  ✗ $f name '$skill_name' does not match directory '$skill_dir'"
+              exit 1
+            fi
+            if ! echo "$skill_name" | grep -qE '^[a-z][a-z0-9-]*$'; then
+              echo "  ✗ $f name '$skill_name' must be lowercase letters, numbers, and hyphens"
+              exit 1
+            fi
             echo "  ✓ $f"
           done
           echo "All SKILL.md frontmatter valid."
+
+      - name: Validate skills.sh discovery
+        run: |
+          mkdir -p "$RUNNER_TEMP/skills-home" "$RUNNER_TEMP/skills-config" "$RUNNER_TEMP/skills-cache"
+          HOME="$RUNNER_TEMP/skills-home" \
+            XDG_CONFIG_HOME="$RUNNER_TEMP/skills-config" \
+            XDG_CACHE_HOME="$RUNNER_TEMP/skills-cache" \
+            npx -y skills@1.5.3 add . --list
 
       - name: Check SKILL.md line count
         run: |
@@ -72,10 +90,16 @@ jobs:
           echo "Checking version sync..."
           plugin_version=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json'))['version'])")
           marketplace_version=$(python3 -c "import json; print(json.load(open('.claude-plugin/marketplace.json'))['version'])")
+          marketplace_plugin_version=$(python3 -c "import json; print(json.load(open('.claude-plugin/marketplace.json'))['plugins'][0]['version'])")
           echo "  plugin.json:      $plugin_version"
           echo "  marketplace.json: $marketplace_version"
+          echo "  marketplace plugin: $marketplace_plugin_version"
           if [ "$plugin_version" != "$marketplace_version" ]; then
             echo "  ✗ Version mismatch: plugin.json ($plugin_version) != marketplace.json ($marketplace_version)"
+            exit 1
+          fi
+          if [ "$plugin_version" != "$marketplace_plugin_version" ]; then
+            echo "  ✗ Version mismatch: plugin.json ($plugin_version) != marketplace plugin ($marketplace_plugin_version)"
             exit 1
           fi
           echo "  ✓ Versions in sync."

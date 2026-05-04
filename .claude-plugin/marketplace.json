@@ -12,6 +12,28 @@
       "name": "isagentready",
       "source": "./",
       "description": "AI agent readiness skills for content discovery, structured data, semantics, agent protocols, and security headers",
+      "version": "1.0.0",
+      "author": {
+        "name": "Bart Waardenburg",
+        "url": "https://github.com/bartwaardenburg"
+      },
+      "homepage": "https://github.com/bartwaardenburg/isagentready-skills",
+      "repository": "https://github.com/bartwaardenburg/isagentready-skills",
+      "license": "MIT",
+      "keywords": [
+        "ai-readiness",
+        "seo",
+        "robots-txt",
+        "structured-data",
+        "json-ld",
+        "semantic-html",
+        "agent-protocols",
+        "security-headers",
+        "webmcp",
+        "a2a",
+        "mcp",
+        "isagentready"
+      ],
       "category": "development"
     }
   ]

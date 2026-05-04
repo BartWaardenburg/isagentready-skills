@@ -49,6 +49,7 @@ npx skills add bartwaardenburg/isagentready-skills
 
 ```bash
 /plugin marketplace add bartwaardenburg/isagentready-skills
+/plugin install isagentready@isagentready-skills
 ```
 
 ### Cursor
