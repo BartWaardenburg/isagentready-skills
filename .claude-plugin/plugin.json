@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "isagentready",
   "version": "1.0.0",
   "description": "AI agent readiness skills — fix website issues identified by IsAgentReady.com across content discovery, structured data, semantics, agent protocols, and security",
@@ -7,11 +8,15 @@
     "url": "https://github.com/bartwaardenburg"
   },
   "homepage": "https://github.com/bartwaardenburg/isagentready-skills",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/bartwaardenburg/isagentready-skills.git"
-  },
+  "repository": "https://github.com/bartwaardenburg/isagentready-skills",
   "license": "MIT",
+  "skills": [
+    "./ai-content-discovery",
+    "./structured-data",
+    "./content-semantics",
+    "./agent-protocols",
+    "./security-trust"
+  ],
   "keywords": [
     "ai-readiness",
     "seo",
