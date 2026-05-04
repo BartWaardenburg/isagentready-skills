@@ -21,7 +21,7 @@ structured-data/            # Category 2: Structured Data (20%)
     json-ld-patterns.md     # @graph, entity linking, SearchAction, combining types
     gotchas.md              # 11 pitfalls with correct vs incorrect examples
 content-semantics/          # Category 3: Content & Semantics (20%)
-  SKILL.md                  # 8 checkpoints: SSR, headings, semantic HTML, ARIA, alt text, lang, link text, question headings
+  SKILL.md                  # 14 checkpoints: SSR, headings, semantic HTML, ARIA, alt text, lang, link text, question headings, form labels, autocomplete, keyboard nav, document title, button names, aria-hidden
   references/
     semantic-html-guide.md  # Semantic elements, ARIA mapping, heading patterns
     ssr-strategies.md       # Framework-specific SSR guides (Next.js, Nuxt, Astro, Remix, SvelteKit, Angular)

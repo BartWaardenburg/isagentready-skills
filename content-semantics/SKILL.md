@@ -1,6 +1,6 @@
 ---
 name: content-semantics
-description: Fixes content and semantic HTML issues — implements server-side rendering, heading hierarchy, semantic HTML elements, ARIA landmarks, image alt text, language attributes, descriptive link texts, and question-based headings so AI agents can navigate and understand page content via the accessibility tree. Use when asked to "fix semantic HTML", "add SSR", "fix heading hierarchy", "add alt text", "improve semantics score", "fix accessibility for AI", "add ARIA landmarks", "fix language attribute", "add question headings", or any semantic HTML task.
+description: Fixes content and semantic HTML issues — implements server-side rendering, heading hierarchy, semantic HTML elements, ARIA landmarks, image alt text, language attributes, descriptive link texts, question-based headings, form labels, autocomplete hints, keyboard navigability, document titles, button accessible names, and aria-hidden misuse so AI agents can navigate and understand page content via the accessibility tree. Use when asked to "fix semantic HTML", "add SSR", "fix heading hierarchy", "add alt text", "improve semantics score", "fix accessibility for AI", "add ARIA landmarks", "fix language attribute", "add question headings", "fix form labels", "add autocomplete", "fix keyboard navigation", "fix document title", "fix button names", "fix aria-hidden", or any semantic HTML task.
 ---
 
 # Content & Semantics
@@ -10,7 +10,7 @@ Fixes Category 3 (Content & Semantics, 20% weight) issues from [IsAgentReady.com
 ## When to Use
 
 - IsAgentReady scan shows issues in **Content & Semantics** category
-- Site has low scores on checkpoints 3.1–3.8
+- Site has low scores on checkpoints 3.1–3.14
 - User asks to fix semantic HTML, headings, SSR, alt text, ARIA, or link texts
 - Building a new site and want AI agent readiness from the start
 
@@ -32,8 +32,14 @@ Fixes Category 3 (Content & Semantics, 20% weight) issues from [IsAgentReady.com
 | 3.6 | Language attribute           | 5      | Nice-to-have|
 | 3.7 | Descriptive link texts      | 10     | Nice-to-have|
 | 3.8 | Question-based headings     | 10     | Important   |
+| 3.9 | Form label coverage         | 10     | Important   |
+| 3.10| Form field autocomplete     | 10     | Important   |
+| 3.11| Keyboard navigability       | 5      | Important   |
+| 3.12| Document title              | 10     | Important   |
+| 3.13| Button accessible names     | 5      | Important   |
+| 3.14| aria-hidden misuse          | 10     | Important   |
 
-Total: 110 points. Category weight: 20% of overall score.
+Total: 160 points. Category weight: 20% of overall score.
 
 ---
 
@@ -456,7 +462,13 @@ For the fastest score improvement, fix in this order:
 5. **Add alt text** to all images (checkpoint 3.5)
 6. **Fix generic link texts** — replace "click here" and "read more" (checkpoint 3.7)
 7. **Rewrite H2s as questions** — match how users query AI systems (checkpoint 3.8)
-8. **Implement SSR** — largest effort but highest single-checkpoint score (checkpoint 3.1)
+8. **Add form labels** — associate every input with a label (checkpoint 3.9)
+9. **Add autocomplete** — help agents fill forms correctly (checkpoint 3.10)
+10. **Fix document title** — descriptive, 10-70 chars (checkpoint 3.12)
+11. **Fix aria-hidden misuse** — never on focusable elements (checkpoint 3.14)
+12. **Add button names** — every button needs an accessible name (checkpoint 3.13)
+13. **Fix keyboard navigation** — no positive tabindex, proper roles on clickable divs (checkpoint 3.11)
+14. **Implement SSR** — largest effort but highest single-checkpoint score (checkpoint 3.1)
 
 ## Key Gotchas
 
