@@ -1,6 +1,6 @@
 {
   "description": "Snapshot of GET /api/v2/checkpoints?include_retired=true. The definitions come from priv/methodology/checkpoints in the isagentready.com repository. The definitions 1.15 and 4.25 to 4.30 come from section 5 of the alignment plan, because the scanner does not have them yet. The aggregate field is null because a snapshot has no benchmark data. Replace this file with the live response when the endpoint is deployed.",
-  "methodology_version": "2026-11-02",
+  "methodology_version": "2026-10-22",
   "spec_alignment": {
     "agentready_spec": "2.0",
     "url": "https://www.agentready.org/",
@@ -77,7 +77,7 @@
         "replaced_by": null
       },
       "expected": "HTTP 200 text/plain document with at least one User-agent group",
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.robots-txt",
       "aggregate": null
     },
@@ -155,7 +155,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.ai-crawler-directives",
       "aggregate": null
     },
@@ -221,7 +221,7 @@
         "replaced_by": null
       },
       "expected": "Valid XML sitemap that robots.txt references",
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.xml-sitemap",
       "aggregate": null
     },
@@ -293,7 +293,7 @@
         "replaced_by": null
       },
       "expected": "Markdown file with an H1 and links to pages on the same host",
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.llms-txt",
       "aggregate": null
     },
@@ -358,7 +358,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.meta-robots",
       "aggregate": null
     },
@@ -429,7 +429,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.content-freshness",
       "aggregate": null
     },
@@ -505,7 +505,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.markdown-negotiation",
       "aggregate": null
     },
@@ -577,7 +577,7 @@
         "replaced_by": null
       },
       "expected": "HTTP 2xx for the home page",
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.bot-accessibility",
       "aggregate": null
     },
@@ -660,7 +660,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.link-headers",
       "aggregate": null
     },
@@ -730,7 +730,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.content-usage",
       "aggregate": null
     },
@@ -788,7 +788,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agents-md",
       "aggregate": null
     },
@@ -860,7 +860,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agent-content-contracts",
       "aggregate": null
     },
@@ -932,7 +932,7 @@
         "replaced_by": null
       },
       "expected": "HTTP 404 or 410 for a path that does not exist",
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.soft-404",
       "aggregate": null
     },
@@ -995,7 +995,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.dns-aid",
       "aggregate": null
     },
@@ -1027,7 +1027,7 @@
       "lifecycle": {
         "retired": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.pricing-page",
       "aggregate": null
     },
@@ -1097,7 +1097,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.json-ld",
       "aggregate": null
     },
@@ -1167,7 +1167,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.organization-schema",
       "aggregate": null
     },
@@ -1239,7 +1239,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.high-value-schema",
       "aggregate": null
     },
@@ -1309,7 +1309,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.entity-linking",
       "aggregate": null
     },
@@ -1361,7 +1361,7 @@
         "retired": "2026-09-02",
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.breadcrumb-list",
       "aggregate": null
     },
@@ -1437,7 +1437,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.schema-validation",
       "aggregate": null
     },
@@ -1509,7 +1509,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.faq-schema",
       "aggregate": null
     },
@@ -1581,7 +1581,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.author-attribution",
       "aggregate": null
     },
@@ -1652,7 +1652,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.trust-pages",
       "aggregate": null
     },
@@ -1725,7 +1725,7 @@
         "replaced_by": null
       },
       "expected": "Meaningful text content in the initial HTML response",
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.server-rendered-content",
       "aggregate": null
     },
@@ -1792,7 +1792,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.heading-hierarchy",
       "aggregate": null
     },
@@ -1857,7 +1857,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.semantic-html",
       "aggregate": null
     },
@@ -1922,7 +1922,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.landmarks-aria",
       "aggregate": null
     },
@@ -1985,7 +1985,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.image-alt",
       "aggregate": null
     },
@@ -2042,7 +2042,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.lang-attribute",
       "aggregate": null
     },
@@ -2107,7 +2107,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.link-text",
       "aggregate": null
     },
@@ -2150,7 +2150,7 @@
         "retired": "2026-09-02",
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.question-headings",
       "aggregate": null
     },
@@ -2215,7 +2215,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.form-labels",
       "aggregate": null
     },
@@ -2274,7 +2274,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.form-autocomplete",
       "aggregate": null
     },
@@ -2337,7 +2337,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.keyboard-navigation",
       "aggregate": null
     },
@@ -2396,7 +2396,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.document-title",
       "aggregate": null
     },
@@ -2453,7 +2453,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.button-names",
       "aggregate": null
     },
@@ -2516,7 +2516,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.aria-hidden",
       "aggregate": null
     },
@@ -2584,7 +2584,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.widget-state",
       "aggregate": null
     },
@@ -2627,7 +2627,7 @@
         "retired": "2026-09-02",
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.page-token-budget",
       "aggregate": null
     },
@@ -2692,7 +2692,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.webmcp-declarative",
       "aggregate": null
     },
@@ -2735,7 +2735,7 @@
         "retired": "2026-08-27",
         "replaced_by": "ia.webmcp-declarative"
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.webmcp-manifest",
       "aggregate": null
     },
@@ -2796,7 +2796,7 @@
         "replaced_by": null
       },
       "expected": "JSON document with name, description, url, capabilities",
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.a2a-agent-card",
       "aggregate": null
     },
@@ -2867,7 +2867,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.mcp-discovery",
       "aggregate": null
     },
@@ -2939,7 +2939,7 @@
         "replaced_by": null
       },
       "expected": "OpenAPI 3.x document at a well-known location",
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.openapi",
       "aggregate": null
     },
@@ -2996,7 +2996,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agents-json",
       "aggregate": null
     },
@@ -3061,7 +3061,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.webmcp-form-quality",
       "aggregate": null
     },
@@ -3104,7 +3104,7 @@
         "retired": "2026-08-27",
         "replaced_by": "ia.webmcp-form-quality"
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.webmcp-manifest-schema",
       "aggregate": null
     },
@@ -3171,7 +3171,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.interactive-surface-coverage",
       "aggregate": null
     },
@@ -3237,7 +3237,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.api-catalog",
       "aggregate": null
     },
@@ -3302,7 +3302,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agent-skills-index",
       "aggregate": null
     },
@@ -3362,7 +3362,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.x402",
       "aggregate": null
     },
@@ -3416,7 +3416,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.mpp",
       "aggregate": null
     },
@@ -3477,7 +3477,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.ucp",
       "aggregate": null
     },
@@ -3538,7 +3538,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.acp-manifest",
       "aggregate": null
     },
@@ -3597,7 +3597,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.ap2",
       "aggregate": null
     },
@@ -3659,7 +3659,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.openapi-quality",
       "aggregate": null
     },
@@ -3723,7 +3723,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.mcp-server-card",
       "aggregate": null
     },
@@ -3783,7 +3783,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.openapi-live",
       "aggregate": null
     },
@@ -3843,7 +3843,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.mcp-live",
       "aggregate": null
     },
@@ -3903,7 +3903,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.ai-catalog",
       "aggregate": null
     },
@@ -3957,7 +3957,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.api-errors",
       "aggregate": null
     },
@@ -4029,7 +4029,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.api-rate-limits",
       "aggregate": null
     },
@@ -4092,7 +4092,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.developer-docs-link",
       "aggregate": null
     },
@@ -4124,7 +4124,7 @@
       "lifecycle": {
         "retired": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.mcp-apps",
       "aggregate": null
     },
@@ -4156,7 +4156,7 @@
       "lifecycle": {
         "retired": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.nlweb-ask",
       "aggregate": null
     },
@@ -4188,7 +4188,7 @@
       "lifecycle": {
         "retired": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agent-checkout",
       "aggregate": null
     },
@@ -4220,7 +4220,7 @@
       "lifecycle": {
         "retired": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.sdk-cli",
       "aggregate": null
     },
@@ -4252,7 +4252,7 @@
       "lifecycle": {
         "retired": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agent-task-access",
       "aggregate": null
     },
@@ -4286,7 +4286,7 @@
       "lifecycle": {
         "retired": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.docs-answer",
       "aggregate": null
     },
@@ -4349,7 +4349,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.https",
       "aggregate": null
     },
@@ -4406,7 +4406,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.hsts",
       "aggregate": null
     },
@@ -4469,7 +4469,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.csp",
       "aggregate": null
     },
@@ -4521,7 +4521,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.x-content-type-options",
       "aggregate": null
     },
@@ -4578,7 +4578,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.frame-protection",
       "aggregate": null
     },
@@ -4638,7 +4638,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.cors",
       "aggregate": null
     },
@@ -4690,7 +4690,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.referrer-policy",
       "aggregate": null
     },
@@ -4759,7 +4759,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.tool-definition-security",
       "aggregate": null
     },
@@ -4817,7 +4817,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.auto-submit-risk",
       "aggregate": null
     },
@@ -4876,7 +4876,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.oauth-discovery",
       "aggregate": null
     },
@@ -4936,7 +4936,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.oauth-protected-resource",
       "aggregate": null
     },
@@ -5012,7 +5012,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agent-auth-readiness",
       "aggregate": null
     },
@@ -5070,7 +5070,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.common-crawl-presence",
       "aggregate": null
     },
@@ -5136,7 +5136,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.training-crawler-blocking",
       "aggregate": null
     },
@@ -5194,7 +5194,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.tdmrep",
       "aggregate": null
     },
@@ -5252,7 +5252,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.ai-txt",
       "aggregate": null
     },
@@ -5310,7 +5310,7 @@
         "retired": null,
         "replaced_by": null
       },
-      "methodology_version": "2026-11-02",
+      "methodology_version": "2026-10-22",
       "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.web-bot-auth",
       "aggregate": null
     }

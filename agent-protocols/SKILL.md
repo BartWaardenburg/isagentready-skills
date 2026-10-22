@@ -7,8 +7,8 @@ description: Implements AI agent interaction protocols. Adds WebMCP tool annotat
 
 Fixes the Agent Protocols category of [IsAgentReady.com](https://isagentready.com). These checkpoints test if agents can discover and use the functions of the site through standard protocols.
 
-- Methodology version: `2026-11-02`. Methodology: https://isagentready.com/en/methodology
-- Scoring (weights and points): https://isagentready.com/api/v2/methodology/2026-11-02/scoring
+- Methodology version: `2026-10-22`. Methodology: https://isagentready.com/en/methodology
+- Scoring (weights and points): https://isagentready.com/api/v2/methodology/2026-10-22/scoring
 - Full checkpoint data (stage, evidence type, verify command, rescan command): [references/checkpoints.md](references/checkpoints.md)
 
 Many checkpoints apply only to a detected surface (API, MCP, commerce). A content site without an API skips them. WebMCP results are experimental evidence and do not change the headline score.

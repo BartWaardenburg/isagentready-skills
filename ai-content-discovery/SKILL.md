@@ -7,8 +7,8 @@ description: Fixes AI content discovery issues. Creates and corrects robots.txt,
 
 Fixes the AI Content Discovery category of [IsAgentReady.com](https://isagentready.com). These checkpoints test if AI systems can find, crawl and read the site.
 
-- Methodology version: `2026-11-02`. Methodology: https://isagentready.com/en/methodology
-- Scoring (weights and points): https://isagentready.com/api/v2/methodology/2026-11-02/scoring
+- Methodology version: `2026-10-22`. Methodology: https://isagentready.com/en/methodology
+- Scoring (weights and points): https://isagentready.com/api/v2/methodology/2026-10-22/scoring
 - Full checkpoint data (stage, evidence type, verify command, rescan command): [references/checkpoints.md](references/checkpoints.md)
 
 ## When to Use

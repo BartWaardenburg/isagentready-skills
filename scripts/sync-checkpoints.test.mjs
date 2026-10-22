@@ -17,7 +17,7 @@ import {
   validateDefinitions,
 } from "./sync-checkpoints.mjs";
 
-const VERSION = "2026-11-02";
+const VERSION = "2026-10-22";
 
 const definition = (overrides) => ({
   id: "ia.robots-txt",

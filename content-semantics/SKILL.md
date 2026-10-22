@@ -7,8 +7,8 @@ description: Fixes content and semantic HTML issues. Adds server-side rendering,
 
 Fixes the Content & Semantics category of [IsAgentReady.com](https://isagentready.com). Agents read the server HTML, the DOM and the accessibility tree. Good semantic HTML gives reliable signals in each of these views.
 
-- Methodology version: `2026-11-02`. Methodology: https://isagentready.com/en/methodology
-- Scoring (weights and points): https://isagentready.com/api/v2/methodology/2026-11-02/scoring
+- Methodology version: `2026-10-22`. Methodology: https://isagentready.com/en/methodology
+- Scoring (weights and points): https://isagentready.com/api/v2/methodology/2026-10-22/scoring
 - Full checkpoint data (stage, evidence type, verify command, rescan command): [references/checkpoints.md](references/checkpoints.md)
 
 ## When to Use
