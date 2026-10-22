@@ -1547,7 +1547,7 @@
       "strength": "MAY",
       "evidence_type": "recommendation",
       "fix": {
-        "summary": "Return HTTP 402 with an x402 payment challenge on paid API endpoints.",
+        "summary": "Return HTTP 402 with an x402 v2 Payment-Required header on paid API endpoints.",
         "steps": [],
         "skill": {
           "name": "agent-protocols",
@@ -1555,8 +1555,8 @@
         }
       },
       "verify": {
-        "command": "curl -s -o /dev/null -w '%{http_code}' https://{domain}/api",
-        "expect": "402 on a paid endpoint",
+        "command": "curl -s -D - -o /dev/null https://{domain}/api | grep -iE '^(HTTP/|payment-required:)'",
+        "expect": "a 402 status line and a Payment-Required header on a paid endpoint",
         "rescan": "isagentready results {domain} --checkpoint ia.x402"
       },
       "lifecycle": {

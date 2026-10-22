@@ -42,7 +42,7 @@ const READ_ONLY_TOOLS = ["curl", "jq", "grep", "head", "tail", "tr", "wc", "sort
 const READ_METHODS = ["GET", "HEAD"];
 const BODY_FLAGS = /^--(data(-[a-z]+)?|json|form(-string)?|upload-file)(=|$)/;
 const BODY_SHORT_FLAGS = ["d", "F", "T"];
-const ARGUMENT_SHORT_FLAGS = "oOwAHeuxKbcmrEzYyCQ";
+const ARGUMENT_SHORT_FLAGS = "oOwAHeuxKbcmrEzYyCQD";
 const EXIT = Object.freeze({ pass: 0, fail: 1, error: 2 });
 
 const STABLE_ID = /^ia\.[a-z0-9]+(-[a-z0-9]+)*$/;
