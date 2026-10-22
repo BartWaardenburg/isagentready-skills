@@ -1,4 +1,4 @@
-# robots.txt & AI Crawler Directives — Complete Guide
+# robots.txt & AI Crawler Directives: Complete Guide
 
 ## What is robots.txt?
 
@@ -20,7 +20,7 @@ AI crawlers (GPTBot, ClaudeBot, etc.) check robots.txt before crawling, just lik
 
 ### HTTP Status
 - **200**: File is read and rules are applied
-- **404**: No restrictions — crawlers treat the site as fully open
+- **404**: No restrictions: crawlers treat the site as fully open
 - **5xx**: Crawlers may temporarily restrict crawling (cautious approach)
 
 ## Syntax Reference
@@ -86,8 +86,8 @@ These are the AI crawlers checked by the IsAgentReady scanner:
 | User-Agent        | Purpose                          | Documentation |
 |-------------------|----------------------------------|---------------|
 | ClaudeBot         | Training data for Claude models  | [Anthropic ClaudeBot](https://docs.anthropic.com/en/docs/about-claude/models#web-crawling) |
-| Claude-User       | Real-time browsing in Claude     | — |
-| Claude-SearchBot  | Claude search results            | — |
+| Claude-User       | Real-time browsing in Claude     | none |
+| Claude-SearchBot  | Claude search results            | none |
 
 ### Google
 
@@ -114,7 +114,7 @@ These are the AI crawlers checked by the IsAgentReady scanner:
 User-agent: *
 Allow: /
 
-# AI Crawlers — explicit Allow
+# AI Crawlers: explicit Allow
 User-agent: GPTBot
 Allow: /
 
@@ -295,7 +295,7 @@ app.get('/robots.txt', (req, res) => {
 
 ## External References
 
-- [RFC 9309 — Robots Exclusion Protocol](https://www.rfc-editor.org/rfc/rfc9309)
+- [RFC 9309: Robots Exclusion Protocol](https://www.rfc-editor.org/rfc/rfc9309)
 - [Google robots.txt specification](https://developers.google.com/search/docs/crawling-indexing/robots/intro)
 - [Google crawlers and user agents](https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers)
 - [OpenAI GPTBot documentation](https://platform.openai.com/docs/bots/gptbot)

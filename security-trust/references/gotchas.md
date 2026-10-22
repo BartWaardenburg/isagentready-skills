@@ -44,7 +44,7 @@ Missing `includeSubDomains` means subdomains (api.example.com, admin.example.com
 ```
 Strict-Transport-Security: max-age=31536000
 ```
-Score: **16/20** — loses 4 points.
+Result: partial credit, not full credit.
 
 ### CORRECT
 ```
@@ -65,32 +65,32 @@ A CSP that only contains `upgrade-insecure-requests` or `block-all-mixed-content
 ```
 Content-Security-Policy: upgrade-insecure-requests
 ```
-Score: **5/15** — trivial directive only.
+Score: **5/15**: trivial directive only.
 
 ```
 Content-Security-Policy: block-all-mixed-content
 ```
-Score: **5/15** — trivial directive only.
+Score: **5/15**: trivial directive only.
 
 ```
 Content-Security-Policy: upgrade-insecure-requests; block-all-mixed-content
 ```
-Score: **5/15** — still only trivial directives.
+Score: **5/15**: still only trivial directives.
 
 ### CORRECT
 ```
 Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'
 ```
-Score: **15/15** — meaningful directives that actually restrict script sources.
+Score: **15/15**: meaningful directives that actually restrict script sources.
 
 ### What Makes CSP "Meaningful"
 The scanner checks for directives that restrict resource loading:
-- `default-src` — yes, this counts
-- `script-src` — yes, this counts
-- `style-src` — yes, this counts
-- `img-src` — yes, this counts
-- `upgrade-insecure-requests` — no, this is trivial
-- `block-all-mixed-content` — no, this is trivial
+- `default-src`: yes, this counts
+- `script-src`: yes, this counts
+- `style-src`: yes, this counts
+- `img-src`: yes, this counts
+- `upgrade-insecure-requests`: no, this is trivial
+- `block-all-mixed-content`: no, this is trivial
 
 At least one non-trivial directive is required for full points.
 
@@ -106,7 +106,7 @@ X-Frame-Options: ALLOW-FROM https://trusted.example.com
 ```
 This is ignored by Chrome and Firefox. Your site is effectively unprotected. Score: **0/5**.
 
-### CORRECT — Option A: X-Frame-Options
+### CORRECT: Option A: X-Frame-Options
 ```
 X-Frame-Options: DENY
 ```
@@ -115,13 +115,13 @@ Or:
 X-Frame-Options: SAMEORIGIN
 ```
 
-### CORRECT — Option B: CSP frame-ancestors (supports specific origins)
+### CORRECT: Option B: CSP frame-ancestors (supports specific origins)
 ```
 Content-Security-Policy: frame-ancestors 'self' https://trusted.example.com
 ```
-This is the modern replacement for `ALLOW-FROM` — it actually works in all browsers.
+This is the modern replacement for `ALLOW-FROM`: it actually works in all browsers.
 
-### CORRECT — Option C: Both
+### CORRECT: Option C: Both
 ```
 X-Frame-Options: SAMEORIGIN
 Content-Security-Policy: frame-ancestors 'self' https://trusted.example.com
@@ -139,33 +139,33 @@ Using `Access-Control-Allow-Origin: *` is fine for public content but risky on e
 # On an API endpoint that reads cookies/tokens:
 Access-Control-Allow-Origin: *
 ```
-Score: **7/10** — works but suboptimal.
+Score: **7/10**: works but suboptimal.
 
 Even worse:
 ```
-# This is a spec violation — browsers will reject the response:
+# This is a spec violation: browsers will reject the response:
 Access-Control-Allow-Origin: *
 Access-Control-Allow-Credentials: true
 ```
 The CORS spec forbids wildcard origin with credentials. Browsers block the response entirely.
 
-### CORRECT — For public APIs
+### CORRECT: For public APIs
 ```
 # No Access-Control-Allow-Origin header at all
 # (browsers enforce Same-Origin Policy by default)
 ```
 Score: **10/10**.
 
-### CORRECT — For APIs that need cross-origin access
+### CORRECT: For APIs that need cross-origin access
 ```
 Access-Control-Allow-Origin: https://app.example.com
 Access-Control-Allow-Credentials: true
 ```
-Score: **10/10** — specific origin with credentials.
+Score: **10/10**: specific origin with credentials.
 
-### CORRECT — Dynamic origin matching
+### CORRECT: Dynamic origin matching
 ```nginx
-# Nginx — validate origin against allowlist
+# Nginx: validate origin against allowlist
 map $http_origin $cors_origin {
     default "";
     "https://app.example.com"   $http_origin;
@@ -177,7 +177,7 @@ add_header Access-Control-Allow-Origin $cors_origin always;
 
 ### Common Mistake: Reflecting Any Origin
 ```nginx
-# WRONG — reflects any origin, equivalent to wildcard but worse
+# WRONG: reflects any origin, equivalent to wildcard but worse
 add_header Access-Control-Allow-Origin $http_origin always;
 ```
 This reflects any origin including malicious ones. Always validate against an allowlist.
@@ -192,7 +192,7 @@ This reflects any origin including malicious ones. Always validate against an al
 ```
 Referrer-Policy: unsafe-url
 ```
-Score: **0/10** — explicitly flagged as unsafe.
+Score: **0/10**: explicitly flagged as unsafe.
 
 This leaks sensitive data:
 ```
@@ -211,20 +211,20 @@ Same scenario:
 ```
 # User visits: https://example.com/account?session=abc123
 # Clicks link to: https://external.com
-# External receives: Referer: https://example.com    (origin only — no path/query)
+# External receives: Referer: https://example.com    (origin only: no path/query)
 # Clicks link to: http://external.com
-# External receives: (nothing — blocked because HTTPS→HTTP)
+# External receives: (nothing: blocked because HTTPS→HTTP)
 ```
 
 ### All Safe Values
 Any of these score 10/10:
-- `no-referrer` — sends nothing ever
-- `no-referrer-when-downgrade` — full URL for HTTPS→HTTPS, nothing for HTTPS→HTTP
-- `origin` — always sends origin only
-- `origin-when-cross-origin` — full URL same-origin, origin only cross-origin
-- `same-origin` — full URL same-origin, nothing cross-origin
-- `strict-origin` — origin for HTTPS→HTTPS, nothing for HTTPS→HTTP
-- `strict-origin-when-cross-origin` — recommended default
+- `no-referrer`: sends nothing ever
+- `no-referrer-when-downgrade`: full URL for HTTPS→HTTPS, nothing for HTTPS→HTTP
+- `origin`: always sends origin only
+- `origin-when-cross-origin`: full URL same-origin, origin only cross-origin
+- `same-origin`: full URL same-origin, nothing cross-origin
+- `strict-origin`: origin for HTTPS→HTTPS, nothing for HTTPS→HTTP
+- `strict-origin-when-cross-origin`: recommended default
 
 ---
 
@@ -291,10 +291,10 @@ Before deploying, verify you haven't fallen into these traps:
 
 | Gotcha | How to Check |
 |--------|-------------|
-| HSTS max-age too short | `curl -sI ... \| grep -i strict-transport` — look for 31536000 |
-| HSTS missing includeSubDomains | Same as above — look for `includeSubDomains` |
-| CSP trivial only | `curl -sI ... \| grep -i content-security` — check for `default-src` or `script-src` |
-| X-Frame-Options ALLOW-FROM | `curl -sI ... \| grep -i x-frame` — should be DENY or SAMEORIGIN |
-| CORS wildcard | `curl -sI ... \| grep -i access-control` — no header is best |
-| unsafe-url Referrer-Policy | `curl -sI ... \| grep -i referrer` — should NOT be unsafe-url |
-| Nginx missing "always" | `curl -sI https://example.com/nonexistent-page \| grep -i strict` — check 404 has headers |
+| HSTS max-age too short | `curl -sI ... \| grep -i strict-transport`: look for 31536000 |
+| HSTS missing includeSubDomains | Same as above: look for `includeSubDomains` |
+| CSP trivial only | `curl -sI ... \| grep -i content-security`: check for `default-src` or `script-src` |
+| X-Frame-Options ALLOW-FROM | `curl -sI ... \| grep -i x-frame`: should be DENY or SAMEORIGIN |
+| CORS wildcard | `curl -sI -H 'Origin: https://agent.example' .../api \| grep -i access-control`: exact origin or `*` without credentials |
+| unsafe-url Referrer-Policy | `curl -sI ... \| grep -i referrer`: should NOT be unsafe-url |
+| Nginx missing "always" | `curl -sI https://example.com/nonexistent-page \| grep -i strict`: check 404 has headers |

@@ -1,490 +1,310 @@
 ---
 name: ai-content-discovery
-description: Fixes AI content discovery issues — creates and optimizes robots.txt, AI crawler directives, XML sitemaps, llms.txt, meta robots tags, and content freshness signals so AI systems can find, crawl, and understand website content. Use when asked to "fix robots.txt", "add llms.txt", "create a sitemap", "allow AI crawlers", "fix AI discoverability", "improve AI content discovery score", "make site crawlable by AI", "add dateModified", "fix content freshness", or any robots.txt, sitemap, or llms.txt task.
+description: Fixes AI content discovery issues. Creates and corrects robots.txt, AI crawler directives, XML sitemaps, llms.txt, Markdown content negotiation, Link headers, Content-Signal lines, AGENTS.md, agent content contracts, soft-404 handling, DNS-AID records and pricing pages so AI systems can find, crawl and read a website. Use when asked to "fix robots.txt", "add llms.txt", "create a sitemap", "allow AI crawlers", "serve markdown to agents", "add AGENTS.md", "fix soft 404", "improve AI content discovery score", or any robots.txt, sitemap or llms.txt task.
 ---
 
 # AI Content Discovery
 
-Fixes Category 1 (AI Content Discovery, 30% weight) issues from [IsAgentReady.com](https://isagentready.com). This category checks whether AI systems can find, crawl, and understand your website's content. It evaluates 7 checkpoints worth 100 points total.
+Fixes the AI Content Discovery category of [IsAgentReady.com](https://isagentready.com). These checkpoints test if AI systems can find, crawl and read the site.
+
+- Methodology version: `2026-10-22`. Methodology: https://isagentready.com/en/methodology
+- Scoring (weights and points): https://isagentready.com/api/v2/methodology/2026-10-22/scoring
+- Full checkpoint data (stage, evidence type, verify command, rescan command): [references/checkpoints.md](references/checkpoints.md)
 
 ## When to Use
 
-- Fixing robots.txt issues (missing, wrong content type, blocking bots)
-- Adding or updating AI crawler directives (GPTBot, ClaudeBot, etc.)
-- Creating or fixing XML sitemaps
-- Creating llms.txt or llms-full.txt files
-- Removing restrictive meta robots tags (noindex, noai)
-- Fixing WAF/CDN bot blocking issues
-- Adding content freshness signals (dateModified, article:modified_time)
-- Any task to "improve AI discoverability" or "make site crawlable by AI"
+- The scan shows failures in AI Content Discovery (legacy ids 1.x).
+- robots.txt is missing, returns HTML or blocks AI crawlers.
+- The site has no sitemap, no llms.txt or no AGENTS.md.
+- Agents must get Markdown, Link headers or Content-Signal preferences.
+- The user asks to "make the site crawlable by AI" or to "fix AI discoverability".
 
 ## When NOT to Use
 
-- Adding structured data / JSON-LD (use `structured-data` skill)
-- Fixing semantic HTML or heading hierarchy (use `content-semantics` skill)
-- Setting up agent protocols like WebMCP or A2A (use `agent-protocols` skill)
-- Configuring security headers like CSP or HSTS (use `security-trust` skill)
-
-## Checkpoints Overview
-
-| ID  | Checkpoint                  | Max Points | What It Tests                                                    |
-|-----|-----------------------------|------------|------------------------------------------------------------------|
-| 1.8 | HTTP bot accessibility      | 15         | Page returns HTTP 200-299 (not 401/403 from WAF)                |
-| 1.1 | robots.txt present          | 15         | /robots.txt returns 200 with text/plain Content-Type            |
-| 1.2 | AI crawler directives       | 15         | Allow/Disallow rules for 13 AI user-agents in robots.txt        |
-| 1.3 | XML Sitemap                 | 15         | Valid XML sitemap with `<urlset>` or `<sitemapindex>`           |
-| 1.4 | llms.txt                    | 15         | /llms.txt with markdown heading + URLs; bonus for /llms-full.txt|
-| 1.5 | Meta robots / X-Robots-Tag  | 15         | No restrictive directives (noindex, noai, noimageai)            |
-| 1.6 | Content freshness signals   | 10         | dateModified in JSON-LD, article:modified_time, or Last-Modified|
-
-## Checkpoint 1.8: HTTP Bot Accessibility (15 pts)
-
-**What passes:** HTTP status 200-299.
-**What fails:** HTTP 401 or 403 (WAF/CDN blocking bots).
-
-### Fix Workflow
-
-1. **Diagnose** — test with an AI crawler user-agent:
-   ```bash
-   curl -sI -A "Mozilla/5.0 (compatible; GPTBot/1.0)" https://example.com/
-   curl -sI -A "Mozilla/5.0 (compatible; ClaudeBot/1.0)" https://example.com/
-   ```
-
-2. **If blocked by Cloudflare** — create a WAF exception:
-   ```
-   # Dashboard -> Security -> WAF -> Custom Rules -> Create rule:
-   #   Field: User Agent | Operator: contains | Value: GPTBot
-   #   Action: Skip remaining rules
-   #
-   # Repeat for ClaudeBot, Amazonbot, ChatGPT-User, etc.
-   ```
-
-3. **If blocked by Nginx rate limiting** — allow AI user-agents:
-   ```nginx
-   map $http_user_agent $is_ai_bot {
-     default         0;
-     "~*GPTBot"      1;
-     "~*ClaudeBot"   1;
-     "~*Amazonbot"   1;
-     "~*ChatGPT"     1;
-   }
-
-   # Skip rate limiting for AI bots
-   limit_req_zone $binary_remote_addr zone=general:10m rate=10r/s;
-
-   server {
-     location / {
-       if ($is_ai_bot) {
-         # Allow AI bots through without rate limits
-       }
-       limit_req zone=general burst=20;
-     }
-   }
-   ```
-
-4. **If blocked by Apache** — allow in `.htaccess`:
-   ```apache
-   RewriteEngine On
-   RewriteCond %{HTTP_USER_AGENT} (GPTBot|ClaudeBot|Amazonbot) [NC]
-   RewriteRule ^ - [L]
-   ```
-
-5. **Verify** — re-test with curl to confirm 200 response.
-
----
-
-## Checkpoint 1.1: robots.txt Present (15 pts)
-
-**What passes:** `/robots.txt` returns HTTP 200 with `Content-Type: text/plain`.
-**What fails:** Missing file (404), HTML error page served, or wrong Content-Type.
-
-### Fix Workflow
-
-1. **Check current state:**
-   ```bash
-   curl -sI https://example.com/robots.txt | head -20
-   ```
-
-2. **Create `/robots.txt`** at your web root:
-   ```
-   User-agent: *
-   Allow: /
-   User-agent: GPTBot
-   Allow: /
-   User-agent: ClaudeBot
-   Allow: /
-   User-agent: Google-Extended
-   Allow: /
-   Sitemap: https://example.com/sitemap.xml
-   ```
-
-3. **Ensure correct Content-Type** — must return `text/plain`. Nginx: `default_type text/plain;` in the location block. Apache: `ForceType text/plain` in a `<Files>` directive.
-
-4. **Verify:**
-   ```bash
-   curl -sI https://example.com/robots.txt | grep -i content-type
-   # Expected: Content-Type: text/plain
-   ```
-
-> See [references/robots-txt-guide.md](references/robots-txt-guide.md) for complete robots.txt syntax and rules.
-
----
-
-## Checkpoint 1.2: AI Crawler Directives (15 pts)
-
-**What passes:** All 13 AI crawlers explicitly allowed (15 pts), or some allowed with none blocked (15 pts), or wildcard `Allow: /` with none blocked (15 pts).
-**Partial credit:** No AI crawlers mentioned but default allow applies (10 pts), or mixed policies with some blocked (7 pts).
-**What fails:** All AI crawlers explicitly disallowed (0 pts).
-
-### The 13 AI User-Agents
-
-| User-Agent          | Owner          | Purpose                        |
-|---------------------|----------------|--------------------------------|
-| GPTBot              | OpenAI         | Training data crawling         |
-| ChatGPT-User        | OpenAI         | Real-time browsing in ChatGPT  |
-| OAI-SearchBot       | OpenAI         | SearchGPT results              |
-| ClaudeBot           | Anthropic      | Training data crawling         |
-| Claude-User         | Anthropic      | Real-time browsing in Claude   |
-| Claude-SearchBot    | Anthropic      | Claude search results          |
-| Google-Extended     | Google         | Gemini AI training             |
-| Amazonbot           | Amazon         | Alexa/AI training              |
-| Bytespider          | ByteDance      | TikTok/AI training             |
-| CCBot               | Common Crawl   | Open dataset crawling          |
-| PerplexityBot       | Perplexity     | AI search results              |
-| Applebot-Extended   | Apple          | Apple Intelligence training    |
-| meta-externalagent  | Meta           | Meta AI training               |
-
-### Fix Workflow
-
-1. **Check current directives:**
-   ```bash
-   curl -s https://example.com/robots.txt
-   ```
-
-2. **Add explicit Allow directives** for each AI crawler to your robots.txt:
-   ```
-   # AI Crawlers — explicitly allow (one block per agent)
-   User-agent: GPTBot
-   Allow: /
-   User-agent: ChatGPT-User
-   Allow: /
-   User-agent: OAI-SearchBot
-   Allow: /
-   User-agent: ClaudeBot
-   Allow: /
-   User-agent: Claude-User
-   Allow: /
-   User-agent: Claude-SearchBot
-   Allow: /
-   User-agent: Google-Extended
-   Allow: /
-   User-agent: Amazonbot
-   Allow: /
-   User-agent: Bytespider
-   Allow: /
-   User-agent: CCBot
-   Allow: /
-   User-agent: PerplexityBot
-   Allow: /
-   User-agent: Applebot-Extended
-   Allow: /
-   User-agent: meta-externalagent
-   Allow: /
-   ```
-
-3. **If you want to allow all crawlers** — a simple wildcard also works:
-   ```
-   User-agent: *
-   Allow: /
-   ```
-
-4. **If you want selective control** — allow some, block others:
-   ```
-   # Allow search-oriented AI crawlers
-   User-agent: ChatGPT-User
-   Allow: /
-
-   User-agent: PerplexityBot
-   Allow: /
-
-   # Block training-oriented crawlers
-   User-agent: GPTBot
-   Disallow: /
-
-   User-agent: CCBot
-   Disallow: /
-   ```
-
-> See [references/robots-txt-guide.md](references/robots-txt-guide.md) for full syntax and AI user-agent details.
-
----
-
-## Checkpoint 1.3: XML Sitemap (15 pts)
-
-**What passes:** Valid XML sitemap found at a discoverable URL with `<urlset>` or `<sitemapindex>`.
-**What fails:** No sitemap found, or sitemap is not valid XML.
-
-The scanner checks these locations in order:
-1. URLs from `Sitemap:` directives in robots.txt
-2. `/sitemap.xml`
-3. `/sitemap_index.xml`
-
-### Fix Workflow
-
-1. **Check if a sitemap exists:**
-   ```bash
-   curl -sI https://example.com/sitemap.xml | head -5
-   curl -s https://example.com/robots.txt | grep -i sitemap
-   ```
-
-2. **Create `/sitemap.xml`:**
-   ```xml
-   <?xml version="1.0" encoding="UTF-8"?>
-   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-     <url>
-       <loc>https://example.com/</loc>
-       <lastmod>2025-01-15</lastmod>
-       <changefreq>weekly</changefreq>
-       <priority>1.0</priority>
-     </url>
-     <url>
-       <loc>https://example.com/about</loc>
-       <lastmod>2025-01-10</lastmod>
-     </url>
-   </urlset>
-   ```
-
-3. **For large sites, use a sitemap index:**
-   ```xml
-   <?xml version="1.0" encoding="UTF-8"?>
-   <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-     <sitemap>
-       <loc>https://example.com/sitemap-pages.xml</loc>
-       <lastmod>2025-01-15</lastmod>
-     </sitemap>
-     <sitemap>
-       <loc>https://example.com/sitemap-blog.xml</loc>
-       <lastmod>2025-01-14</lastmod>
-     </sitemap>
-   </sitemapindex>
-   ```
-
-4. **Add the Sitemap directive to robots.txt:**
-   ```
-   Sitemap: https://example.com/sitemap.xml
-   ```
-
-5. **Verify the sitemap is valid XML:**
-   ```bash
-   curl -s https://example.com/sitemap.xml | head -5
-   # Should start with <?xml and contain <urlset or <sitemapindex
-   ```
-
-### Framework-Specific Generation
-
-Most frameworks have sitemap plugins — prefer automated generation over manual files:
-
-- **WordPress:** Yoast SEO or built-in (`/wp-sitemap.xml`)
-- **Next.js:** `next-sitemap` package or App Router `sitemap.ts`
-- **Rails:** `sitemap_generator` gem
-- **Django:** `django.contrib.sitemaps`
-- **Laravel:** `spatie/laravel-sitemap`
-- **Phoenix/Elixir:** Custom plug or controller route
-
----
-
-## Checkpoint 1.4: llms.txt (15 pts)
-
-**What passes:** `/llms.txt` returns HTTP 200 with `text/plain` or `text/markdown`, starts with a `#` heading, and contains at least one URL. Bonus: `/llms-full.txt` companion found.
-**What fails:** Missing file, wrong content type, no heading, or no URLs.
-
-### Fix Workflow
-
-1. **Create `/llms.txt`** — a markdown-formatted overview of your site for LLMs:
-   ```markdown
-   # Your Company Name
-
-   > Brief description of what your company does.
-
-   ## Docs
-   - [Getting Started](https://example.com/docs/getting-started)
-   - [API Reference](https://example.com/docs/api)
-   - [Tutorials](https://example.com/docs/tutorials)
-
-   ## Products
-   - [Product Overview](https://example.com/products)
-   - [Pricing](https://example.com/pricing)
-
-   ## Optional
-   - [Blog](https://example.com/blog)
-   - [Changelog](https://example.com/changelog)
-   - [Status Page](https://status.example.com)
-   ```
-
-2. **Optionally create `/llms-full.txt`** — expanded version with more detail:
-   ```markdown
-   # Your Company Name
-
-   > Detailed description of your company, products, and services.
-
-   ## Getting Started
-
-   Full getting started content here, not just a link.
-   Include setup instructions, prerequisites, etc.
-
-   ## API Reference
-
-   Inline API documentation or detailed summaries of endpoints.
-   ```
-
-3. **Ensure correct Content-Type** — must be `text/plain` or `text/markdown`. Same server config as robots.txt (see checkpoint 1.1).
-
-4. **Verify:**
-   ```bash
-   curl -sI https://example.com/llms.txt | grep -i content-type
-   curl -s https://example.com/llms.txt | head -5
-   # First line must start with #
-   # Must contain at least one https:// URL
-   ```
-
-> See [references/llms-txt-guide.md](references/llms-txt-guide.md) for the full specification and examples for different site types.
-
----
-
-## Checkpoint 1.5: Meta Robots / X-Robots-Tag (15 pts)
-
-**What passes:** No restrictive directives found (15 pts).
-**Partial credit:** Restrictive directives other than noindex found (8 pts) — e.g., nofollow, nosnippet, noai, noimageai.
-**What fails:** `noindex` directive found (0 pts).
-
-The scanner checks both:
-- `<meta name="robots" content="...">` in HTML
-- `X-Robots-Tag` HTTP response header
-
-### Restrictive Directives
-
-| Directive   | Effect                                     |
-|-------------|--------------------------------------------|
-| `noindex`   | Prevents indexing entirely (worst for AI)   |
-| `nofollow`  | Prevents following links on the page        |
-| `nosnippet` | Prevents showing snippets in search results |
-| `noai`      | Signals no AI usage (some crawlers respect) |
-| `noimageai` | Signals no AI usage of images               |
-
-### Fix Workflow
-
-1. **Check current meta robots:**
-   ```bash
-   curl -s https://example.com/ | grep -i 'name="robots"'
-   curl -sI https://example.com/ | grep -i x-robots-tag
-   ```
-
-2. **Remove or replace restrictive tags** in your HTML `<head>`:
-   ```html
-   <!-- WRONG: blocks AI indexing -->
-   <meta name="robots" content="noindex, nofollow">
-
-   <!-- CORRECT: allows AI indexing -->
-   <meta name="robots" content="index, follow">
-
-   <!-- ALSO CORRECT: omit entirely (default is index, follow) -->
-   ```
-
-3. **Remove restrictive X-Robots-Tag headers:**
-
-   **Nginx:**
-   ```nginx
-   # Remove if present:
-   # add_header X-Robots-Tag "noindex";
-
-   # Replace with (or remove entirely):
-   add_header X-Robots-Tag "index, follow";
-   ```
-
-4. **For specific AI directives** — if you have `noai` or `noimageai` and want to allow AI:
-   ```html
-   <!-- Remove noai/noimageai to allow AI systems -->
-   <meta name="robots" content="index, follow">
-   ```
-
-5. **Verify:**
-   ```bash
-   curl -s https://example.com/ | grep -i 'name="robots"'
-   # Should show: content="index, follow" or no meta robots tag at all
-   ```
-
----
-
-## Checkpoint 1.6: Content Freshness Signals (10 pts)
-
-**What passes:** `dateModified` in JSON-LD or `article:modified_time` meta tag (10 pts).
-**Partial:** Only `datePublished`, `article:published_time`, or `<time datetime>` (7 pts). Only `Last-Modified` header (5 pts).
-**What fails:** No freshness signals detected (0 pts).
-
-**Why it matters:** ChatGPT shows 3.2x preference for content with fresh date signals. AI systems use dates to prioritize recent, authoritative content.
-
-### Fix Workflow
-
-1. **Check current signals:**
-   ```bash
-   curl -sI https://example.com/ | grep -i last-modified
-   curl -s https://example.com/ | grep -iE 'dateModified|article:modified_time'
-   ```
-
-2. **Add `dateModified` and `datePublished` to JSON-LD** (best — 10 pts):
-   ```json
-   {
-     "@context": "https://schema.org",
-     "@type": "Article",
-     "datePublished": "2024-01-15T09:00:00Z",
-     "dateModified": "2024-03-01T14:30:00Z"
-   }
-   ```
-
-3. **Add Open Graph meta tags** (also 10 pts):
-   ```html
-   <meta property="article:published_time" content="2024-01-15T09:00:00Z">
-   <meta property="article:modified_time" content="2024-03-01T14:30:00Z">
-   ```
-
-4. **`Last-Modified` HTTP header** scores only 5 pts — use JSON-LD or meta tags for full credit.
-
-5. **`<time datetime>` element** scores 7 pts as a fallback:
-   ```html
-   <time datetime="2024-03-01T14:30:00Z">March 1, 2024</time>
-   ```
-
-6. **Verify:**
-   ```bash
-   curl -s https://example.com/ | grep -iE 'dateModified|article:modified_time'
-   ```
-
----
-
-## Key Gotchas
-
-1. **robots.txt returns HTML** — 404 page served instead of a real robots.txt file
-2. **Wrong Content-Type** — robots.txt or llms.txt served as `text/html` instead of `text/plain`
-3. **Wildcard Disallow blocks everything** — `User-agent: * / Disallow: /` blocks all AI crawlers
-4. **Sitemap is not valid XML** — JSON or HTML page served at `/sitemap.xml`
-5. **llms.txt has no URLs** — File exists but is just plain text without any links
-6. **noai vs noindex confusion** — `noai` costs 7 points, `noindex` costs all 15
-7. **Last-Modified header only** — scores 5/10; add `dateModified` in JSON-LD for full 10 points
-
-> See [references/gotchas.md](references/gotchas.md) for detailed correct vs incorrect examples of each.
-
-## References
-
-- [robots-txt-guide.md](references/robots-txt-guide.md) — Complete robots.txt syntax, AI user-agents, and testing
-- [llms-txt-guide.md](references/llms-txt-guide.md) — llms.txt specification, content structure, and site-type examples
-- [gotchas.md](references/gotchas.md) — Common pitfalls with wrong vs correct examples
+- JSON-LD or Schema.org markup: use `structured-data`.
+- Semantic HTML, headings or SSR: use `content-semantics`.
+- MCP, A2A, OpenAPI or WebMCP: use `agent-protocols`.
+- Security headers or OAuth metadata: use `security-trust`.
 
 ## Instructions
 
-1. **Identify failing checkpoints** from the IsAgentReady.com scan results
-2. **Follow the fix workflow** for each failing checkpoint above
-3. **Apply the code examples** — adapt URLs, domain names, and content to the user's site
-4. **Verify each fix** using the curl commands provided in each workflow
-5. **Re-scan** at [isagentready.com](https://isagentready.com) to confirm improvements
+1. Get the failing checkpoints from the scan. Each result has a legacy id (`1.4`) and a stable id (`ia.llms-txt`).
+2. Go to the fix workflow with the anchor that is equal to the stable id.
+3. Adapt the example to the site. Replace `example.com` with the domain of the site.
+4. Run the verify command. All verify commands are read-only.
+5. Rescan with `isagentready results <domain> --checkpoint <stable-id>` or at [isagentready.com](https://isagentready.com).
 
-If `$ARGUMENTS` is provided, interpret it as the URL to fix or the specific checkpoint to address.
+If `$ARGUMENTS` is provided, use it as the URL to fix or as the checkpoint to fix.
+
+## Checkpoints
+
+Strength is the agentready.org spec level (MUST, SHOULD, MAY). Strength does not change the score.
+
+<!-- checkpoints:start (generated by scripts/sync-checkpoints.mjs) -->
+| Legacy | Stable ID | Name | AR IDs | Strength |
+|---|---|---|---|---|
+| 1.1 | [`ia.robots-txt`](#ia.robots-txt) | robots.txt present | AR-FIND-01 | MUST |
+| 1.2 | [`ia.ai-crawler-directives`](#ia.ai-crawler-directives) | AI crawler directives | AR-FIND-01 | MUST |
+| 1.3 | [`ia.xml-sitemap`](#ia.xml-sitemap) | XML sitemap | AR-FIND-03 | SHOULD |
+| 1.4 | [`ia.llms-txt`](#ia.llms-txt) | llms.txt | AR-READ-07 | SHOULD |
+| 1.5 | [`ia.meta-robots`](#ia.meta-robots) | Meta robots / X-Robots-Tag | AR-FIND-01 | MUST |
+| 1.6 | [`ia.content-freshness`](#ia.content-freshness) | Content freshness signals | none | MAY |
+| 1.7 | [`ia.markdown-negotiation`](#ia.markdown-negotiation) | Content negotiation (text/markdown) | AR-READ-09 | MAY |
+| 1.8 | [`ia.bot-accessibility`](#ia.bot-accessibility) | HTTP bot accessibility | AR-FIND-01 | MUST |
+| 1.9 | [`ia.link-headers`](#ia.link-headers) | Link response headers | AR-FIND-04, AR-READ-06 | MAY |
+| 1.10 | [`ia.content-usage`](#ia.content-usage) | Content-Usage preferences | none | MAY |
+| 1.11 | [`ia.agents-md`](#ia.agents-md) | AGENTS.md agent guide | none | MAY |
+| 1.12 | [`ia.agent-content-contracts`](#ia.agent-content-contracts) | Agent content contracts | AR-READ-11, AR-ACT-01 | MAY |
+| 1.13 | [`ia.soft-404`](#ia.soft-404) | Soft-404 hygiene | AR-READ-02 | MUST |
+| 1.14 | [`ia.dns-aid`](#ia.dns-aid) | DNS-AID agent records | none | MAY |
+| 1.15 | [`ia.pricing-page`](#ia.pricing-page) | First-party pricing page | AR-READ-11 | SHOULD |
+<!-- checkpoints:end -->
+
+Training exposure checks (te.1 to te.5) are informational and have no score. See [references/checkpoints.md](references/checkpoints.md#informational-checks).
+
+## Fix Workflows
+
+<a id="ia.robots-txt"></a>
+### 1.1 robots.txt present
+
+Passes when `/robots.txt` returns 200 with `Content-Type: text/plain` and is not an HTML page.
+
+1. Put a `robots.txt` file in the web root:
+   ```
+   User-agent: *
+   Allow: /
+
+   Sitemap: https://example.com/sitemap.xml
+   ```
+2. Serve it as `text/plain`. Nginx: `location = /robots.txt { default_type text/plain; }`.
+
+Verify: `curl -sfI https://example.com/robots.txt | grep -i '^content-type: text/plain'`
+
+<a id="ia.ai-crawler-directives"></a>
+### 1.2 AI crawler directives
+
+Passes when robots.txt allows the AI user agents explicitly. No mention gives partial credit. A Disallow for all AI agents fails.
+
+1. Add one group for each AI user agent. The full list is in [references/robots-txt-guide.md](references/robots-txt-guide.md).
+   ```
+   User-agent: GPTBot
+   User-agent: OAI-SearchBot
+   User-agent: ChatGPT-User
+   User-agent: ClaudeBot
+   User-agent: Claude-User
+   User-agent: Claude-SearchBot
+   User-agent: PerplexityBot
+   User-agent: Google-Extended
+   Allow: /
+   ```
+2. To block training but allow search, use `Disallow: /` only for the training agents.
+
+Verify: `curl -sf https://example.com/robots.txt | grep -iE '^user-agent: *(GPTBot|OAI-SearchBot|ClaudeBot|Claude-User|PerplexityBot)'`
+
+<a id="ia.xml-sitemap"></a>
+### 1.3 XML sitemap
+
+Passes when a `Sitemap:` line in robots.txt, `/sitemap.xml` or `/sitemap_index.xml` returns XML with `<urlset>` or `<sitemapindex>`.
+
+1. Generate the sitemap with the framework (Next.js `sitemap.ts`, WordPress `/wp-sitemap.xml`, Django `django.contrib.sitemaps`).
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+     <url><loc>https://example.com/</loc><lastmod>2026-10-01</lastmod></url>
+   </urlset>
+   ```
+2. Add `Sitemap: https://example.com/sitemap.xml` to robots.txt.
+
+Verify: `curl -sf https://example.com/sitemap.xml | grep -qE '<(urlset|sitemapindex)'`
+
+<a id="ia.llms-txt"></a>
+### 1.4 llms.txt
+
+Passes when `/llms.txt` returns `text/plain` or `text/markdown`, starts with a `#` heading and has one or more URLs. A `/llms-full.txt` file gives a bonus.
+
+1. Write `/llms.txt`:
+   ```markdown
+   # Example Inc
+
+   > Example Inc sells project planning software for small teams.
+
+   ## Docs
+   - [Getting started](https://example.com/docs/start): Set up a first project
+   - [API reference](https://example.com/docs/api): REST endpoints
+   ```
+2. Serve it as `text/markdown` or `text/plain`. See [references/llms-txt-guide.md](references/llms-txt-guide.md).
+
+Verify: `curl -sf https://example.com/llms.txt | head -1 | grep -q '^# '`
+
+<a id="ia.meta-robots"></a>
+### 1.5 Meta robots / X-Robots-Tag
+
+Passes when no restrictive directive is present. `nofollow`, `nosnippet`, `noai` or `noimageai` give partial credit. `noindex` fails.
+
+1. Remove `noindex` and `noai` from `<meta name="robots">`. Use `<meta name="robots" content="index, follow">` or no tag.
+2. Remove restrictive `X-Robots-Tag` headers from the server or CDN configuration.
+
+Verify: `curl -sfI https://example.com/ | grep -i '^x-robots-tag'` (expect no line, or no `noindex`)
+
+<a id="ia.content-freshness"></a>
+### 1.6 Content freshness signals
+
+Passes when JSON-LD has `dateModified` or the page has `article:modified_time`. `datePublished` or `<time datetime>` gives partial credit. A `Last-Modified` header alone gives less.
+
+1. Add the dates to the JSON-LD of the page:
+   ```json
+   { "@context": "https://schema.org", "@type": "Article",
+     "datePublished": "2026-09-01T09:00:00Z", "dateModified": "2026-10-15T14:30:00Z" }
+   ```
+2. Or add `<meta property="article:modified_time" content="2026-10-15T14:30:00Z">`.
+
+Verify: `curl -sf https://example.com/ | grep -qE 'dateModified|article:modified_time'`
+
+<a id="ia.markdown-negotiation"></a>
+### 1.7 Content negotiation (text/markdown)
+
+Passes when a request with `Accept: text/markdown` gets `Content-Type: text/markdown`, a `Vary: Accept` header and more than 200 bytes with a heading.
+
+1. Return a Markdown version of the page when the `Accept` header asks for it:
+   ```js
+   app.get("/", (req, res) => {
+     res.vary("Accept");
+     if (req.accepts(["text/html", "text/markdown"]) === "text/markdown") {
+       return res.type("text/markdown; charset=utf-8").send(renderMarkdown("/"));
+     }
+     res.send(renderHtml("/"));
+   });
+   ```
+2. Make sure that the CDN keeps `Vary: Accept`, so that it does not cache one version for all clients.
+
+Verify: `curl -sfI -H 'Accept: text/markdown' https://example.com/ | grep -iE '^(content-type: text/markdown|vary:.*accept)'`
+
+<a id="ia.bot-accessibility"></a>
+### 1.8 HTTP bot accessibility
+
+Passes when the homepage returns 2xx. A 401 or 403 from a WAF or CDN fails.
+
+1. Find the block. Compare the status code for a browser user agent and for an AI user agent.
+2. Add a WAF exception for verified AI crawlers. Cloudflare: Security, WAF, Custom rules, "User Agent contains GPTBot", action Skip.
+3. Do not rate-limit the homepage for crawlers that respect robots.txt.
+
+Verify: `curl -s -o /dev/null -w '%{http_code}' -A 'Mozilla/5.0 (compatible; GPTBot/1.0)' https://example.com/`
+
+<a id="ia.link-headers"></a>
+### 1.9 Link response headers
+
+Passes when the homepage sends `Link` headers (RFC 8288) with two or more of `api-catalog`, `service-desc`, `service-doc`, `sitemap`, `describedby` and `related`. One rel gives partial credit.
+
+1. Add the header on the homepage response:
+   ```nginx
+   add_header Link '</.well-known/api-catalog>; rel="api-catalog", </sitemap.xml>; rel="sitemap"' always;
+   ```
+2. Make sure that each target URL returns 200.
+
+Verify: `curl -sfI https://example.com/ | grep -i '^link:'`
+
+<a id="ia.content-usage"></a>
+### 1.10 Content-Usage preferences
+
+Passes when robots.txt has a `Content-Signal:` line with a known key (`search`, `ai-input`, `ai-train`). A line without a known key gives partial credit.
+
+1. Add the preferences to robots.txt, in the `User-agent: *` group:
+   ```
+   User-agent: *
+   Content-Signal: search=yes, ai-input=yes, ai-train=no
+   Allow: /
+   ```
+
+Verify: `curl -sf https://example.com/robots.txt | grep -i '^content-signal:'`
+
+<a id="ia.agents-md"></a>
+### 1.11 AGENTS.md agent guide
+
+Passes when `/AGENTS.md` returns text, starts with a `#` heading and has 50 or more characters. An HTML soft-404 page fails.
+
+1. Write `/AGENTS.md`:
+   ```markdown
+   # Example Inc for agents
+
+   - API: https://example.com/openapi.json (no key for read endpoints)
+   - MCP: https://example.com/mcp (Streamable HTTP)
+   - Docs: https://example.com/docs
+   - Rate limit: 60 requests per minute
+   ```
+2. Serve it as `text/markdown`.
+
+Verify: `curl -sf https://example.com/AGENTS.md | head -1 | grep -q '^# '`
+
+<a id="ia.agent-content-contracts"></a>
+### 1.12 Agent content contracts
+
+Applies when the HTML shows login, pricing or app signals. Passes when `/auth.md` and `/pricing.md` (as applicable) return text with a `#` heading and 80 or more characters.
+
+1. Write `/pricing.md` with the plans and prices as text. Write `/auth.md` with the sign-in method, the scopes and the agent rules.
+   ```markdown
+   # Pricing
+
+   - Free: 0 USD per month, 3 projects
+   - Team: 12 USD per user per month, unlimited projects
+   ```
+2. Serve both files as `text/markdown`.
+
+Verify: `curl -sfI https://example.com/pricing.md | grep -iE '^content-type: text/(markdown|plain)'`
+
+<a id="ia.soft-404"></a>
+### 1.13 Soft-404 hygiene
+
+Passes when an unknown path returns 404 or 410. Other statuses or a cross-origin redirect give partial credit. A 2xx page for an unknown path fails.
+
+1. Remove catch-all rules that return 200 or redirect to the homepage. For an SPA, let the server return 404 for unknown routes:
+   ```nginx
+   location / { try_files $uri $uri/ =404; }
+   ```
+2. In a framework, return the 404 status with the not-found page. Do not render it with status 200.
+
+Verify: `curl -s -o /dev/null -w '%{http_code}' https://example.com/.well-known/isagentready-missing-check`
+
+<a id="ia.dns-aid"></a>
+### 1.14 DNS-AID agent records
+
+Passes when `_index._agents`, `_mcp._agents` or `_a2a._agents` under the domain has an SVCB or HTTPS record. A TXT record only gives partial credit.
+
+1. Add an SVCB record at the DNS provider:
+   ```
+   _mcp._agents.example.com. 3600 IN SVCB 1 mcp.example.com. alpn="h2" port=443
+   ```
+
+Verify: `curl -s 'https://dns.google/resolve?name=_mcp._agents.example.com&type=SVCB' | jq -e '.Answer | length > 0'`
+
+<a id="ia.pricing-page"></a>
+### 1.15 First-party pricing page
+
+Applies when the site shows pricing signals. Passes when `/pricing` (or a linked pricing page) returns 200 and shows the prices as server-rendered text. `Offer` JSON-LD is optional.
+
+1. Render the plans and prices in the server HTML. Do not load them only with JavaScript.
+   ```html
+   <section id="plans">
+     <h2>Team</h2>
+     <p><data value="12">$12</data> per user per month</p>
+   </section>
+   ```
+2. Link the page from the homepage navigation.
+
+Verify: `curl -sf https://example.com/pricing | grep -qE '[$€£] ?[0-9]'`
+
+## Key Gotchas
+
+1. robots.txt returns the HTML 404 page with status 200.
+2. robots.txt or llms.txt has `Content-Type: text/html`.
+3. `User-agent: *` with `Disallow: /` blocks all AI crawlers.
+4. The CDN drops `Vary: Accept`, so Markdown and HTML mix in the cache.
+5. A catch-all route returns 200 for every path (soft 404).
+
+See [references/gotchas.md](references/gotchas.md) for correct and incorrect examples.
+
+## References
+
+- [references/checkpoints.md](references/checkpoints.md): generated checkpoint data for each checkpoint
+- [references/robots-txt-guide.md](references/robots-txt-guide.md): robots.txt syntax, AI user agents and tests
+- [references/llms-txt-guide.md](references/llms-txt-guide.md): llms.txt structure and examples for each site type
+- [references/gotchas.md](references/gotchas.md): common errors with correct and incorrect examples

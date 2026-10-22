@@ -1,200 +1,140 @@
-# A2A, MCP Discovery, OpenAPI & agents.json Guide
+# A2A, MCP, OpenAPI and agents.json Guide
 
-Complete reference for implementing non-WebMCP agent protocols: Google A2A Agent Cards, Anthropic MCP discovery, OpenAPI specifications, and agents.json.
+Reference for the agent protocols other than WebMCP: A2A Agent Cards, MCP server cards, OpenAPI documents and agents.json. For the points of each checkpoint, see the scoring document that the SKILL.md links to.
 
 ---
 
 ## Protocol Comparison
 
-| Protocol       | Purpose                           | Endpoint                    | Checkpoint | Points |
-|----------------|-----------------------------------|-----------------------------|------------|--------|
-| A2A Agent Card | Agent-to-agent capability ads     | `/.well-known/agent.json`   | 4.3        | 25     |
-| MCP Discovery  | AI tool/data server discovery     | `/.well-known/mcp.json`     | 4.4        | 10     |
-| OpenAPI        | API documentation for AI agents   | `/openapi.json` (+ others)  | 4.5        | 20     |
-| agents.json    | Agent endpoint directory          | `/.well-known/agents.json`  | 4.6        | 10     |
+| Protocol | Purpose | Endpoint | Checkpoint |
+|---|---|---|---|
+| A2A Agent Card | Agent-to-agent capability card | `/.well-known/agent-card.json` | 4.3 |
+| MCP server card | MCP server discovery | `/.well-known/mcp/server-card.json` | 4.4, 4.18 |
+| OpenAPI | API description for agents | `/openapi.json` (and others) | 4.5, 4.17, 4.19 |
+| agents.json | Agent endpoint directory | `/.well-known/agents.json` | 4.6 |
 
 ### When to use which
 
-- **A2A Agent Card** — Your site hosts an AI agent that other agents should communicate with
-- **MCP Discovery** — You have an MCP server providing tools/resources to AI assistants
-- **OpenAPI** — You have a REST API that AI agents should call programmatically
-- **agents.json** — You have multiple agent endpoints to advertise as a directory
-- **All of them** — Maximum coverage; they serve complementary purposes
+- **A2A Agent Card**: the site hosts an agent that other agents talk to.
+- **MCP server card**: the site runs an MCP server with tools or resources.
+- **OpenAPI**: the site has a REST API that agents call.
+- **agents.json**: the site has more than one agent endpoint to list.
 
 ---
 
-## A2A Agent Card (25 pts — checkpoint 4.3)
+## A2A Agent Card (checkpoint 4.3)
 
-### Required fields (all 4 needed for full score)
+The scanner reads `/.well-known/agent-card.json` first and then `/.well-known/agent.json`.
 
-| Field          | Type   | Description                                    |
-|----------------|--------|------------------------------------------------|
-| `name`         | string | Human-readable agent name                      |
-| `description`  | string | What the agent does                            |
-| `url`          | string | Endpoint URL where the agent accepts requests  |
-| `capabilities` | object | Supported interaction modes                    |
+### Required fields (A2A 1.0)
 
-### Scoring
+| Field | Type | Description |
+|---|---|---|
+| `name` | string | Agent name |
+| `description` | string | What the agent does |
+| `version` | string | Version of the agent |
+| `capabilities` | object | Supported features (streaming, push notifications, extended card) |
+| `supportedInterfaces` | array | One or more entries with `url`, `protocolBinding` and `protocolVersion` |
 
-- All 4 required fields present → **25 pts**
-- 2-3 required fields present → **15 pts**
-- 0-1 required fields present → **0 pts**
+Each `supportedInterfaces` entry needs:
+
+- `url`: an absolute HTTPS URL on a production host
+- `protocolBinding`: `JSONRPC`, `GRPC` or `HTTP+JSON`
+- `protocolVersion`: a non-empty string, for example `1.0`
+
+A card in the A2A 0.3 shape (top-level `url`, `protocolVersion`, `preferredTransport`) gets partial credit as legacy.
 
 ### Complete Agent Card
 
 ```json
 {
   "name": "Acme Commerce Agent",
-  "description": "AI assistant for product search, order tracking, and customer support at Acme Corp",
-  "url": "https://acme.example.com/agent",
+  "description": "Product search, order tracking and customer support for Acme Corp",
+  "version": "1.2.0",
   "capabilities": {
-    "streaming": true,
+    "streaming": false,
     "pushNotifications": false,
-    "stateTransitionHistory": true
+    "extendedAgentCard": false
   },
+  "supportedInterfaces": [
+    { "url": "https://acme.example.com/a2a/v1", "protocolBinding": "JSONRPC", "protocolVersion": "1.0" }
+  ],
   "skills": [
     {
-      "id": "product-search",
-      "name": "Product Search",
-      "description": "Search and browse the product catalog with filters",
+      "id": "product_search",
+      "name": "Product search",
+      "description": "Search the product catalog with filters",
       "tags": ["commerce", "search"],
-      "examples": [
-        "Find blue running shoes under $100",
-        "Show me the latest electronics deals"
-      ]
+      "examples": ["Find blue running shoes under 100 USD"]
     },
     {
-      "id": "order-tracking",
-      "name": "Order Tracking",
-      "description": "Track order status, shipping, and delivery updates",
+      "id": "order_tracking",
+      "name": "Order tracking",
+      "description": "Get the shipping status of an order",
       "tags": ["commerce", "orders"]
-    },
-    {
-      "id": "customer-support",
-      "name": "Customer Support",
-      "description": "Handle returns, exchanges, and general inquiries",
-      "tags": ["support"]
     }
   ],
   "defaultInputModes": ["text/plain", "application/json"],
-  "defaultOutputModes": ["text/plain", "application/json"],
-  "authentication": {
-    "schemes": ["bearer"],
-    "credentials": null
-  },
-  "provider": {
-    "organization": "Acme Corp",
-    "url": "https://acme.example.com"
-  }
+  "defaultOutputModes": ["application/json"],
+  "provider": { "organization": "Acme Corp", "url": "https://acme.example.com" }
 }
 ```
 
-### All A2A Agent Card fields
+### AP2 payments (checkpoint 4.16)
 
-| Field                    | Required | Type     | Description                                        |
-|--------------------------|----------|----------|----------------------------------------------------|
-| `name`                   | Yes      | string   | Agent name                                         |
-| `description`            | Yes      | string   | What the agent does                                |
-| `url`                    | Yes      | string   | Agent endpoint URL                                 |
-| `capabilities`           | Yes      | object   | Streaming, push notifications, etc.                |
-| `skills`                 | No       | array    | List of agent skills/abilities                     |
-| `defaultInputModes`      | No       | array    | Accepted input MIME types                          |
-| `defaultOutputModes`     | No       | array    | Output MIME types                                  |
-| `authentication`         | No       | object   | Auth requirements                                  |
-| `provider`               | No       | object   | Organization info                                  |
-
-### Capabilities object
+To declare the Agent Payments Protocol, add the extension to the card:
 
 ```json
-{
-  "streaming": true,
-  "pushNotifications": false,
-  "stateTransitionHistory": false
-}
+"extensions": [
+  { "uri": "https://google.github.io/A2A/extensions/ap2", "description": "Supports Agent Payments Protocol", "required": false }
+]
 ```
-
-- `streaming` — Agent supports Server-Sent Events for real-time responses
-- `pushNotifications` — Agent can send async notifications
-- `stateTransitionHistory` — Agent tracks and exposes task state changes
-
-### Minimal passing Agent Card
-
-```json
-{
-  "name": "My Agent",
-  "description": "An AI assistant",
-  "url": "https://example.com/agent",
-  "capabilities": {}
-}
-```
-
-This scores full 25 pts — all 4 required fields are present. The `capabilities` object can be empty.
 
 ---
 
-## MCP Discovery (10 pts — checkpoint 4.4)
+## MCP Server Card (checkpoints 4.4 and 4.18)
 
-### Requirements
+The scanner reads `/.well-known/mcp.json`, `/.well-known/mcp/server-card.json` and `/.well-known/mcp/server-cards.json` in this order.
 
-- Serve at `/.well-known/mcp.json`
-- Must return a valid, non-empty JSON object
-- Empty `{}` fails (map_size must be > 0)
+- 4.4 passes when the card has a top-level `name` or `serverInfo.name` (SEP-1649). A legacy `mcpServers` map also passes.
+- A JSON document without these fields gives partial credit. An empty `{}` fails.
+- 4.18 checks the quality of the card: identity and version, transport type and endpoint, capabilities, auth metadata, and a description or instructions.
 
-### Standard format
-
-```json
-{
-  "mcpServers": {
-    "primary": {
-      "url": "https://example.com/mcp/sse",
-      "name": "Example Primary Server",
-      "description": "Product catalog search and order management tools",
-      "transport": "sse"
-    },
-    "analytics": {
-      "url": "https://example.com/mcp/analytics",
-      "name": "Analytics Server",
-      "description": "Website analytics and reporting data",
-      "transport": "sse"
-    }
-  }
-}
-```
-
-### Server entry fields
-
-| Field         | Type   | Description                                 |
-|---------------|--------|---------------------------------------------|
-| `url`         | string | MCP server endpoint URL                     |
-| `name`        | string | Human-readable server name                  |
-| `description` | string | What tools/resources the server provides    |
-| `transport`   | string | Transport type: `sse`, `stdio`, `streamable-http` |
-
-### MCP server types
-
-| Transport        | Use case                            | URL format                      |
-|------------------|-------------------------------------|---------------------------------|
-| `sse`            | Web-hosted servers                  | `https://example.com/mcp/sse`   |
-| `streamable-http`| Newer HTTP-based transport          | `https://example.com/mcp`       |
-| `stdio`          | Local CLI tools (not web-relevant)  | N/A                             |
-
-### Minimal passing discovery document
+### Complete server card
 
 ```json
 {
-  "mcpServers": {
-    "main": {
-      "url": "https://example.com/mcp"
+  "$schema": "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
+  "name": "com.example/catalog",
+  "title": "Example catalog",
+  "version": "1.0.0",
+  "description": "Search products and read order status. Read-only tools need no token.",
+  "websiteUrl": "https://example.com",
+  "capabilities": { "tools": {}, "resources": {} },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://example.com/mcp",
+      "supportedProtocolVersions": ["2026-07-28", "2025-03-26"],
+      "headers": [
+        { "name": "Authorization", "description": "Bearer token for order tools", "isRequired": false, "isSecret": true }
+      ]
     }
-  }
+  ]
 }
 ```
 
-Any non-empty JSON object passes. The scanner doesn't validate specific fields — it only checks for a valid, non-empty JSON object.
+### Live verification (checkpoint 4.20)
+
+The scanner connects to the same-origin Streamable HTTP endpoint from the card. It tries `server/discover` (MCP 2026-07-28) first. It falls back to `initialize` only when the server returns an exact method-not-found error. It lists the advertised tools and resources. It sends one random invalid method and expects HTTP 404 with method-not-found. It never calls a tool and sends no credentials.
+
+### MCP Apps (checkpoint 4.25)
+
+When a tool returns an interface, link the tool to a `ui://` resource with `_meta.ui.resourceUri`. Serve the resource from `resources/read` with the MIME type `text/html;profile=mcp-app`.
 
 ---
 
-## OpenAPI / API Documentation (20 pts — checkpoint 4.5)
+## OpenAPI / API Documentation (checkpoint 4.5)
 
 ### Checked paths (in order)
 
@@ -249,11 +189,11 @@ Scanner stops at the first non-HTML response found.
 
 ### OpenAPI best practices for AI agents
 
-1. **Always include `operationId`** — AI agents use this as the function name when generating API calls
-2. **Write clear `summary` and `description`** — These become the tool descriptions agents see
-3. **Document all parameters** — Include `description`, `type`, `required`, and `enum` where applicable
-4. **Use `$ref` for shared schemas** — Keeps the spec readable and consistent
-5. **Include `servers` array** — Agents need to know the base URL
+1. **Always include `operationId`**: AI agents use this as the function name when generating API calls
+2. **Write clear `summary` and `description`**: These become the tool descriptions agents see
+3. **Document all parameters**: Include `description`, `type`, `required`, and `enum` where applicable
+4. **Use `$ref` for shared schemas**: Keeps the spec readable and consistent
+5. **Include `servers` array**: Agents need to know the base URL
 
 ### Complete example with multiple endpoints
 
@@ -437,7 +377,7 @@ paths:
 
 ---
 
-## agents.json (10 pts — checkpoint 4.6)
+## agents.json (checkpoint 4.6)
 
 ### Checked paths
 
@@ -533,13 +473,13 @@ location /.well-known/ {
 ### Express/Node (all endpoints)
 
 ```javascript
-const agentCard = require('./well-known/agent.json');
-const mcpDiscovery = require('./well-known/mcp.json');
+const agentCard = require('./well-known/agent-card.json');
+const serverCard = require('./well-known/mcp/server-card.json');
 const agentsJson = require('./well-known/agents.json');
 const openapi = require('./openapi.json');
 
-app.get('/.well-known/agent.json', (req, res) => res.json(agentCard));
-app.get('/.well-known/mcp.json', (req, res) => res.json(mcpDiscovery));
+app.get('/.well-known/agent-card.json', (req, res) => res.json(agentCard));
+app.get('/.well-known/mcp/server-card.json', (req, res) => res.json(serverCard));
 app.get('/.well-known/agents.json', (req, res) => res.json(agentsJson));
 app.get('/openapi.json', (req, res) => res.json(openapi));
 ```
@@ -548,9 +488,8 @@ app.get('/openapi.json', (req, res) => res.json(openapi));
 
 ## References
 
-- [Google A2A Protocol](https://google.github.io/A2A/) — A2A specification
-- [A2A Agent Card spec](https://google.github.io/A2A/#/topics/agent_card) — Agent Card field reference
-- [Model Context Protocol](https://modelcontextprotocol.io) — MCP documentation
-- [MCP Specification](https://spec.modelcontextprotocol.io) — Detailed MCP spec
-- [OpenAPI Specification](https://spec.openapis.org/oas/latest.html) — OpenAPI 3.1 spec
-- [Swagger Editor](https://editor.swagger.io/) — Online OpenAPI editor and validator
+- [A2A specification](https://a2a-protocol.org/latest/specification/): A2A 1.0 and the Agent Card fields
+- [Model Context Protocol](https://modelcontextprotocol.io): MCP documentation
+- [MCP Specification](https://spec.modelcontextprotocol.io): Detailed MCP spec
+- [OpenAPI Specification](https://spec.openapis.org/oas/latest.html): OpenAPI 3.1 spec
+- [Swagger Editor](https://editor.swagger.io/): Online OpenAPI editor and validator

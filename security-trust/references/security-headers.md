@@ -1,21 +1,21 @@
 # Security Headers Deep Dive
 
-Detailed reference for all 7 security headers checked by the IsAgentReady.com scanner (Category 5: Security & Trust, 15% weight, 75 points total).
+Detailed reference for all 7 security headers checked by the IsAgentReady.com scanner (Security & Trust category).
 
 ---
 
-## 1. HTTPS (Checkpoint 5.1 — 10 pts)
+## 1. HTTPS (checkpoint 5.1)
 
 ### Purpose
 HTTPS encrypts all communication between browser/agent and server using TLS. It prevents eavesdropping, tampering, and impersonation.
 
 ### Scoring
 
-| Condition                        | Points |
+| Condition                        | Result |
 |----------------------------------|--------|
-| HTTPS with valid certificate     | 10     |
-| HTTPS with invalid/expired cert  | 4      |
-| HTTP only (no HTTPS)             | 0      |
+| HTTPS with valid certificate     | Pass |
+| HTTPS with invalid/expired cert  | Partial |
+| HTTP only (no HTTPS)             | Fail |
 
 ### Certificate Requirements
 - Valid (not expired, not self-signed for production)
@@ -31,7 +31,7 @@ HTTPS encrypts all communication between browser/agent and server using TLS. It 
 
 ---
 
-## 2. Strict-Transport-Security / HSTS (Checkpoint 5.3 — 20 pts)
+## 2. Strict-Transport-Security / HSTS (checkpoint 5.3)
 
 ### Purpose
 HSTS tells browsers: "Always use HTTPS for this domain. Never attempt HTTP." This prevents:
@@ -54,22 +54,22 @@ Strict-Transport-Security: max-age=<seconds>; includeSubDomains; preload
 
 ### Scoring
 
-| Condition                                        | Points |
+| Condition                                        | Result |
 |--------------------------------------------------|--------|
-| `max-age>=31536000` + `includeSubDomains`        | 20     |
-| `max-age>=31536000` without `includeSubDomains`  | 16     |
-| `max-age>0` but less than 31536000               | 10     |
-| Missing header or `max-age=0`                    | 0      |
+| `max-age>=31536000` + `includeSubDomains`        | Pass |
+| `max-age>=31536000` without `includeSubDomains`  | Partial |
+| `max-age>0` but less than 31536000               | Partial |
+| Missing header or `max-age=0`                    | Fail |
 
 ### max-age Values
 
-| Value      | Duration | Scanner Score |
+| Value      | Duration | Result        |
 |------------|----------|---------------|
-| 86400      | 1 day    | 10 pts        |
-| 604800     | 1 week   | 10 pts        |
-| 2592000    | 30 days  | 10 pts        |
-| 31536000   | 1 year   | 16-20 pts     |
-| 63072000   | 2 years  | 16-20 pts     |
+| 86400      | 1 day    | Partial       |
+| 604800     | 1 week   | Partial       |
+| 2592000    | 30 days  | Partial       |
+| 31536000   | 1 year   | Pass          |
+| 63072000   | 2 years  | Pass          |
 
 The magic number is **31536000** (1 year). Anything less gets partial credit.
 
@@ -92,7 +92,7 @@ The HSTS preload list is hardcoded into browsers (Chrome, Firefox, Safari, Edge)
 
 ---
 
-## 3. Content-Security-Policy / CSP (Checkpoint 5.4 — 15 pts)
+## 3. Content-Security-Policy / CSP (checkpoint 5.4)
 
 ### Purpose
 CSP controls which resources (scripts, styles, images, etc.) the browser is allowed to load. It's the primary defense against XSS (Cross-Site Scripting) attacks.
@@ -135,11 +135,11 @@ Content-Security-Policy: directive1 value1; directive2 value2; ...
 
 ### Scoring
 
-| Condition                                            | Points |
+| Condition                                            | Result |
 |------------------------------------------------------|--------|
-| Meaningful directives (default-src, script-src, etc.)| 15     |
-| Only trivial directives (upgrade-insecure-requests, block-all-mixed-content) | 5 |
-| No CSP header                                        | 0      |
+| Meaningful directives (default-src, script-src, etc.)| Pass |
+| Only trivial directives (upgrade-insecure-requests, block-all-mixed-content) | Partial |
+| No CSP header                                        | Fail |
 
 ### Trivial vs Meaningful
 The scanner specifically checks whether CSP contains more than just:
@@ -178,10 +178,10 @@ This logs violations without blocking resources. Use it to identify what you nee
 
 ---
 
-## 4. X-Content-Type-Options (Checkpoint 5.5 — 5 pts)
+## 4. X-Content-Type-Options (checkpoint 5.5)
 
 ### Purpose
-Prevents MIME type sniffing. Without this header, browsers may interpret a file differently than its `Content-Type` declares — e.g., treating a text file as JavaScript and executing it.
+Prevents MIME type sniffing. Without this header, browsers may interpret a file differently than its `Content-Type` declares: e.g., treating a text file as JavaScript and executing it.
 
 ### Header Format
 ```
@@ -192,10 +192,10 @@ There is only one valid value: `nosniff`.
 
 ### Scoring
 
-| Condition     | Points |
+| Condition     | Result |
 |---------------|--------|
-| `nosniff`     | 5      |
-| Missing/other | 0      |
+| `nosniff`     | Pass |
+| Missing/other | Fail |
 
 ### What It Prevents
 - An attacker uploads a `.txt` file containing JavaScript
@@ -204,10 +204,10 @@ There is only one valid value: `nosniff`.
 
 ---
 
-## 5. Frame Protection (Checkpoint 5.6 — 5 pts)
+## 5. Frame Protection (checkpoint 5.6)
 
 ### Purpose
-Prevents clickjacking — where an attacker embeds your site in an invisible iframe and tricks users into clicking elements on your page while thinking they're interacting with the attacker's page.
+Prevents clickjacking: where an attacker embeds your site in an invisible iframe and tricks users into clicking elements on your page while thinking they're interacting with the attacker's page.
 
 ### Two Approaches
 
@@ -230,19 +230,19 @@ Content-Security-Policy: frame-ancestors 'self' https://trusted.com  # Allow spe
 
 ### Scoring
 
-| Condition                                         | Points |
+| Condition                                         | Result |
 |---------------------------------------------------|--------|
-| X-Frame-Options (DENY or SAMEORIGIN)              | 5      |
-| CSP frame-ancestors directive present              | 5      |
-| Both present                                       | 5      |
-| Neither present                                    | 0      |
+| X-Frame-Options (DENY or SAMEORIGIN)              | Pass |
+| CSP frame-ancestors directive present              | Pass |
+| Both present                                       | Pass |
+| Neither present                                    | Fail |
 
 ### Recommendation
 Use CSP `frame-ancestors` as the primary mechanism (more flexible, standards-based) and add `X-Frame-Options` as a fallback for older browsers.
 
 ---
 
-## 6. CORS Configuration (Checkpoint 5.7 — 10 pts)
+## 6. CORS Configuration (checkpoint 5.7)
 
 ### Purpose
 Cross-Origin Resource Sharing controls which external origins can make requests to your site. Without CORS headers, browsers block cross-origin requests by default (Same-Origin Policy).
@@ -253,16 +253,13 @@ Access-Control-Allow-Origin: https://app.example.com
 Access-Control-Allow-Origin: *
 ```
 
-### Scoring
+### What the scanner checks
+Checkpoint 5.7 is an emerging bonus probe. It runs only on the same-origin API operation that checkpoint 4.19 verifies. It sends a preflight and a GET with the same method and headers. It does not follow redirects. It checks `Access-Control-Allow-Origin`, `Access-Control-Allow-Methods`, `Access-Control-Allow-Headers`, wildcards with credentials, and `Vary: Origin` when the allowed origin changes per request. When the API is temporarily not available, the check skips.
 
-| Condition                      | Points |
-|--------------------------------|--------|
-| No ACAO header (secure default)| 10     |
-| Specific origin                | 10     |
-| Wildcard `*`                   | 7      |
-
-### Why No Header = Full Points
-The absence of `Access-Control-Allow-Origin` means the Same-Origin Policy is in effect — the most restrictive (and secure) default. The scanner rewards this.
+| Condition | Result |
+|---|---|
+| Preflight and GET agree, no wildcard with credentials, `Vary: Origin` for a dynamic origin | Pass |
+| Headers are missing, do not agree, or combine a wildcard with credentials | Partial or Fail |
 
 ### Wildcard Risks
 `Access-Control-Allow-Origin: *` means any website can read responses from your site. This is fine for:
@@ -275,7 +272,7 @@ It's risky for:
 - Admin APIs
 - User-specific data endpoints
 
-**Important:** Browsers never send credentials (cookies) with wildcard CORS. But if you also set `Access-Control-Allow-Credentials: true`, the browser rejects the response entirely — wildcard + credentials is a spec violation.
+**Important:** Browsers never send credentials (cookies) with wildcard CORS. But if you also set `Access-Control-Allow-Credentials: true`, the browser rejects the response entirely: wildcard + credentials is a spec violation.
 
 ### Preflight Requests
 For non-simple requests (PUT, DELETE, custom headers), browsers send an OPTIONS preflight:
@@ -295,7 +292,7 @@ Access-Control-Max-Age: 86400
 
 ---
 
-## 7. Referrer-Policy (Checkpoint 5.9 — 10 pts)
+## 7. Referrer-Policy (checkpoint 5.9)
 
 ### Purpose
 Controls how much referrer information is sent when navigating from your site to another. Without this header, the full URL (including query parameters) may leak to third-party sites.
@@ -320,11 +317,11 @@ Referrer-Policy: strict-origin-when-cross-origin
 
 ### Scoring
 
-| Condition                     | Points |
+| Condition                     | Result |
 |-------------------------------|--------|
-| Any safe value present        | 10     |
-| Missing header                | 0      |
-| `unsafe-url`                  | 0      |
+| Any safe value present        | Pass |
+| Missing header                | Fail |
+| `unsafe-url`                  | Fail |
 
 ### Recommended Value
 **`strict-origin-when-cross-origin`** is the best default:
@@ -343,5 +340,5 @@ This is also the default browser behavior in modern browsers, but setting the he
 Referer: https://example.com/account?token=secret123   # Token leaked!
 
 # With strict-origin-when-cross-origin:
-Referer: https://example.com                            # Safe — only origin
+Referer: https://example.com                            # Safe: only origin
 ```

@@ -1,4 +1,4 @@
-# Common Gotchas — AI Content Discovery
+# Common Gotchas: AI Content Discovery
 
 Frequent mistakes that cause IsAgentReady checkpoint failures, with wrong and correct examples for each.
 
@@ -90,7 +90,7 @@ Allow: /
 ```
 Specific user-agent rules take precedence over the wildcard block.
 
-**Also correct** — if you don't need to block anything:
+**Also correct**: if you don't need to block anything:
 ```
 User-agent: *
 Allow: /
@@ -102,7 +102,7 @@ Allow: /
 
 The scanner checks for `<urlset>` or `<sitemapindex>` elements. A file that isn't valid XML won't pass.
 
-**WRONG — JSON sitemap:**
+**WRONG: JSON sitemap:**
 ```json
 {
   "urls": [
@@ -112,7 +112,7 @@ The scanner checks for `<urlset>` or `<sitemapindex>` elements. A file that isn'
 }
 ```
 
-**WRONG — HTML page at sitemap URL:**
+**WRONG: HTML page at sitemap URL:**
 ```html
 <!DOCTYPE html>
 <html>
@@ -125,7 +125,7 @@ The scanner checks for `<urlset>` or `<sitemapindex>` elements. A file that isn'
 </html>
 ```
 
-**WRONG — Plain text list:**
+**WRONG: Plain text list:**
 ```
 https://example.com/
 https://example.com/about
@@ -159,7 +159,7 @@ You have a valid sitemap, but crawlers can't find it because it's not referenced
 User-agent: *
 Allow: /
 ```
-No `Sitemap:` directive — crawlers must guess the URL.
+No `Sitemap:` directive: crawlers must guess the URL.
 
 **CORRECT:**
 ```
@@ -189,7 +189,7 @@ We were founded in 2020 and have grown to 50 employees.
 ## Products
 Our main product is a developer tool.
 ```
-No URLs — this is just a description without any links to actual pages.
+No URLs: this is just a description without any links to actual pages.
 
 **CORRECT:**
 ```markdown
@@ -260,27 +260,27 @@ Content-Type: text/markdown; charset=utf-8
 
 ---
 
-## 9. noai vs noindex — Different Severity
+## 9. noai vs noindex: Different Severity
 
 Both are restrictive, but they have very different impact on your score.
 
-**`noai` — Partial penalty (8/15 points):**
+**`noai`: partial credit**
 ```html
 <meta name="robots" content="index, follow, noai">
 ```
-The page is still indexed by search engines, but signals it shouldn't be used for AI training. You lose 7 points.
+The page is still indexed by search engines, but signals it shouldn't be used for AI training. The checkpoint gives partial credit.
 
-**`noindex` — Full penalty (0/15 points):**
+**`noindex`: fail**
 ```html
 <meta name="robots" content="noindex, nofollow">
 ```
-The page is completely hidden from all indexing. You lose all 15 points.
+The page is completely hidden from all indexing. The checkpoint fails.
 
-**CORRECT — No restrictions (15/15 points):**
+**CORRECT: no restrictions (pass)**
 ```html
 <meta name="robots" content="index, follow">
 ```
-Or simply omit the meta tag entirely — the default is `index, follow`.
+Or simply omit the meta tag entirely: the default is `index, follow`.
 
 ---
 
@@ -297,11 +297,11 @@ Your HTML says `index, follow` but a server-level header adds restrictions.
 # But the server sends:
 X-Robots-Tag: noindex
 ```
-The scanner checks both — the `noindex` from the header will fail the checkpoint.
+The scanner checks both: the `noindex` from the header will fail the checkpoint.
 
 **CORRECT:** Make sure both the meta tag and X-Robots-Tag header agree, or remove the restrictive header:
 ```nginx
-# Nginx — remove restrictive header
+# Nginx: remove restrictive header
 # Remove: add_header X-Robots-Tag "noindex";
 # Replace with:
 add_header X-Robots-Tag "index, follow";
@@ -313,13 +313,13 @@ add_header X-Robots-Tag "index, follow";
 
 Many WAF/CDN services (Cloudflare, Akamai, Sucuri) have "bot protection" features that block all automated traffic, including legitimate AI crawlers.
 
-**WRONG — Cloudflare "Bot Fight Mode" blocking everything:**
+**WRONG: Cloudflare "Bot Fight Mode" blocking everything:**
 ```
 $ curl -sI -A "Mozilla/5.0 (compatible; GPTBot/1.0)" https://example.com/
 HTTP/2 403
 ```
 
-**CORRECT — Allowlist AI crawlers in WAF rules:**
+**CORRECT: Allowlist AI crawlers in WAF rules:**
 ```
 # Cloudflare: Security -> WAF -> Custom Rules
 # Create rule: IF User-Agent contains "GPTBot" THEN Skip
@@ -343,7 +343,7 @@ These look similar but mean completely different things.
 User-agent: GPTBot
 Disallow:
 ```
-Per RFC 9309, an empty Disallow value means "disallow nothing" — effectively allowing full access.
+Per RFC 9309, an empty Disallow value means "disallow nothing": effectively allowing full access.
 
 **Blocks everything (root path = block all):**
 ```
@@ -358,16 +358,16 @@ Blocks the entire site for GPTBot.
 
 ## 13. Last-Modified Header Without JSON-LD Dates
 
-Relying solely on the `Last-Modified` HTTP header for freshness only scores 5/10 points. AI systems prefer structured date data.
+Relying solely on the `Last-Modified` HTTP header for freshness gives partial credit only. AI systems prefer structured date data.
 
-**WRONG — Only server header:**
+**WRONG: Only server header:**
 ```
 HTTP/2 200
 Last-Modified: Fri, 01 Mar 2024 14:30:00 GMT
 ```
-This scores partial credit (5 pts) because AI systems cannot always access HTTP headers when processing cached content.
+This scores partial credit because AI systems cannot always access HTTP headers when processing cached content.
 
-**CORRECT — JSON-LD dates (full credit):**
+**CORRECT: JSON-LD dates (full credit):**
 ```html
 <script type="application/ld+json">
 {
@@ -380,7 +380,7 @@ This scores partial credit (5 pts) because AI systems cannot always access HTTP 
 </script>
 ```
 
-**Also full credit — Open Graph meta tags:**
+**Also full credit: Open Graph meta tags:**
 ```html
 <meta property="article:published_time" content="2024-01-15T09:00:00Z">
 <meta property="article:modified_time" content="2024-03-01T14:30:00Z">

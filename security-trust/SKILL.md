@@ -1,429 +1,256 @@
 ---
 name: security-trust
-description: Fixes security and trust issues — configures HTTPS, HSTS, Content-Security-Policy, X-Content-Type-Options, frame protection, CORS, and Referrer-Policy headers so AI agents and platforms trust the website for interaction. Use when asked to "fix security headers", "add HSTS", "configure CSP", "fix HTTPS", "improve security score", "add security headers", "fix CORS", "add Referrer-Policy", or any security header configuration task.
+description: Fixes security and trust issues. Configures HTTPS, HSTS, Content-Security-Policy, X-Content-Type-Options, frame protection, CORS and Referrer-Policy, secures WebMCP tool definitions and auto-submit forms, and publishes OAuth authorization server and protected resource metadata so AI agents and platforms can trust and authenticate with a website. Use when asked to "fix security headers", "add HSTS", "configure CSP", "fix HTTPS", "fix CORS", "add Referrer-Policy", "add OAuth discovery", "add oauth-protected-resource", "make auth agent-ready", "improve security score", or any security header or agent auth task.
 ---
 
 # Security & Trust
 
-Fixes Category 5 (Security & Trust, 15% weight) issues from [IsAgentReady.com](https://isagentready.com). This category checks whether AI agents and platforms can trust your website for secure interaction. It evaluates 7 checkpoints worth 75 points total.
+Fixes the Security & Trust category of [IsAgentReady.com](https://isagentready.com). These checkpoints test the security baseline that agent protocols need, and the auth metadata that agents use to sign in.
+
+- Methodology version: `2026-10-22`. Methodology: https://isagentready.com/en/methodology
+- Scoring (weights and points): https://isagentready.com/api/v2/methodology/2026-10-22/scoring
+- Full checkpoint data (stage, evidence type, verify command, rescan command): [references/checkpoints.md](references/checkpoints.md)
 
 ## When to Use
 
-- Fixing HTTPS or SSL certificate issues
-- Adding or configuring HSTS (Strict-Transport-Security)
-- Creating or improving Content-Security-Policy
-- Adding X-Content-Type-Options, X-Frame-Options, or frame-ancestors
-- Fixing CORS configuration (Access-Control-Allow-Origin)
-- Adding or fixing Referrer-Policy headers
-- Any task to "improve security score" or "add security headers"
+- The scan shows failures in Security & Trust (legacy ids 5.x).
+- HTTPS, HSTS, CSP or other security headers are missing.
+- The public API needs a correct CORS policy.
+- WebMCP tool definitions contain secrets or auto-submit risky forms.
+- The site has a login and agents must find the OAuth metadata.
 
 ## When NOT to Use
 
-- Fixing robots.txt, sitemaps, or AI crawler access (use `ai-content-discovery` skill)
-- Adding structured data / JSON-LD (use `structured-data` skill)
-- Fixing semantic HTML or heading hierarchy (use `content-semantics` skill)
-- Setting up agent protocols like WebMCP or A2A (use `agent-protocols` skill)
-
-## Checkpoints Overview
-
-| ID  | Checkpoint              | Max Points | What It Tests                                              |
-|-----|-------------------------|------------|------------------------------------------------------------|
-| 5.1 | HTTPS                   | 10         | Final URL uses https://, valid SSL certificate             |
-| 5.3 | HSTS header             | 20         | Strict-Transport-Security with max-age and includeSubDomains |
-| 5.4 | Content-Security-Policy | 15         | CSP header with meaningful directives                      |
-| 5.5 | X-Content-Type-Options  | 5          | Must be exactly "nosniff"                                  |
-| 5.6 | Frame protection        | 5          | X-Frame-Options or CSP frame-ancestors                     |
-| 5.7 | CORS configuration      | 10         | Access-Control-Allow-Origin (absence or specific origin)   |
-| 5.9 | Referrer-Policy         | 10         | Header present with a safe value                           |
-
----
-
-## Fix All Headers at Once
-
-The fastest path to a perfect security score is adding all 7 headers in a single configuration change.
-
-> See [references/server-configs.md](references/server-configs.md) for complete copy-paste configs for Nginx, Apache, Caddy, Vercel, Netlify, Cloudflare Workers, Express.js, Next.js, and Django.
-
-After applying your config, verify all headers at once:
-
-```bash
-curl -sI https://example.com/ | grep -iE '(strict-transport|content-security|x-content-type|x-frame|access-control|referrer-policy)'
-```
-
----
-
-## Checkpoint 5.1: HTTPS (10 pts)
-
-**What passes:** Final URL uses `https://` with a valid SSL certificate (10 pts).
-**Partial credit:** HTTPS with an invalid/expired certificate (4 pts).
-**What fails:** HTTP without redirect to HTTPS (0 pts).
-
-**Why it matters:** HTTPS is the baseline for secure communication. AI agents and crawlers refuse to interact with insecure sites — no agent framework will send credentials or user data over plain HTTP.
-
-### Fix Workflow
-
-1. **Check current state:**
-   ```bash
-   curl -sI http://example.com/ | head -10
-   curl -sI https://example.com/ | head -10
-   ```
-
-2. **Install a free SSL certificate with Certbot (Let's Encrypt):**
-   ```bash
-   # Ubuntu/Debian with Nginx
-   sudo apt install certbot python3-certbot-nginx
-   sudo certbot --nginx -d example.com -d www.example.com
-
-   # Ubuntu/Debian with Apache
-   sudo apt install certbot python3-certbot-apache
-   sudo certbot --apache -d example.com -d www.example.com
-   ```
-
-3. **Force HTTPS redirect:**
-
-   **Nginx:**
-   ```nginx
-   server {
-     listen 80;
-     server_name example.com www.example.com;
-     return 301 https://$host$request_uri;
-   }
-   ```
-
-   **Apache (`.htaccess`):**
-   ```apache
-   RewriteEngine On
-   RewriteCond %{HTTPS} off
-   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-   ```
-
-4. **Set up auto-renewal:**
-   ```bash
-   sudo certbot renew --dry-run
-   # Certbot adds a cron/systemd timer automatically
-   ```
-
-5. **Verify:**
-   ```bash
-   curl -sI https://example.com/ | head -5
-   # Should show HTTP/2 200 or HTTP/1.1 200
-   ```
-
-**References:** [Let's Encrypt](https://letsencrypt.org/getting-started/), [web.dev: Why HTTPS Matters](https://web.dev/why-https-matters/)
-
----
-
-## Checkpoint 5.3: HSTS Header (20 pts)
-
-**What passes:** `Strict-Transport-Security` header with `max-age>=31536000` and `includeSubDomains` (20 pts).
-**Partial credit:** `max-age>=31536000` without `includeSubDomains` (16 pts), or short `max-age` (10 pts).
-**What fails:** Header missing or `max-age=0` (0 pts).
-
-**Why it matters:** HSTS prevents protocol downgrade attacks and SSL stripping. It tells browsers to always use HTTPS, even if a user types `http://`. Without HSTS, a man-in-the-middle can intercept the initial HTTP request before the redirect.
-
-### Fix Workflow
-
-1. **Check current state:**
-   ```bash
-   curl -sI https://example.com/ | grep -i strict-transport
-   ```
-
-2. **Add the HSTS header:**
-
-   **Nginx:**
-   ```nginx
-   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-   ```
-
-   **Apache:**
-   ```apache
-   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-   ```
-
-   **Caddy** (automatic — HSTS is enabled by default).
-
-3. **Verify:**
-   ```bash
-   curl -sI https://example.com/ | grep -i strict-transport
-   # Expected: strict-transport-security: max-age=31536000; includeSubDomains; preload
-   ```
-
-4. **Optional: submit to HSTS preload list** at [hstspreload.org](https://hstspreload.org) — this hardcodes HSTS into browsers so even the first visit is forced HTTPS.
-
-> See [references/security-headers.md](references/security-headers.md) for max-age math and the preload submission process.
-> See [references/gotchas.md](references/gotchas.md) for the "max-age too short" pitfall.
-
-**References:** [MDN: Strict-Transport-Security](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security), [HSTS Preload List](https://hstspreload.org)
-
----
-
-## Checkpoint 5.4: Content-Security-Policy (15 pts)
-
-**What passes:** CSP header with meaningful directives like `default-src`, `script-src`, `style-src` (15 pts).
-**Partial credit:** CSP header with only trivial directives (`upgrade-insecure-requests` or `block-all-mixed-content`) (5 pts).
-**What fails:** No CSP header (0 pts).
-
-**Why it matters:** CSP prevents XSS and code injection attacks. For AI agents, CSP ensures the content they read hasn't been tampered with by injected scripts — it's a signal that the site maintains content integrity.
-
-### Fix Workflow
-
-1. **Check current state:**
-   ```bash
-   curl -sI https://example.com/ | grep -i content-security-policy
-   ```
-
-2. **Add a starter CSP** — restrictive but practical:
-
-   **Nginx:**
-   ```nginx
-   add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'" always;
-   ```
-
-   **Apache:**
-   ```apache
-   Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'"
-   ```
-
-3. **If you use third-party scripts** (analytics, CDNs), whitelist them:
-   ```
-   script-src 'self' https://cdn.example.com https://www.googletagmanager.com;
-   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-   font-src 'self' https://fonts.gstatic.com;
-   img-src 'self' data: https:;
-   connect-src 'self' https://api.example.com;
-   ```
-
-4. **Test before enforcing** — use `Content-Security-Policy-Report-Only` first:
-   ```nginx
-   add_header Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self'; report-uri /csp-report" always;
-   ```
-
-5. **Verify:**
-   ```bash
-   curl -sI https://example.com/ | grep -i content-security-policy
-   # Should show meaningful directives, not just upgrade-insecure-requests
-   ```
-
-> See [references/security-headers.md](references/security-headers.md) for the full directive reference and nonce-based CSP.
-> See [references/gotchas.md](references/gotchas.md) for the "trivial CSP" pitfall.
-
-**References:** [MDN: Content-Security-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy), [OWASP: CSP Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html)
-
----
-
-## Checkpoint 5.5: X-Content-Type-Options (5 pts)
-
-**What passes:** Header value is exactly `nosniff` (5 pts).
-**What fails:** Header missing or any other value (0 pts).
-
-**Why it matters:** Prevents MIME type sniffing attacks where browsers interpret files as a different content type than declared, potentially executing malicious code disguised as harmless files.
-
-### Fix Workflow
-
-1. **Check current state:**
-   ```bash
-   curl -sI https://example.com/ | grep -i x-content-type
-   ```
-
-2. **Add the header:**
-
-   **Nginx:**
-   ```nginx
-   add_header X-Content-Type-Options "nosniff" always;
-   ```
-
-   **Apache:**
-   ```apache
-   Header always set X-Content-Type-Options "nosniff"
-   ```
-
-3. **Verify:**
-   ```bash
-   curl -sI https://example.com/ | grep -i x-content-type
-   # Expected: x-content-type-options: nosniff
-   ```
-
-**References:** [MDN: X-Content-Type-Options](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options)
-
----
-
-## Checkpoint 5.6: Frame Protection (5 pts)
-
-**What passes:** `X-Frame-Options: DENY` or `SAMEORIGIN`, OR CSP `frame-ancestors` directive (5 pts).
-**What fails:** Neither header present (0 pts).
-
-**Why it matters:** Prevents clickjacking attacks where your site is embedded in a malicious iframe. This protects users who follow AI-suggested links from being tricked into interacting with hidden content.
-
-### Fix Workflow
-
-1. **Check current state:**
-   ```bash
-   curl -sI https://example.com/ | grep -iE '(x-frame-options|frame-ancestors)'
-   ```
-
-2. **Add frame protection** — choose one approach:
-
-   **Option A: X-Frame-Options (widely supported):**
-   ```nginx
-   # Nginx
-   add_header X-Frame-Options "DENY" always;
-   ```
-   ```apache
-   # Apache
-   Header always set X-Frame-Options "DENY"
-   ```
-
-   **Option B: CSP frame-ancestors (modern, more flexible):**
-   ```nginx
-   # Add to your existing CSP:
-   add_header Content-Security-Policy "frame-ancestors 'none'; ..." always;
-   ```
-
-   **Option C: Both (belt and suspenders):**
-   ```nginx
-   add_header X-Frame-Options "DENY" always;
-   add_header Content-Security-Policy "frame-ancestors 'none'; default-src 'self'" always;
-   ```
-
-3. **If your site needs to be embedded** by specific origins:
-   ```nginx
-   add_header X-Frame-Options "SAMEORIGIN" always;
-   # Or with CSP (more precise):
-   add_header Content-Security-Policy "frame-ancestors 'self' https://trusted.example.com" always;
-   ```
-
-4. **Verify:**
-   ```bash
-   curl -sI https://example.com/ | grep -iE '(x-frame|frame-ancestors)'
-   ```
-
-> See [references/gotchas.md](references/gotchas.md) for the deprecated `ALLOW-FROM` pitfall.
-
-**References:** [MDN: X-Frame-Options](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options), [MDN: CSP frame-ancestors](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors)
-
----
-
-## Checkpoint 5.7: CORS Configuration (10 pts)
-
-**What passes:** No `Access-Control-Allow-Origin` header (secure default, 10 pts), or specific origin (10 pts).
-**Partial credit:** Wildcard `*` (7 pts).
-**What fails:** N/A — any response scores at least 7 if the header is present.
-
-**Why it matters:** CORS controls which origins can make cross-origin requests to your site. Proper configuration protects your APIs while allowing legitimate agent integrations. A wildcard `*` isn't dangerous for public content but signals less intentional security posture.
-
-### Fix Workflow
-
-1. **Check current state:**
-   ```bash
-   curl -sI https://example.com/ | grep -i access-control-allow-origin
-   ```
-
-2. **If no header is present** — you already score 10/10. No action needed.
-
-3. **If you see `Access-Control-Allow-Origin: *`** and want full points — restrict to specific origins:
-
-   **Nginx:**
-   ```nginx
-   # Instead of: add_header Access-Control-Allow-Origin "*";
-   # Use a map for dynamic origin matching:
-   map $http_origin $cors_origin {
-     default "";
-     "https://app.example.com" $http_origin;
-     "https://agent.example.com" $http_origin;
-   }
-
-   add_header Access-Control-Allow-Origin $cors_origin always;
-   ```
-
-   **Express.js:**
-   ```javascript
-   const cors = require('cors');
-   app.use(cors({
-     origin: ['https://app.example.com', 'https://agent.example.com']
-   }));
-   ```
-
-4. **If you need wildcard for a public API** — that's fine, you still get 7/10.
-
-5. **Verify:**
-   ```bash
-   curl -sI -H "Origin: https://app.example.com" https://example.com/api/ | grep -i access-control
-   ```
-
-> See [references/gotchas.md](references/gotchas.md) for the "wildcard on authenticated endpoints" pitfall.
-
-**References:** [MDN: CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
-
----
-
-## Checkpoint 5.9: Referrer-Policy (10 pts)
-
-**What passes:** `Referrer-Policy` header present with a safe value (10 pts).
-**What fails:** Header missing (0 pts) or value is `unsafe-url` (0 pts).
-
-**Safe values:** `no-referrer`, `no-referrer-when-downgrade`, `origin`, `origin-when-cross-origin`, `same-origin`, `strict-origin`, `strict-origin-when-cross-origin`.
-
-**Why it matters:** Controls what referrer information leaks to third parties. Without it, full URLs (including query parameters with tokens, session IDs) may be sent to external sites.
-
-### Fix Workflow
-
-1. **Check current state:**
-   ```bash
-   curl -sI https://example.com/ | grep -i referrer-policy
-   ```
-
-2. **Add the header** — `strict-origin-when-cross-origin` is the recommended default:
-
-   **Nginx:**
-   ```nginx
-   add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-   ```
-
-   **Apache:**
-   ```apache
-   Header always set Referrer-Policy "strict-origin-when-cross-origin"
-   ```
-
-3. **Verify:**
-   ```bash
-   curl -sI https://example.com/ | grep -i referrer-policy
-   # Expected: referrer-policy: strict-origin-when-cross-origin
-   ```
-
-> See [references/gotchas.md](references/gotchas.md) for the "unsafe-url" pitfall.
-
-**References:** [MDN: Referrer-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy)
-
----
-
-## Key Gotchas
-
-Common mistakes that cause checkpoint failures:
-
-1. **HSTS max-age too short** — `max-age=86400` (1 day) scores only 10/20; use `max-age=31536000` (1 year)
-2. **CSP with only trivial directives** — `upgrade-insecure-requests` alone scores only 5/15
-3. **HSTS without includeSubDomains** — scores 16/20 instead of 20/20
-4. **X-Frame-Options ALLOW-FROM** — deprecated, not supported by modern browsers; use CSP `frame-ancestors` instead
-5. **CORS wildcard on auth endpoints** — `Access-Control-Allow-Origin: *` on endpoints that use cookies or tokens
-6. **unsafe-url Referrer-Policy** — leaks full URLs including query parameters; scores 0/10
-7. **Nginx add_header without "always"** — headers only sent on 2xx responses, missing on 3xx/4xx/5xx
-
-> See [references/gotchas.md](references/gotchas.md) for detailed correct vs incorrect examples of each.
-
----
-
-## References
-
-- [security-headers.md](references/security-headers.md) — Deep dive on all 7 headers: purpose, valid values, scoring, impact
-- [server-configs.md](references/server-configs.md) — Copy-paste configs for Nginx, Apache, Caddy, Vercel, Netlify, Cloudflare, Express, Next.js, Django
-- [gotchas.md](references/gotchas.md) — Common pitfalls with wrong vs correct examples
+- robots.txt or crawler access: use `ai-content-discovery`.
+- JSON-LD: use `structured-data`.
+- Semantic HTML: use `content-semantics`.
+- MCP, A2A or OpenAPI documents: use `agent-protocols`.
 
 ## Instructions
 
-1. **Identify failing checkpoints** from the IsAgentReady.com scan results
-2. **For the fastest fix**, use the "Fix All Headers at Once" section with a server config from [references/server-configs.md](references/server-configs.md)
-3. **For individual fixes**, follow the fix workflow for each failing checkpoint
-4. **Verify all headers** with the curl command in the "Fix All Headers at Once" section
-5. **Re-scan** at [isagentready.com](https://isagentready.com) to confirm improvements
+1. Get the failing checkpoints from the scan. Each result has a legacy id (`5.3`) and a stable id (`ia.hsts`).
+2. For the header checkpoints (5.1 to 5.9), use one server configuration from [references/server-configs.md](references/server-configs.md). It fixes all headers together.
+3. For the other checkpoints, go to the fix workflow with the anchor that is equal to the stable id.
+4. Replace `example.com` with the domain of the site. Run the verify command. All verify commands are read-only.
+5. Rescan with `isagentready results <domain> --checkpoint <stable-id>` or at [isagentready.com](https://isagentready.com).
 
-If `$ARGUMENTS` is provided, interpret it as the URL to fix or the specific checkpoint to address.
+If `$ARGUMENTS` is provided, use it as the URL to fix or as the checkpoint to fix.
+
+## Checkpoints
+
+Strength is the agentready.org spec level (MUST, SHOULD, MAY). Strength does not change the score.
+
+<!-- checkpoints:start (generated by scripts/sync-checkpoints.mjs) -->
+| Legacy | Stable ID | Name | AR IDs | Strength |
+|---|---|---|---|---|
+| 5.1 | [`ia.https`](#ia.https) | HTTPS | none | MUST |
+| 5.3 | [`ia.hsts`](#ia.hsts) | HSTS | none | MUST |
+| 5.4 | [`ia.csp`](#ia.csp) | Content-Security-Policy | none | MUST |
+| 5.5 | [`ia.x-content-type-options`](#ia.x-content-type-options) | X-Content-Type-Options | none | MUST |
+| 5.6 | [`ia.frame-protection`](#ia.frame-protection) | X-Frame-Options / frame-ancestors | none | MUST |
+| 5.7 | [`ia.cors`](#ia.cors) | CORS | none | MAY |
+| 5.9 | [`ia.referrer-policy`](#ia.referrer-policy) | Referrer-Policy | none | MUST |
+| 5.10 | [`ia.tool-definition-security`](#ia.tool-definition-security) | Tool definition security | none | MAY |
+| 5.11 | [`ia.auto-submit-risk`](#ia.auto-submit-risk) | Auto-submit risk | none | MAY |
+| 5.12 | [`ia.oauth-discovery`](#ia.oauth-discovery) | OAuth discovery | AR-ACT-01 | SHOULD |
+| 5.13 | [`ia.oauth-protected-resource`](#ia.oauth-protected-resource) | OAuth protected resource | AR-ACT-01 | SHOULD |
+| 5.14 | [`ia.agent-auth-readiness`](#ia.agent-auth-readiness) | Agent auth readiness | AR-ACT-01 | SHOULD |
+<!-- checkpoints:end -->
+
+## All Headers at Once
+
+```nginx
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-ancestors 'none'" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-Frame-Options "DENY" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+```
+
+Use `always`, so that Nginx also sends the headers on 3xx, 4xx and 5xx responses. Configurations for Apache, Caddy, Vercel, Netlify, Cloudflare, Express, Next.js and Django are in [references/server-configs.md](references/server-configs.md).
+
+Verify all headers: `curl -sfI https://example.com/ | grep -iE '^(strict-transport|content-security|x-content-type|x-frame|referrer-policy)'`
+
+## Fix Workflows
+
+<a id="ia.https"></a>
+### 5.1 HTTPS
+
+Passes when the final URL after redirects uses `https://` with a valid certificate.
+
+1. Get a certificate. With Let's Encrypt and Nginx: `sudo certbot --nginx -d example.com -d www.example.com`.
+2. Redirect HTTP to HTTPS:
+   ```nginx
+   server { listen 80; server_name example.com; return 301 https://$host$request_uri; }
+   ```
+
+Verify: `curl -sfI https://example.com/ | head -1`
+
+<a id="ia.hsts"></a>
+### 5.3 HSTS
+
+Passes when `Strict-Transport-Security` has `max-age` of 31536000 or more. `includeSubDomains` is better. A short `max-age` gives partial credit.
+
+1. Add the header: `add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;`
+2. Add `preload` and submit the domain at [hstspreload.org](https://hstspreload.org) when all subdomains use HTTPS.
+
+Verify: `curl -sfI https://example.com/ | grep -i '^strict-transport-security'`
+
+<a id="ia.csp"></a>
+### 5.4 Content-Security-Policy
+
+Passes when the CSP has real directives. A CSP with only `upgrade-insecure-requests` gives partial credit.
+
+1. Start in report-only mode to find the sources that the site needs:
+   ```nginx
+   add_header Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' https://www.googletagmanager.com; report-uri /csp-report" always;
+   ```
+2. Change to `Content-Security-Policy` when the reports are clean. See [references/security-headers.md](references/security-headers.md) for nonces.
+
+Verify: `curl -sfI https://example.com/ | grep -i '^content-security-policy'`
+
+<a id="ia.x-content-type-options"></a>
+### 5.5 X-Content-Type-Options
+
+Passes when the value is exactly `nosniff`.
+
+1. Add the header: `add_header X-Content-Type-Options "nosniff" always;`
+
+Verify: `curl -sfI https://example.com/ | grep -i '^x-content-type-options: nosniff'`
+
+<a id="ia.frame-protection"></a>
+### 5.6 X-Frame-Options / frame-ancestors
+
+Passes when `X-Frame-Options` is `DENY` or `SAMEORIGIN`, or the CSP has `frame-ancestors`.
+
+1. Add `frame-ancestors 'none'` to the CSP, or `add_header X-Frame-Options "DENY" always;`.
+2. When trusted sites must embed the page, use `frame-ancestors 'self' https://partner.example`. Do not use `ALLOW-FROM`.
+
+Verify: `curl -sfI https://example.com/ | grep -iE '^x-frame-options|frame-ancestors'`
+
+<a id="ia.cors"></a>
+### 5.7 CORS
+
+Applies to the public API operation that 4.19 verifies. Passes when preflight and GET give matching `Access-Control-Allow-*` headers, no wildcard with credentials and `Vary: Origin` for a dynamic origin.
+
+1. Answer the preflight and the GET with the same policy:
+   ```js
+   const allowed = new Set(["https://app.example.com", "https://agent.example"]);
+   app.use("/api", (req, res, next) => {
+     const origin = req.get("Origin");
+     if (allowed.has(origin)) res.set({ "Access-Control-Allow-Origin": origin, Vary: "Origin" });
+     res.set({ "Access-Control-Allow-Methods": "GET", "Access-Control-Allow-Headers": "Accept" });
+     return req.method === "OPTIONS" ? res.sendStatus(204) : next();
+   });
+   ```
+2. For a public API without cookies, `Access-Control-Allow-Origin: *` is correct. Never combine `*` with `Access-Control-Allow-Credentials: true`.
+
+Verify: `curl -sI -H 'Origin: https://agent.example' https://example.com/api | grep -iE '^(access-control-|vary)'`
+
+<a id="ia.referrer-policy"></a>
+### 5.9 Referrer-Policy
+
+Passes when `Referrer-Policy` is present and is not `unsafe-url`.
+
+1. Add the header: `add_header Referrer-Policy "strict-origin-when-cross-origin" always;`
+
+Verify: `curl -sfI https://example.com/ | grep -i '^referrer-policy'`
+
+<a id="ia.tool-definition-security"></a>
+### 5.10 Tool definition security
+
+Applies when the page has WebMCP tool definitions. Passes when the definitions contain no secrets (JWT, API keys, tokens, card numbers, passwords), the names match the descriptions, and read-only tools have `readOnlyHint`.
+
+1. Remove each token or key from `toolname`, `tooldescription` and `registerTool()` code. Load secrets on the server.
+2. Mark tools that do not change data:
+   ```js
+   document.modelContext?.registerTool({
+     name: "search_products",
+     description: "Search the product catalog by keyword",
+     annotations: { readOnlyHint: true },
+     inputSchema: { type: "object", properties: { query: { type: "string" } }, required: ["query"] },
+     execute: async ({ query }) => searchProducts(query),
+   });
+   ```
+
+Verify: `curl -sf https://example.com/ | grep -ciE 'tool(name|description)="[^"]*(token|password|secret|api[_-]?key)'` (expect 0)
+
+<a id="ia.auto-submit-risk"></a>
+### 5.11 Auto-submit risk
+
+Applies when the page has forms. Passes when no form has `toolautosubmit`, or only search and filter forms have it. Risky actions give partial credit. Password or card fields with auto-submit fail.
+
+1. Remove `toolautosubmit` from login, payment, delete and send forms. Keep it on search forms:
+   ```html
+   <form action="/search" toolname="search_products" tooldescription="Search the catalog" toolautosubmit>
+     <input name="q" toolparamdescription="Search keywords">
+   </form>
+   ```
+
+Verify: `curl -sf https://example.com/ | grep -oE '<form[^>]*toolautosubmit[^>]*>'` (expect only search or filter forms)
+
+<a id="ia.oauth-discovery"></a>
+### 5.12 OAuth discovery
+
+Applies when the site has auth signals. Passes when `/.well-known/oauth-authorization-server` or `/.well-known/openid-configuration` has `issuer`, `authorization_endpoint` and `token_endpoint`.
+
+1. Publish the metadata (RFC 8414):
+   ```json
+   {
+     "issuer": "https://example.com",
+     "authorization_endpoint": "https://example.com/oauth/authorize",
+     "token_endpoint": "https://example.com/oauth/token",
+     "code_challenge_methods_supported": ["S256"],
+     "scopes_supported": ["read", "write"]
+   }
+   ```
+
+Verify: `curl -sf https://example.com/.well-known/oauth-authorization-server | jq -e '.issuer and .authorization_endpoint and .token_endpoint'`
+
+<a id="ia.oauth-protected-resource"></a>
+### 5.13 OAuth protected resource
+
+Applies when the site has auth signals. Passes when `/.well-known/oauth-protected-resource` has `resource` and `authorization_servers`, or the homepage sends `WWW-Authenticate`.
+
+1. Publish the metadata (RFC 9728):
+   ```json
+   { "resource": "https://example.com/api", "authorization_servers": ["https://example.com"], "scopes_supported": ["read"] }
+   ```
+2. On a 401 from the API, send `WWW-Authenticate: Bearer resource_metadata="https://example.com/.well-known/oauth-protected-resource"`.
+
+Verify: `curl -sf https://example.com/.well-known/oauth-protected-resource | jq -e '.resource and (.authorization_servers | length > 0)'`
+
+<a id="ia.agent-auth-readiness"></a>
+### 5.14 Agent auth readiness
+
+Applies when the site has an auth surface. The check combines PKCE S256, scopes metadata, protected resource metadata or a `WWW-Authenticate` header, a valid `/auth.md` and an agent-safe grant.
+
+1. Add `"code_challenge_methods_supported": ["S256"]` and `scopes_supported` to the metadata from 5.12.
+2. Publish 5.13.
+3. Write `/auth.md`:
+   ```markdown
+   # Authentication
+
+   - Flow: OAuth 2.1 authorization code with PKCE (S256)
+   - Agents: use the device code grant or a user-approved token. Do not ask for passwords.
+   - Scopes: read (default), write (needs user approval)
+   ```
+
+Verify: `curl -sf https://example.com/.well-known/oauth-authorization-server | jq -e '.code_challenge_methods_supported | index("S256")'`
+
+## Key Gotchas
+
+1. An HSTS `max-age=86400` (one day) gives partial credit. Use one year.
+2. A CSP with only `upgrade-insecure-requests` gives partial credit.
+3. Nginx `add_header` without `always` skips error responses.
+4. `Access-Control-Allow-Origin: *` with credentials is invalid and unsafe.
+5. OAuth metadata on a different domain does not count for this site.
+
+See [references/gotchas.md](references/gotchas.md) for correct and incorrect examples.
+
+## References
+
+- [references/checkpoints.md](references/checkpoints.md): generated checkpoint data for each checkpoint
+- [references/security-headers.md](references/security-headers.md): each header, its values and its effect
+- [references/server-configs.md](references/server-configs.md): configurations for Nginx, Apache, Caddy, Vercel, Netlify, Cloudflare, Express, Next.js and Django
+- [references/gotchas.md](references/gotchas.md): common errors with correct and incorrect examples

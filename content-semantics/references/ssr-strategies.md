@@ -16,7 +16,7 @@ AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Googlebot) fetch raw HTML. They d
 </html>
 ```
 
-This scores 0 points on checkpoint 3.1. The fix: render content on the server.
+This fails checkpoint 3.1. The fix: render content on the server.
 
 ## Detecting SPA Shell Problems
 
@@ -46,12 +46,12 @@ If the character count is under 200, the site relies on JavaScript for content.
 
 ### Next.js
 
-#### App Router (Next.js 13+) — Server Components by Default
+#### App Router (Next.js 13+): Server Components by Default
 
 Components in the `app/` directory are Server Components by default. Content is rendered on the server automatically.
 
 ```tsx
-// app/page.tsx — Server Component (default, no directive needed)
+// app/page.tsx: Server Component (default, no directive needed)
 export default async function HomePage() {
   const products = await fetch('https://api.example.com/products').then(r => r.json());
 
@@ -137,7 +137,7 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
 
 ### Nuxt (Vue)
 
-#### Nuxt 3 — SSR by Default
+#### Nuxt 3: SSR by Default
 
 ```ts
 // nuxt.config.ts
@@ -333,7 +333,7 @@ export const routes: Routes = [
 
 ## Noscript Fallback
 
-If full SSR is not feasible, add a `<noscript>` fallback for partial credit (10 pts instead of 0):
+If full SSR is not feasible, add a `<noscript>` fallback for partial credit:
 
 ```html
 <body>
