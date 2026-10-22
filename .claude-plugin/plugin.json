@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "isagentready",
-  "version": "1.0.0",
-  "description": "AI agent readiness skills — fix website issues identified by IsAgentReady.com across content discovery, structured data, semantics, agent protocols, and security",
+  "version": "1.1.0",
+  "description": "AI agent readiness skills that fix website issues identified by IsAgentReady.com across content discovery, structured data, semantics, agent protocols, and security",
   "author": {
     "name": "Bart Waardenburg",
     "url": "https://github.com/bartwaardenburg"
@@ -29,6 +29,7 @@
     "webmcp",
     "a2a",
     "mcp",
+    "agentready",
     "isagentready"
   ]
 }

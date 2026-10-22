@@ -4,15 +4,16 @@
 [![MCP](https://img.shields.io/badge/MCP-compatible-purple.svg)](https://modelcontextprotocol.io)
 [![CI](https://github.com/bartwaardenburg/isagentready-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/bartwaardenburg/isagentready-skills/actions/workflows/validate.yml)
 
-Agent skills for fixing AI agent readiness issues identified by [IsAgentReady.com](https://isagentready.com). Works with any agent that supports the [Agent Skills](https://agentskills.io) specification — Claude Code, Cursor, OpenAI Codex, Windsurf, GitHub Copilot, Gemini CLI, Amp, and more.
+Agent skills for fixing AI agent readiness issues identified by [IsAgentReady.com](https://isagentready.com). The skills follow the open [Agent Skills](https://agentskills.io) specification. They work with each compatible agent, for example Claude Code, Cursor, OpenAI Codex, Windsurf, GitHub Copilot, Gemini CLI and Amp.
 
 ## Features
 
-- **42 checkpoints** across 5 categories with step-by-step fix workflows
-- **Framework-agnostic** — generic instructions that work with any web stack
-- **Copy-paste templates** for robots.txt, JSON-LD, semantic HTML, agent protocols, and security headers
-- **Server configurations** for Nginx, Apache, Caddy, Vercel, Netlify, Cloudflare, and more
-- **Companion skills** to the [IsAgentReady.com](https://isagentready.com) scanner and [isagentready-mcp](https://github.com/bartwaardenburg/isagentready-mcp) server
+- **Every active scanner checkpoint** has a fix workflow, an anchor equal to its stable id (for example `ia.llms-txt`) and a read-only verify command. For the current list, see `references/checkpoints.md` in each skill.
+- **agentready.org alignment**: each checkpoint shows its AR practice ids, its stage (Find, Read, Act) and its strength (MUST, SHOULD, MAY).
+- **Framework-agnostic**: the instructions work with each web stack.
+- **Copy-paste templates** for robots.txt, JSON-LD, semantic HTML, agent protocols and security headers.
+- **Server configurations** for Nginx, Apache, Caddy, Vercel, Netlify, Cloudflare and more.
+- **Companion** to the [IsAgentReady.com](https://isagentready.com) scanner and the [isagentready-mcp](https://github.com/bartwaardenburg/isagentready-mcp) server.
 
 ## How It Works
 
@@ -25,9 +26,9 @@ Agent skills for fixing AI agent readiness issues identified by [IsAgentReady.co
 
 Scan your website first to identify which checkpoints are failing. The scan results tell you exactly which skills to use.
 
-**Option A — Web scanner:** Visit [isagentready.com](https://isagentready.com)
+**Option A, web scanner:** Visit [isagentready.com](https://isagentready.com)
 
-**Option B — MCP server (recommended):** Install the [isagentready-mcp](https://github.com/bartwaardenburg/isagentready-mcp) server so your agent can scan, fix, and re-verify without leaving the editor:
+**Option B, MCP server (recommended):** Install the [isagentready-mcp](https://github.com/bartwaardenburg/isagentready-mcp) server so your agent can scan, fix, and re-verify without leaving the editor:
 
 ```bash
 claude mcp add isagentready-mcp -- npx isagentready-mcp
@@ -94,33 +95,48 @@ Clone or copy the skill directory into your agent's skills location. These skill
 
 ## Available Skills
 
-| Skill | Category | Weight | Description |
-|-------|----------|--------|-------------|
-| [ai-content-discovery](ai-content-discovery/) | Discovery | 30% | robots.txt, AI crawlers, sitemaps, llms.txt, meta robots, freshness |
-| [structured-data](structured-data/) | Search Signals | 20% | JSON-LD, Schema.org types, entity linking, breadcrumbs, FAQ, author |
-| [content-semantics](content-semantics/) | Semantics | 20% | SSR, headings, semantic HTML, ARIA, alt text, language, question H2s, form labels, autocomplete, keyboard nav, title, buttons, aria-hidden |
-| [agent-protocols](agent-protocols/) | Protocols | 15% | WebMCP, A2A, MCP discovery, OpenAPI, agents.json |
-| [security-trust](security-trust/) | Security | 15% | HTTPS, HSTS, CSP, XCTO, frame protection, CORS, referrer |
+| Skill | Category | Description |
+|-------|----------|-------------|
+| [ai-content-discovery](ai-content-discovery/) | Discovery | robots.txt, AI crawlers, sitemaps, llms.txt, Markdown negotiation, Link headers, AGENTS.md, soft 404, DNS-AID, pricing page |
+| [structured-data](structured-data/) | Search Signals | JSON-LD, Schema.org types, entity linking, validation, FAQ, author, trust pages |
+| [content-semantics](content-semantics/) | Semantics | SSR, headings, semantic HTML, ARIA, alt text, language, link text, forms, keyboard access, title, buttons, aria-hidden, widget state |
+| [agent-protocols](agent-protocols/) | Protocols | WebMCP, A2A, MCP server cards and live MCP, MCP Apps, OpenAPI, API and AI catalogs, Agent Skills index, NLWeb, SDKs and CLI, agent commerce |
+| [security-trust](security-trust/) | Security | HTTPS, HSTS, CSP, security headers, CORS, tool definition security, OAuth discovery, agent auth |
+
+The category weights and the points of each checkpoint are in the versioned scoring document, for example `https://isagentready.com/api/v2/methodology/<version>/scoring`. The skills do not copy these values, so they cannot drift.
 
 ### What's Included
 
 Each skill contains:
 
-- **SKILL.md** — Fix workflows for every checkpoint in that category, with scoring details and copy-paste code examples
-- **references/** — Deep-dive guides, framework-specific templates, and a gotchas file with correct vs incorrect examples
+- **SKILL.md**: the methodology version, the checkpoint table and a fix workflow for each checkpoint in the category
+- **references/checkpoints.md**: generated checkpoint data (stage, strength, AR mapping, evidence type, fix summary, verify and rescan commands)
+- **references/**: guides, framework templates and a gotchas file with correct and incorrect examples
 
-## Scoring
+## Methodology
 
-IsAgentReady.com scores websites 0-100 across 5 weighted categories:
+The skills match one IsAgentReady methodology version. Each SKILL.md states that version and links to the [methodology](https://isagentready.com/en/methodology). IsAgentReady.com aligns the methodology with the open [agentready.org](https://www.agentready.org/) spec.
 
-| Grade | Score | Meaning |
-|-------|-------|---------|
-| A+ | 95-100 | Best-in-class AI agent readiness |
-| A | 80-94 | Excellent — comprehensive readiness |
-| B | 70-79 | Good — solid foundation |
-| C | 40-69 | Fair — fundamentals present but gaps remain |
-| D | 20-39 | Minimal — basic signals missing |
-| F | 0-19 | No agent readiness signals detected |
+- **Stage**: Find, Read or Act.
+- **Strength**: MUST, SHOULD or MAY. Strength is a spec value and does not change the score.
+- **Evidence type**: `measured_study`, `scanner_data` or `recommendation`.
+
+## Checkpoint Sync
+
+`scripts/sync-checkpoints.mjs` (Node, no dependencies) keeps the skills in sync with the scanner.
+
+```bash
+# Write the checkpoint tables and references/checkpoints.md from the live catalog
+node scripts/sync-checkpoints.mjs
+
+# Use the local snapshot instead of the live endpoint
+node scripts/sync-checkpoints.mjs --snapshot scripts/checkpoints.snapshot.json
+
+# Write nothing; fail on drift, retired ids or missing ids (CI runs this)
+node scripts/sync-checkpoints.mjs --check --snapshot scripts/checkpoints.snapshot.json
+```
+
+The live source is `https://isagentready.com/api/v2/checkpoints?include_retired=true`.
 
 ## Example Prompts
 
@@ -141,10 +157,11 @@ See [CLAUDE.md](CLAUDE.md) for repository structure, skill creation guidelines, 
 
 ## Related
 
-- [isagentready-mcp](https://github.com/bartwaardenburg/isagentready-mcp) — MCP server for scanning websites from your agent
-- [IsAgentReady.com](https://isagentready.com) — The web scanner that identifies these issues
-- [spaceship-skills](https://github.com/bartwaardenburg/spaceship-skills) — Domain management skills using the same pattern
+- [isagentready-mcp](https://github.com/bartwaardenburg/isagentready-mcp): MCP server to scan websites from your agent
+- [IsAgentReady.com](https://isagentready.com): the web scanner that finds these issues
+- [agentready.org](https://www.agentready.org/): the open spec that the methodology aligns with
+- [spaceship-skills](https://github.com/bartwaardenburg/spaceship-skills): domain management skills with the same pattern
 
 ## License
 
-MIT — see [LICENSE](LICENSE) for details.
+MIT. See [LICENSE](LICENSE) for details.

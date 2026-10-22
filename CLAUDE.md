@@ -8,40 +8,62 @@ Agent skills for fixing AI agent readiness issues identified by [IsAgentReady.co
 .claude-plugin/
   marketplace.json          # Marketplace metadata (version must sync with plugin.json)
   plugin.json               # Plugin metadata (keywords, author, license)
-ai-content-discovery/       # Category 1: AI Content Discovery (30%)
-  SKILL.md                  # 7 checkpoints: robots.txt, AI crawlers, sitemap, llms.txt, meta robots, bot access, content freshness
+ai-content-discovery/       # Category: AI Content Discovery (discovery), plus the training exposure checks
+  SKILL.md                  # Methodology version, checkpoint table, fix workflows
   references/
-    robots-txt-guide.md     # robots.txt syntax, AI user-agents, testing
-    llms-txt-guide.md       # llms.txt spec, content structure, site-type examples
-    gotchas.md              # 12 pitfalls with correct vs incorrect examples
-structured-data/            # Category 2: Structured Data (20%)
-  SKILL.md                  # 8 checkpoints: JSON-LD, Organization/WebSite, high-value types, @id, breadcrumbs, validation, FAQPage, author
+    checkpoints.md          # GENERATED: checkpoint data for this skill
+    robots-txt-guide.md     # robots.txt syntax, AI user agents, tests
+    llms-txt-guide.md       # llms.txt structure and examples
+    gotchas.md              # Common errors with correct and incorrect examples
+structured-data/            # Category: AI Search Signals (structured_data)
+  SKILL.md
   references/
-    schema-types.md         # JSON-LD templates for 19 Schema.org types
-    json-ld-patterns.md     # @graph, entity linking, SearchAction, combining types
-    gotchas.md              # 11 pitfalls with correct vs incorrect examples
-content-semantics/          # Category 3: Content & Semantics (20%)
-  SKILL.md                  # 14 checkpoints: SSR, headings, semantic HTML, ARIA, alt text, lang, link text, question headings, form labels, autocomplete, keyboard nav, document title, button names, aria-hidden
+    checkpoints.md          # GENERATED
+    schema-types.md         # JSON-LD templates for Schema.org types
+    json-ld-patterns.md     # @graph, entity linking, SearchAction, combined types
+    gotchas.md
+content-semantics/          # Category: Content & Semantics (semantics)
+  SKILL.md
   references/
+    checkpoints.md          # GENERATED
     semantic-html-guide.md  # Semantic elements, ARIA mapping, heading patterns
-    ssr-strategies.md       # Framework-specific SSR guides (Next.js, Nuxt, Astro, Remix, SvelteKit, Angular)
-    gotchas.md              # 11 pitfalls with correct vs incorrect examples
-agent-protocols/            # Category 4: Agent Protocols (15%)
-  SKILL.md                  # 6 checkpoints: WebMCP declarative/manifest, A2A, MCP, OpenAPI, agents.json
+    ssr-strategies.md       # SSR for each framework
+    gotchas.md
+agent-protocols/            # Category: Agent Protocols (agent_protocols)
+  SKILL.md
   references/
-    webmcp-guide.md         # Declarative API, page manifests, imperative API, well-known manifest
-    a2a-mcp-guide.md        # A2A Agent Cards, MCP discovery, OpenAPI, agents.json
-    gotchas.md              # 13 pitfalls with correct vs incorrect examples
-security-trust/             # Category 5: Security & Trust (15%)
-  SKILL.md                  # 7 checkpoints: HTTPS, HSTS, CSP, XCTO, frame protection, CORS, Referrer-Policy
+    checkpoints.md          # GENERATED
+    webmcp-guide.md         # Declarative and imperative WebMCP
+    a2a-mcp-guide.md        # A2A, MCP server cards, OpenAPI, agents.json
+    gotchas.md
+security-trust/             # Category: Security & Trust (security)
+  SKILL.md
   references/
-    security-headers.md     # Deep dive on all 7 headers: purpose, valid values, scoring
-    server-configs.md       # Copy-paste configs for Nginx, Apache, Caddy, Vercel, Netlify, etc.
-    gotchas.md              # 7 pitfalls with correct vs incorrect examples
+    checkpoints.md          # GENERATED
+    security-headers.md     # Each header, its values and its effect
+    server-configs.md       # Configurations for Nginx, Apache, Caddy, Vercel, Netlify and others
+    gotchas.md
+scripts/
+  sync-checkpoints.mjs      # Writes checkpoint tables and references/checkpoints.md; --check fails on drift
+  sync-checkpoints.test.mjs # Tests for the sync script (node --test)
+  checkpoints.snapshot.json # Catalog snapshot of GET /api/v2/checkpoints?include_retired=true
 .github/
   workflows/
-    validate.yml            # CI: validates JSON, frontmatter, line counts, paths, version sync
+    validate.yml            # CI: JSON, frontmatter, line counts, paths, version sync, sync tests, drift check
 ```
+
+For the current checkpoints of a skill, see its `references/checkpoints.md`. Do not write checkpoint counts in docs. Counts change with each methodology version.
+
+## Checkpoint Catalog
+
+The IsAgentReady checkpoint catalog is the source of truth. `scripts/sync-checkpoints.mjs` reads it from `https://isagentready.com/api/v2/checkpoints?include_retired=true` or from `--snapshot scripts/checkpoints.snapshot.json`.
+
+- Run `node scripts/sync-checkpoints.mjs` after a methodology change. It writes the table between the `checkpoints:start` and `checkpoints:end` markers in each SKILL.md, and each `references/checkpoints.md`.
+- Do not edit the generated table or `references/checkpoints.md` by hand.
+- `node scripts/sync-checkpoints.mjs --check --snapshot scripts/checkpoints.snapshot.json` fails when a generated file is out of date, when a SKILL.md lists a retired checkpoint, or when a SKILL.md misses an active checkpoint of its category.
+- When the live endpoint is deployed, replace the snapshot with its response and run the sync.
+- Category to skill: `discovery` = ai-content-discovery, `structured_data` = structured-data, `semantics` = content-semantics, `agent_protocols` = agent-protocols, `security` = security-trust. Training exposure checks (`te.*`) are informational. They appear only in `ai-content-discovery/references/checkpoints.md`.
+- Never copy points or weights into a skill. Link to `https://isagentready.com/api/v2/methodology/<version>/scoring`.
 
 ## Creating a New Skill
 
@@ -54,18 +76,22 @@ security-trust/             # Category 5: Security & Trust (15%)
 
 ### SKILL.md Requirements
 
-- Under 500 lines — keep focused, put details in references
+- Under 500 lines. Keep it focused and put details in references.
 - Include "When to Use" and "When NOT to Use" sections
 - Include step-by-step fix workflows for each checkpoint
 - Use progressive disclosure: SKILL.md links to reference files, references don't chain
 - No hardcoded file paths
 - Every fix workflow must include a complete, copy-paste-ready code example
-- Checkpoint IDs must match the IsAgentReady.com scanner (1.1, 1.2, ... 5.9)
+- State the methodology version as ``Methodology version: `<version>` `` and link to `https://isagentready.com/en/methodology`
+- Keep the generated checkpoint table between the markers
+- Give each fix workflow an anchor equal to the stable id: `<a id="ia.<slug>"></a>`, then `### <legacy id> <name>`
+- Each verify command is read-only: `curl` without POST, PUT, DELETE, `-d`, `--data`, `--json`, `-F` or `-T`
 
 ### Reference Files
 
+- `checkpoints.md` per skill is generated. Do not edit it.
 - Two domain-specific reference files per skill (guide/patterns)
-- One `gotchas.md` per skill — common pitfalls with correct vs incorrect examples
+- One `gotchas.md` per skill with common errors and correct and incorrect examples
 - Each gotcha must show both WRONG and CORRECT approaches
 
 ### Naming Conventions
@@ -92,6 +118,8 @@ security-trust/             # Category 5: Security & Trust (15%)
 - [ ] "When to Use" and "When NOT to Use" sections present
 - [ ] All JSON files are valid
 - [ ] marketplace.json and plugin.json versions are in sync
-- [ ] Every checkpoint has a fix workflow
+- [ ] Every checkpoint has a fix workflow with a stable id anchor
+- [ ] `node scripts/sync-checkpoints.mjs --check --snapshot scripts/checkpoints.snapshot.json` passes
+- [ ] `node --test scripts/sync-checkpoints.test.mjs` passes
 - [ ] Every gotcha has correct vs incorrect examples
 - [ ] Reference URLs are valid
