@@ -8,7 +8,7 @@ Common pitfalls when implementing JSON-LD structured data, with wrong and correc
 
 JSON-LD injected via JavaScript after page load may not be seen by all crawlers. Google's crawler executes JavaScript, but many AI crawlers (Perplexity, ChatGPT) do not.
 
-### WRONG — Injected via JavaScript
+### WRONG: Injected via JavaScript
 
 ```html
 <script>
@@ -20,7 +20,7 @@ JSON-LD injected via JavaScript after page load may not be seen by all crawlers.
 </script>
 ```
 
-### CORRECT — Static in HTML
+### CORRECT: Static in HTML
 
 ```html
 <script type="application/ld+json">
@@ -41,7 +41,7 @@ JSON-LD injected via JavaScript after page load may not be seen by all crawlers.
 
 Without `@context`, the JSON-LD block is meaningless to parsers. The scanner specifically checks for schema.org in the context.
 
-### WRONG — No @context
+### WRONG: No @context
 
 ```json
 {
@@ -51,7 +51,7 @@ Without `@context`, the JSON-LD block is meaningless to parsers. The scanner spe
 }
 ```
 
-### CORRECT — With @context
+### CORRECT: With @context
 
 ```json
 {
@@ -70,7 +70,7 @@ Without `@context`, the JSON-LD block is meaningless to parsers. The scanner spe
 
 Both `http://schema.org` and `https://schema.org` work, but `https` is preferred and what Google recommends.
 
-### WRONG — Mixed protocols
+### WRONG: Mixed protocols
 
 ```json
 {
@@ -81,7 +81,7 @@ Both `http://schema.org` and `https://schema.org` work, but `https` is preferred
 }
 ```
 
-### CORRECT — Consistent https
+### CORRECT: Consistent https
 
 ```json
 {
@@ -100,7 +100,7 @@ Both `http://schema.org` and `https://schema.org` work, but `https` is preferred
 
 Having two entities of the same type in one `@graph` block is flagged as a validation issue (checkpoint 2.6).
 
-### WRONG — Two Organizations in one @graph
+### WRONG: Two Organizations in one @graph
 
 ```json
 {
@@ -112,7 +112,7 @@ Having two entities of the same type in one `@graph` block is flagged as a valid
 }
 ```
 
-### CORRECT — Separate blocks or use nested entities
+### CORRECT: Separate blocks or use nested entities
 
 ```json
 {
@@ -145,9 +145,9 @@ Or use two separate `<script>` blocks:
 
 ## 5. Empty required fields
 
-Fields that exist but have empty values (`""`, `[]`, `null`) are worse than missing them — they signal broken data.
+Fields that exist but have empty values (`""`, `[]`, `null`) are worse than missing them: they signal broken data.
 
-### WRONG — Empty name
+### WRONG: Empty name
 
 ```json
 {
@@ -158,7 +158,7 @@ Fields that exist but have empty values (`""`, `[]`, `null`) are worse than miss
 }
 ```
 
-### WRONG — Empty mainEntity
+### WRONG: Empty mainEntity
 
 ```json
 {
@@ -168,7 +168,7 @@ Fields that exist but have empty values (`""`, `[]`, `null`) are worse than miss
 }
 ```
 
-### CORRECT — Populated values
+### CORRECT: Populated values
 
 ```json
 {
@@ -183,67 +183,11 @@ Fields that exist but have empty values (`""`, `[]`, `null`) are worse than miss
 
 ---
 
-## 6. BreadcrumbList on homepage
-
-BreadcrumbList on a homepage is semantically meaningless — the homepage is the root, there's nothing above it.
-
-### WRONG — Breadcrumb on homepage
-
-```json
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": "https://example.com/"
-    }
-  ]
-}
-```
-
-### CORRECT — Breadcrumb on inner pages only
-
-On `https://example.com/products/widget`:
-
-```json
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": "https://example.com/"
-    },
-    {
-      "@type": "ListItem",
-      "position": 2,
-      "name": "Products",
-      "item": "https://example.com/products"
-    },
-    {
-      "@type": "ListItem",
-      "position": 3,
-      "name": "Widget",
-      "item": "https://example.com/products/widget"
-    }
-  ]
-}
-```
-
-**Rule:** The scanner skips BreadcrumbList checks on homepages (paths `/`, `""`, or no path). Only add BreadcrumbList on pages with actual navigation depth.
-
----
-
-## 7. @id without cross-references
+## 6. @id without cross-references
 
 Adding `@id` to entities but never referencing them from other entities gives partial credit (7/10) but not full marks.
 
-### WRONG — @id present but never referenced
+### WRONG: @id present but never referenced
 
 ```json
 {
@@ -263,7 +207,7 @@ Adding `@id` to entities but never referencing them from other entities gives pa
 }
 ```
 
-### CORRECT — @id with cross-reference
+### CORRECT: @id with cross-reference
 
 ```json
 {
@@ -288,11 +232,11 @@ Adding `@id` to entities but never referencing them from other entities gives pa
 
 ---
 
-## 8. Invalid JSON
+## 7. Invalid JSON
 
 The most common silent failure. Invalid JSON means the entire block is ignored.
 
-### WRONG — Trailing comma
+### WRONG: Trailing comma
 
 ```json
 {
@@ -303,7 +247,7 @@ The most common silent failure. Invalid JSON means the entire block is ignored.
 }
 ```
 
-### WRONG — Single quotes
+### WRONG: Single quotes
 
 ```json
 {
@@ -313,7 +257,7 @@ The most common silent failure. Invalid JSON means the entire block is ignored.
 }
 ```
 
-### WRONG — Unescaped characters in strings
+### WRONG: Unescaped characters in strings
 
 ```json
 {
@@ -323,7 +267,7 @@ The most common silent failure. Invalid JSON means the entire block is ignored.
 }
 ```
 
-### CORRECT — Valid JSON
+### CORRECT: Valid JSON
 
 ```json
 {
@@ -337,11 +281,11 @@ The most common silent failure. Invalid JSON means the entire block is ignored.
 
 ---
 
-## 9. Wrong @type casing
+## 8. Wrong @type casing
 
 Schema.org types are case-sensitive. `organization` is not the same as `Organization`.
 
-### WRONG — Lowercase type
+### WRONG: Lowercase type
 
 ```json
 {
@@ -351,7 +295,7 @@ Schema.org types are case-sensitive. `organization` is not the same as `Organiza
 }
 ```
 
-### WRONG — All caps
+### WRONG: All caps
 
 ```json
 {
@@ -361,7 +305,7 @@ Schema.org types are case-sensitive. `organization` is not the same as `Organiza
 }
 ```
 
-### CORRECT — PascalCase
+### CORRECT: PascalCase
 
 ```json
 {
@@ -375,11 +319,11 @@ Schema.org types are case-sensitive. `organization` is not the same as `Organiza
 
 ---
 
-## 10. Placing JSON-LD inside template loops
+## 9. Placing JSON-LD inside template loops
 
 When using server-side templates, avoid generating duplicate JSON-LD blocks for each item in a list.
 
-### WRONG — JSON-LD per loop iteration (Django/Jinja2 example)
+### WRONG: JSON-LD per loop iteration (Django/Jinja2 example)
 
 ```html
 {% for product in products %}
@@ -395,7 +339,7 @@ When using server-side templates, avoid generating duplicate JSON-LD blocks for 
 
 This creates N separate JSON-LD blocks with the same `@type`, triggering duplicate type warnings.
 
-### CORRECT — Single block with @graph or ItemList
+### CORRECT: Single block with @graph or ItemList
 
 ```html
 <script type="application/ld+json">
@@ -423,11 +367,11 @@ This creates N separate JSON-LD blocks with the same `@type`, triggering duplica
 
 ---
 
-## 11. Mixing JSON-LD with microdata/RDFa
+## 10. Mixing JSON-LD with microdata/RDFa
 
 Structured data formats should not conflict. If you have microdata in HTML attributes AND JSON-LD in a `<script>` block for the same entity, search engines may see duplicates.
 
-### WRONG — Same data in both formats
+### WRONG: Same data in both formats
 
 ```html
 <div itemscope itemtype="https://schema.org/Organization">
@@ -442,7 +386,7 @@ Structured data formats should not conflict. If you have microdata in HTML attri
 </script>
 ```
 
-### CORRECT — One format only (prefer JSON-LD)
+### CORRECT: One format only (prefer JSON-LD)
 
 ```html
 <script type="application/ld+json">
@@ -459,11 +403,11 @@ Structured data formats should not conflict. If you have microdata in HTML attri
 
 ---
 
-## 12. FAQPage without proper Question/Answer structure
+## 11. FAQPage without proper Question/Answer structure
 
 Adding FAQPage but with incomplete or missing Question items.
 
-### WRONG — Questions without acceptedAnswer
+### WRONG: Questions without acceptedAnswer
 
 ```json
 {
@@ -478,7 +422,7 @@ Adding FAQPage but with incomplete or missing Question items.
 }
 ```
 
-### WRONG — acceptedAnswer missing @type
+### WRONG: acceptedAnswer missing @type
 
 ```json
 {
@@ -496,7 +440,7 @@ Adding FAQPage but with incomplete or missing Question items.
 }
 ```
 
-### CORRECT — Full structure
+### CORRECT: Full structure
 
 ```json
 {
@@ -515,15 +459,15 @@ Adding FAQPage but with incomplete or missing Question items.
 }
 ```
 
-**Rule:** Every Question in mainEntity must have an `acceptedAnswer` with `@type: Answer` and a non-empty `text` property. Missing any of these gives partial credit (5/10 pts).
+**Rule:** Every Question in mainEntity must have an `acceptedAnswer` with `@type: Answer` and a non-empty `text` property. Missing any of these gives partial credit.
 
 ---
 
-## 13. Author as a plain string instead of typed object
+## 12. Author as a plain string instead of typed object
 
 Passing the author name as a string instead of a structured Person or Organization object.
 
-### WRONG — String author
+### WRONG: String author
 
 ```json
 {
@@ -534,7 +478,7 @@ Passing the author name as a string instead of a structured Person or Organizati
 }
 ```
 
-### WRONG — Object without @type
+### WRONG: Object without @type
 
 ```json
 {
@@ -547,7 +491,7 @@ Passing the author name as a string instead of a structured Person or Organizati
 }
 ```
 
-### CORRECT — Typed Person object
+### CORRECT: Typed Person object
 
 ```json
 {

@@ -1,6 +1,6 @@
 # Server Configurations for All Security Headers
 
-Copy-paste configs that add all 7 security headers at once. Each config targets a perfect 75/75 score on the IsAgentReady.com Security & Trust category.
+Copy-paste configs that add the security headers at once. Each config passes the header checkpoints of the IsAgentReady.com Security & Trust category.
 
 **Protections included in every config:**
 1. HTTPS redirect (where applicable)
@@ -9,7 +9,7 @@ Copy-paste configs that add all 7 security headers at once. Each config targets 
 4. X-Content-Type-Options header
 5. X-Frame-Options header
 6. Referrer-Policy header
-7. (CORS is secure by default — only add if you need cross-origin access)
+7. (CORS is secure by default: only add if you need cross-origin access)
 
 ---
 
@@ -31,22 +31,22 @@ server {
 
     # --- Security Headers ---
 
-    # HSTS (20 pts)
+    # HSTS
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
-    # CSP (15 pts) — adjust script-src/style-src for your site
+    # CSP: adjust script-src/style-src for your site
     add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'" always;
 
-    # X-Content-Type-Options (5 pts)
+    # X-Content-Type-Options
     add_header X-Content-Type-Options "nosniff" always;
 
-    # Frame Protection (5 pts)
+    # Frame Protection
     add_header X-Frame-Options "DENY" always;
 
-    # Referrer-Policy (10 pts)
+    # Referrer-Policy
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
-    # CORS — omit for 10 pts (secure default), or set specific origin:
+    # CORS: omit on pages, or set specific origins on the API:
     # add_header Access-Control-Allow-Origin "https://app.example.com" always;
 
     # --- End Security Headers ---
@@ -74,19 +74,19 @@ RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # --- Security Headers ---
 
-# HSTS (20 pts)
+# HSTS
 Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 
-# CSP (15 pts) — adjust for your site
+# CSP: adjust for your site
 Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
 
-# X-Content-Type-Options (5 pts)
+# X-Content-Type-Options
 Header always set X-Content-Type-Options "nosniff"
 
-# Frame Protection (5 pts)
+# Frame Protection
 Header always set X-Frame-Options "DENY"
 
-# Referrer-Policy (10 pts)
+# Referrer-Policy
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 ```
 
@@ -102,23 +102,23 @@ sudo systemctl restart apache2
 
 ```
 example.com {
-    # HTTPS is automatic with Caddy — no config needed for certificate
+    # HTTPS is automatic with Caddy: no config needed for certificate
 
     # --- Security Headers ---
     header {
-        # HSTS (20 pts)
+        # HSTS
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 
-        # CSP (15 pts) — adjust for your site
+        # CSP: adjust for your site
         Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
 
-        # X-Content-Type-Options (5 pts)
+        # X-Content-Type-Options
         X-Content-Type-Options "nosniff"
 
-        # Frame Protection (5 pts)
+        # Frame Protection
         X-Frame-Options "DENY"
 
-        # Referrer-Policy (10 pts)
+        # Referrer-Policy
         Referrer-Policy "strict-origin-when-cross-origin"
     }
 
@@ -165,7 +165,7 @@ example.com {
 }
 ```
 
-**Note:** Vercel handles HTTPS automatically. The CSP includes Vercel Analytics domains — remove them if you don't use Vercel Analytics. Vercel's framework may require `'unsafe-inline'` and `'unsafe-eval'` for script-src depending on your framework.
+**Note:** Vercel handles HTTPS automatically. The CSP includes Vercel Analytics domains: remove them if you don't use Vercel Analytics. Vercel's framework may require `'unsafe-inline'` and `'unsafe-eval'` for script-src depending on your framework.
 
 ---
 
@@ -210,25 +210,25 @@ async function handleRequest(request) {
   const response = await fetch(request);
   const newResponse = new Response(response.body, response);
 
-  // HSTS (20 pts)
+  // HSTS
   newResponse.headers.set(
     'Strict-Transport-Security',
     'max-age=31536000; includeSubDomains; preload'
   );
 
-  // CSP (15 pts) — adjust for your site
+  // CSP: adjust for your site
   newResponse.headers.set(
     'Content-Security-Policy',
     "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
   );
 
-  // X-Content-Type-Options (5 pts)
+  // X-Content-Type-Options
   newResponse.headers.set('X-Content-Type-Options', 'nosniff');
 
-  // Frame Protection (5 pts)
+  // Frame Protection
   newResponse.headers.set('X-Frame-Options', 'DENY');
 
-  // Referrer-Policy (10 pts)
+  // Referrer-Policy
   newResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
   return newResponse;
@@ -252,13 +252,13 @@ const app = express();
 
 // Helmet sets most security headers with sensible defaults
 app.use(helmet({
-  // HSTS (20 pts)
+  // HSTS
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
     preload: true
   },
-  // CSP (15 pts) — adjust for your site
+  // CSP: adjust for your site
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
@@ -272,11 +272,11 @@ app.use(helmet({
       baseUri: ["'self'"]
     }
   },
-  // X-Content-Type-Options (5 pts) — enabled by default
+  // X-Content-Type-Options: enabled by default
   noSniff: true,
-  // Frame Protection (5 pts)
+  // Frame Protection
   frameguard: { action: 'deny' },
-  // Referrer-Policy (10 pts)
+  // Referrer-Policy
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
 
@@ -336,7 +336,7 @@ const nextConfig = {
 module.exports = nextConfig;
 ```
 
-**Note:** Next.js requires `'unsafe-inline'` and `'unsafe-eval'` in script-src for its runtime. For stricter CSP with Next.js, use nonce-based CSP via middleware — see [Next.js CSP docs](https://nextjs.org/docs/app/building-your-application/configuring/content-security-policy).
+**Note:** Next.js requires `'unsafe-inline'` and `'unsafe-eval'` in script-src for its runtime. For stricter CSP with Next.js, use nonce-based CSP via middleware: see [Next.js CSP docs](https://nextjs.org/docs/app/building-your-application/configuring/content-security-policy).
 
 ---
 
@@ -352,18 +352,18 @@ SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-# HSTS (20 pts)
+# HSTS
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
-# X-Content-Type-Options (5 pts) — enabled by default in Django
+# X-Content-Type-Options: enabled by default in Django
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-# Referrer-Policy (10 pts)
+# Referrer-Policy
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
-# Frame Protection (5 pts) — Django sets X-Frame-Options by default
+# Frame Protection: Django sets X-Frame-Options by default
 X_FRAME_OPTIONS = "DENY"
 ```
 
@@ -381,7 +381,7 @@ MIDDLEWARE = [
     # ... rest of middleware
 ]
 
-# CSP (15 pts)
+# CSP
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
@@ -406,7 +406,7 @@ MIDDLEWARE = [
     # ...
 ]
 
-# Specific origins (10 pts) — do NOT use CORS_ALLOW_ALL_ORIGINS = True
+# Specific origins: do NOT use CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "https://app.example.com",
 ]

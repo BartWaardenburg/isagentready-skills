@@ -1,4 +1,4 @@
-# llms.txt — Specification and Examples
+# llms.txt: Specification and Examples
 
 ## What is llms.txt?
 
@@ -19,9 +19,9 @@ llms.txt is a proposed standard (by [Jeremy Howard](https://www.answer.ai/posts/
 ### Validation Rules (IsAgentReady Scanner)
 
 The scanner checks three things:
-1. **Content-Type** — `text/plain` or `text/markdown`
-2. **Starts with heading** — First non-empty line must begin with `#`
-3. **Contains URLs** — At least one `http://` or `https://` URL in the body
+1. **Content-Type**: `text/plain` or `text/markdown`
+2. **Starts with heading**: First non-empty line must begin with `#`
+3. **Contains URLs**: At least one `http://` or `https://` URL in the body
 
 All three must pass for the checkpoint to score.
 
@@ -51,7 +51,7 @@ All three must pass for the checkpoint to score.
 | `## Section`| Group links by topic                             | `## Documentation`          |
 | `- [Link]`  | Markdown links to key pages                      | `- [API Docs](https://...)` |
 
-### llms-full.txt (Expanded — Optional)
+### llms-full.txt (Expanded: Optional)
 
 The companion file contains the same structure but with inline content instead of (or in addition to) links. This gives LLMs the actual content without needing to fetch each URL.
 
@@ -232,12 +232,12 @@ Exclude:
 
 - Put the most important sections first
 - Within sections, order by relevance/popularity
-- Keep to 10-30 links total — this is a curated overview, not a sitemap
+- Keep to 10-30 links total: this is a curated overview, not a sitemap
 
 ### Updates
 
 - Update llms.txt when you add major new pages or sections
-- Keep URLs current — broken links reduce the file's usefulness
+- Keep URLs current: broken links reduce the file's usefulness
 - Version the file with `lastmod` comments if helpful:
   ```markdown
   # Acme Corp
@@ -325,6 +325,6 @@ curl -sI https://example.com/llms-full.txt
 
 ## External References
 
-- [llmstxt.org — Official specification](https://llmstxt.org/)
-- [Jeremy Howard — llms.txt proposal](https://www.answer.ai/posts/2024-09-03-llmstxt.html)
-- [llmstxt.org directory — Sites using llms.txt](https://llmstxt.org/directory.html)
+- [llmstxt.org: Official specification](https://llmstxt.org/)
+- [Jeremy Howard: llms.txt proposal](https://www.answer.ai/posts/2024-09-03-llmstxt.html)
+- [llmstxt.org directory: Sites using llms.txt](https://llmstxt.org/directory.html)

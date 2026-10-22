@@ -34,7 +34,7 @@ AI agents parse pages using the accessibility tree, which is built from semantic
 - **Purpose:** Introductory content for its nearest sectioning ancestor
 - **Implicit ARIA role:** `banner` (only when direct child of `<body>`)
 - **Usage:** Site header (logo, nav) or article header (title, date)
-- **Note:** A page can have multiple `<header>` elements — one for the site, one per `<article>`
+- **Note:** A page can have multiple `<header>` elements: one for the site, one per `<article>`
 
 ```html
 <!-- Site header -->
@@ -213,12 +213,12 @@ Semantic HTML elements automatically map to ARIA roles. Using the semantic eleme
 **Key rule:** Do NOT add redundant `role` attributes to semantic elements:
 
 ```html
-<!-- WRONG — redundant -->
+<!-- WRONG: redundant -->
 <main role="main">
 <nav role="navigation">
 <header role="banner">
 
-<!-- CORRECT — implicit roles are sufficient -->
+<!-- CORRECT: implicit roles are sufficient -->
 <main>
 <nav>
 <header>
@@ -292,7 +292,7 @@ Hides decorative content from the accessibility tree:
 
 ### Standard Page Layout
 ```html
-<h1>Company Name — Page Title</h1>
+<h1>Company Name: Page Title</h1>
   <h2>About Us</h2>
     <h3>Our Mission</h3>
     <h3>Our Team</h3>

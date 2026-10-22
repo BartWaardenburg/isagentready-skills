@@ -15,7 +15,7 @@ function Header() {
   return <header><h1>Company Name</h1></header>;
 }
 
-// Page component — now the page has TWO <h1> tags
+// Page component: now the page has TWO <h1> tags
 function ProductPage() {
   return (
     <>
@@ -74,11 +74,11 @@ function FeatureCard({ title, description }) {
   );
 }
 
-// Used under <h2> — fine
+// Used under <h2>: fine
 <h2>Features</h2>
 <FeatureCard title="Speed" />  {/* h3 is correct here */}
 
-// Used under <h4> — broken! h3 after h4 is a level skip backwards
+// Used under <h4>: broken! h3 after h4 is a level skip backwards
 <h4>Advanced Features</h4>
 <FeatureCard title="Custom API" />  {/* h3 is wrong here */}
 ```
@@ -110,7 +110,7 @@ function FeatureCard({ title, description, headingLevel = 'h3' }) {
 
 Adding `<noscript>` provides a fallback but does NOT make your content visible to AI agents that parse HTML normally (they don't execute JS but they also don't specifically look for `<noscript>`).
 
-**WRONG — Thinking noscript solves the problem:**
+**WRONG: Thinking noscript solves the problem:**
 ```html
 <body>
   <div id="root"></div>
@@ -120,10 +120,10 @@ Adding `<noscript>` provides a fallback but does NOT make your content visible t
   <script src="/bundle.js"></script>
 </body>
 <!-- AI agents see: empty root div + "Please enable JavaScript" -->
-<!-- Score: 10 pts (partial), NOT 20 pts -->
+<!-- Result: partial, not pass -->
 ```
 
-**CORRECT — Server-render actual content:**
+**CORRECT: Server-render actual content:**
 ```html
 <body>
   <main>
@@ -136,10 +136,10 @@ Adding `<noscript>` provides a fallback but does NOT make your content visible t
   <script src="/bundle.js"></script>
 </body>
 <!-- AI agents see: full content in HTML -->
-<!-- Score: 20 pts (pass) -->
+<!-- Result: pass -->
 ```
 
-**Rule:** `<noscript>` is partial credit (10 pts). Real SSR is the only way to get full score (20 pts).
+**Rule:** `<noscript>` is partial credit. Real SSR is the only way to get full score.
 
 ---
 
@@ -198,7 +198,7 @@ Adding explicit `role` attributes that duplicate the implicit role of semantic e
 
 **CORRECT:**
 ```html
-<!-- Semantic elements provide implicit roles — no role attribute needed -->
+<!-- Semantic elements provide implicit roles: no role attribute needed -->
 <header>
 <nav>
 <main>
@@ -271,10 +271,10 @@ There's a critical difference between a missing `alt` attribute and an empty `al
 
 **WRONG:**
 ```html
-<!-- Missing alt — accessibility violation, AI agents flag this -->
+<!-- Missing alt: accessibility violation, AI agents flag this -->
 <img src="decorative-line.svg">
 
-<!-- Alt text on decorative image — AI agents waste time processing irrelevant info -->
+<!-- Alt text on decorative image: AI agents waste time processing irrelevant info -->
 <img src="decorative-line.svg" alt="A blue horizontal line separator">
 
 <!-- Alt describes file name instead of content -->
@@ -283,7 +283,7 @@ There's a critical difference between a missing `alt` attribute and an empty `al
 
 **CORRECT:**
 ```html
-<!-- Empty alt for decorative images — correctly excluded from accessibility tree -->
+<!-- Empty alt for decorative images: correctly excluded from accessibility tree -->
 <img src="decorative-line.svg" alt="">
 
 <!-- Descriptive alt for content images -->
@@ -456,32 +456,3 @@ Wrapping semantic elements in unnecessary `<div>` containers for styling, which 
 ```
 
 **Note:** `<header>` only has the implicit `banner` role when it's a direct child of `<body>`. Nesting it inside a `<div>` can change its semantic meaning in some assistive technologies.
-
----
-
-## 12. Statement Headings Instead of Questions
-
-H2 headings written as statements instead of questions miss the 78.4% citation advantage from ChatGPT.
-
-**WRONG:**
-```html
-<h2>AI Agent Readiness Overview</h2>
-<h2>Benefits of Structured Data</h2>
-<h2>Getting Started Guide</h2>
-```
-All statement-format headings. Score: 0/10 for checkpoint 3.8.
-
-**CORRECT:**
-```html
-<h2>What Is AI Agent Readiness?</h2>
-<h2>Why Does Structured Data Matter?</h2>
-<h2>How Do You Get Started?</h2>
-```
-Question-format headings that match how users query AI systems.
-
-**Also valid — ending with a question mark:**
-```html
-<h2>Ready for AI Agents?</h2>
-```
-
-**Rule:** Aim for at least 2 question-format H2 headings on pages with 4+ H2s, or at least 30% on pages with 3 or fewer. Question words: how, what, why, when, where, which, who, can, does, do, is, are, will, should, would, could, shall — or any heading ending with `?`.

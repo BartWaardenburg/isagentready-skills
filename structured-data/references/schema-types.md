@@ -1,6 +1,6 @@
 # Schema Types Reference
 
-Complete JSON-LD templates for all schema types checked by IsAgentReady.com (checkpoints 2.2 and 2.3). Each template is copy-paste ready — replace placeholder values with your actual data.
+Complete JSON-LD templates for all schema types checked by IsAgentReady.com (checkpoints 2.2 and 2.3). Each template is copy-paste ready: replace placeholder values with your actual data.
 
 ## Identity Types (Checkpoint 2.2)
 
