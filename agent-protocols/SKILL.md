@@ -67,9 +67,9 @@ Strength is the agentready.org spec level (MUST, SHOULD, MAY). Strength does not
 | 4.24 | [`ia.developer-docs-link`](#ia.developer-docs-link) | Developer docs discoverability | AR-FIND-02, AR-READ-04 | MAY |
 | 4.25 | [`ia.mcp-apps`](#ia.mcp-apps) | MCP Apps UI resources | AR-ACT-05 | MAY |
 | 4.26 | [`ia.nlweb-ask`](#ia.nlweb-ask) | NLWeb ask endpoint | AR-ACT-09 | MAY |
-| 4.27 | [`ia.agent-checkout`](#ia.agent-checkout) | Agent checkout (Link, ACP checkout) | AR-ACT-08 | MAY |
+| 4.27 | [`ia.agent-checkout`](#ia.agent-checkout) | Agent checkout | AR-ACT-08 | MAY |
 | 4.28 | [`ia.sdk-cli`](#ia.sdk-cli) | SDKs and CLI | AR-ACT-06 | SHOULD |
-| 4.29 | [`ia.agent-task-access`](#ia.agent-task-access) | MCP server or CLI for task sites | AR-ACT-10 | MUST |
+| 4.29 | [`ia.agent-task-access`](#ia.agent-task-access) | Agent task access | AR-ACT-10 | MUST |
 | 4.30 | [`ia.docs-answer`](#ia.docs-answer) | Docs pages that answer | AR-READ-04, AR-FIND-02, AR-READ-05 | SHOULD |
 <!-- checkpoints:end -->
 
