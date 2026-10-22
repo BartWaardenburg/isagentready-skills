@@ -53,7 +53,7 @@ Strength is the agentready.org spec level (MUST, SHOULD, MAY). Strength does not
 | 1.8 | [`ia.bot-accessibility`](#ia.bot-accessibility) | HTTP bot accessibility | AR-FIND-01 | MUST |
 | 1.9 | [`ia.link-headers`](#ia.link-headers) | Link response headers | AR-FIND-04, AR-READ-06 | MAY |
 | 1.10 | [`ia.content-usage`](#ia.content-usage) | Content-Usage preferences | none | MAY |
-| 1.11 | [`ia.agents-md`](#ia.agents-md) | AGENTS.md | none | MAY |
+| 1.11 | [`ia.agents-md`](#ia.agents-md) | AGENTS.md agent guide | none | MAY |
 | 1.12 | [`ia.agent-content-contracts`](#ia.agent-content-contracts) | Agent content contracts | AR-READ-11, AR-ACT-01 | MAY |
 | 1.13 | [`ia.soft-404`](#ia.soft-404) | Soft-404 hygiene | AR-READ-02 | MUST |
 | 1.14 | [`ia.dns-aid`](#ia.dns-aid) | DNS-AID agent records | none | MAY |
@@ -218,7 +218,7 @@ Passes when robots.txt has a `Content-Signal:` line with a known key (`search`, 
 Verify: `curl -sf https://example.com/robots.txt | grep -i '^content-signal:'`
 
 <a id="ia.agents-md"></a>
-### 1.11 AGENTS.md
+### 1.11 AGENTS.md agent guide
 
 Passes when `/AGENTS.md` returns text, starts with a `#` heading and has 50 or more characters. An HTML soft-404 page fails.
 
