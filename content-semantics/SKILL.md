@@ -1,500 +1,279 @@
 ---
 name: content-semantics
-description: Fixes content and semantic HTML issues — implements server-side rendering, heading hierarchy, semantic HTML elements, ARIA landmarks, image alt text, language attributes, descriptive link texts, question-based headings, form labels, autocomplete hints, keyboard navigability, document titles, button accessible names, and aria-hidden misuse so AI agents can navigate and understand page content via the accessibility tree. Use when asked to "fix semantic HTML", "add SSR", "fix heading hierarchy", "add alt text", "improve semantics score", "fix accessibility for AI", "add ARIA landmarks", "fix language attribute", "add question headings", "fix form labels", "add autocomplete", "fix keyboard navigation", "fix document title", "fix button names", "fix aria-hidden", or any semantic HTML task.
+description: Fixes content and semantic HTML issues. Adds server-side rendering, a correct heading hierarchy, semantic landmark elements, ARIA labels, image alt text, the lang attribute, descriptive link texts, form labels, autocomplete tokens, keyboard access, document titles, button names, correct aria-hidden use and widget state so AI agents can read and operate a page through the HTML and the accessibility tree. Use when asked to "fix semantic HTML", "add SSR", "fix heading hierarchy", "add alt text", "improve semantics score", "fix accessibility for AI", "fix form labels", "add autocomplete", "fix keyboard navigation", "fix button names", "fix aria-hidden", "add aria-expanded", or any semantic HTML task.
 ---
 
 # Content & Semantics
 
-Fixes Category 3 (Content & Semantics, 20% weight) issues from [IsAgentReady.com](https://isagentready.com). AI agents use the accessibility tree — not visual rendering — to parse pages. Good semantic HTML and heading hierarchy directly improve AI comprehension.
+Fixes the Content & Semantics category of [IsAgentReady.com](https://isagentready.com). Agents read the server HTML, the DOM and the accessibility tree. Good semantic HTML gives reliable signals in each of these views.
+
+- Methodology version: `2026-11-02`. Methodology: https://isagentready.com/en/methodology
+- Scoring (weights and points): https://isagentready.com/api/v2/methodology/2026-11-02/scoring
+- Full checkpoint data (stage, evidence type, verify command, rescan command): [references/checkpoints.md](references/checkpoints.md)
 
 ## When to Use
 
-- IsAgentReady scan shows issues in **Content & Semantics** category
-- Site has low scores on checkpoints 3.1–3.14
-- User asks to fix semantic HTML, headings, SSR, alt text, ARIA, or link texts
-- Building a new site and want AI agent readiness from the start
+- The scan shows failures in Content & Semantics (legacy ids 3.x).
+- The page is an empty SPA shell without server-rendered text.
+- Headings, landmarks, alt texts, labels or button names are missing.
+- Forms or widgets are hard for browser agents to operate.
 
 ## When NOT to Use
 
-- Issues are in other categories (use `ai-content-discovery`, `structured-data`, `agent-protocols`, or `security-trust`)
-- Problem is purely visual styling (not semantic structure)
-- Site already scores A+ on Content & Semantics
-
-## Checkpoints Overview
-
-| ID  | Checkpoint                  | Points | Priority    |
-|-----|-----------------------------|--------|-------------|
-| 3.1 | Server-side rendered content | 20     | Critical    |
-| 3.2 | Heading hierarchy           | 20     | Critical    |
-| 3.3 | Semantic HTML elements      | 20     | Important   |
-| 3.4 | ARIA landmarks              | 10     | Important   |
-| 3.5 | Image alt text              | 15     | Important   |
-| 3.6 | Language attribute           | 5      | Nice-to-have|
-| 3.7 | Descriptive link texts      | 10     | Nice-to-have|
-| 3.8 | Question-based headings     | 10     | Important   |
-| 3.9 | Form label coverage         | 10     | Important   |
-| 3.10| Form field autocomplete     | 10     | Important   |
-| 3.11| Keyboard navigability       | 5      | Important   |
-| 3.12| Document title              | 10     | Important   |
-| 3.13| Button accessible names     | 5      | Important   |
-| 3.14| aria-hidden misuse          | 10     | Important   |
-
-Total: 160 points. Category weight: 20% of overall score.
-
----
-
-## Checkpoint 3.1: Server-Side Rendered Content (20 pts)
-
-**What the scanner checks:** Whether `<body>` contains >200 characters of visible text in raw HTML (no JS execution). Detects SPA shells (`<div id="root"></div>`). Checks for `<noscript>` fallback.
-
-**Scoring:**
-- 20 pts — >200 chars visible text in raw HTML
-- 10 pts — Limited text but `<noscript>` fallback present
-- 5 pts — Some visible text but under 200 chars
-- 0 pts — Empty SPA shell or no visible text
-
-**Why it matters:** AI agents cannot execute JavaScript. They parse raw HTML to understand page content. Without SSR, your content is invisible to most AI crawlers and assistants.
-
-### Fix Workflow
-
-1. **Test current state** — check what AI agents see:
-   ```bash
-   curl -s https://example.com | sed 's/<script[^>]*>.*<\/script>//g; s/<style[^>]*>.*<\/style>//g; s/<[^>]*>//g' | tr -s ' \n' | head -20
-   ```
-   If this returns minimal text, your content relies on JavaScript.
-
-2. **Detect SPA shell** — look for empty containers:
-   ```bash
-   curl -s https://example.com | grep -E '<div id="(root|app|__next)"></div>'
-   ```
-
-3. **Implement SSR** — see [references/ssr-strategies.md](references/ssr-strategies.md) for framework-specific guides (Next.js, Nuxt, Astro, Remix, SvelteKit, Angular).
-
-4. **Add `<noscript>` fallback** (partial credit if full SSR isn't feasible):
-   ```html
-   <noscript>
-     <p>This site requires JavaScript. Visit our <a href="/sitemap">sitemap</a> for a text-based overview.</p>
-   </noscript>
-   ```
-
-5. **Verify** — re-run the curl test and confirm >200 chars of visible text.
-
-**References:**
-- [Rendering on the Web](https://web.dev/articles/rendering-on-the-web)
-- [Google JavaScript SEO basics](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics)
-
----
-
-## Checkpoint 3.2: Heading Hierarchy (20 pts)
-
-**What the scanner checks:** Exactly one `<h1>`, sequential heading levels (no h1→h3 skip), non-empty heading text.
-
-**Scoring:**
-- 20 pts — Single `<h1>`, no level skips, all headings have text
-- 15 pts — Good hierarchy but some headings have empty text
-- 10 pts — Single `<h1>` present but levels are skipped
-- 5 pts — Multiple `<h1>` tags
-- 0 pts — No `<h1>` found or no headings at all
-
-**Why it matters:** AI agents use headings to build a content outline and determine topic hierarchy. A clear h1→h2→h3 structure helps AI systems extract and summarize your content accurately.
-
-### Fix Workflow
-
-1. **Audit current headings:**
-   ```bash
-   curl -s https://example.com | grep -oE '<h[1-6][^>]*>.*?</h[1-6]>' | head -30
-   ```
-
-2. **Fix the hierarchy** — ensure exactly one `<h1>` and sequential levels:
-   ```html
-   <h1>Page Title — One Per Page</h1>
-     <h2>Main Section</h2>
-       <h3>Subsection</h3>
-       <h3>Subsection</h3>
-     <h2>Another Section</h2>
-       <h3>Subsection</h3>
-         <h4>Detail</h4>
-   ```
-
-3. **Common fixes:**
-   - Multiple `<h1>` tags → keep one, demote others to `<h2>`
-   - `<h1>` → `<h3>` skip → add intermediate `<h2>`
-   - Empty headings → add meaningful text or remove the tag
-   - Logo in `<h1>` → move logo out, use text `<h1>` for page title
-
-4. **Verify** — re-check that heading levels are sequential.
-
-See [references/gotchas.md](references/gotchas.md) for common heading hierarchy pitfalls (component-level `<h1>`, level resets).
-
-**References:**
-- [MDN Heading Elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
-- [W3C Using h1-h6 to identify headings](https://www.w3.org/WAI/WCAG22/Techniques/html/H42)
-
----
-
-## Checkpoint 3.3: Semantic HTML Elements (20 pts)
-
-**What the scanner checks:** Presence of 5 semantic landmark elements: `<header>`, `<nav>`, `<main>`, `<article>` or `<section>`, `<footer>`. 4 points each.
-
-**Scoring:**
-- 20 pts (pass) — All 5 elements present
-- 12–16 pts (partial) — 3–4 elements present
-- 0–8 pts (fail) — Fewer than 3 elements
-
-**Why it matters:** AI agents navigate pages using the accessibility tree, not visual layout. Semantic elements like `<main>`, `<nav>`, and `<article>` provide structural meaning that AI systems rely on to parse content.
-
-### Fix Workflow
-
-1. **Check which elements are present:**
-   ```bash
-   curl -s https://example.com | grep -oE '<(header|nav|main|article|section|footer)[\s>]' | sort -u
-   ```
-
-2. **Implement the full semantic structure:**
-   ```html
-   <body>
-     <header>
-       <nav>
-         <a href="/">Home</a>
-         <a href="/about">About</a>
-         <a href="/contact">Contact</a>
-       </nav>
-     </header>
-
-     <main>
-       <article>
-         <h1>Page Title</h1>
-         <section>
-           <h2>Introduction</h2>
-           <p>Content here...</p>
-         </section>
-         <section>
-           <h2>Details</h2>
-           <p>More content...</p>
-         </section>
-       </article>
-     </main>
-
-     <footer>
-       <nav aria-label="Footer">
-         <a href="/privacy">Privacy Policy</a>
-         <a href="/terms">Terms of Service</a>
-       </nav>
-       <p>&copy; 2026 Example Inc.</p>
-     </footer>
-   </body>
-   ```
-
-3. **Replace `<div>` wrappers** with semantic equivalents:
-   - `<div class="header">` → `<header>`
-   - `<div class="nav">` → `<nav>`
-   - `<div class="main">` → `<main>`
-   - `<div class="footer">` → `<footer>`
-   - `<div class="sidebar">` → `<aside>`
-
-See [references/semantic-html-guide.md](references/semantic-html-guide.md) for the complete element reference and `<article>` vs `<section>` guidance.
-
-**References:**
-- [MDN Semantics in HTML](https://developer.mozilla.org/en-US/docs/Glossary/Semantics#semantics_in_html)
-- [W3C HTML5 Document Sections](https://www.w3.org/TR/html52/sections.html)
-
----
-
-## Checkpoint 3.4: ARIA Landmarks (10 pts)
-
-**What the scanner checks:**
-- Implicit landmarks from semantic elements (`<main>` → main, `<nav>` → navigation, `<header>` → banner, `<footer>` → contentinfo, `<aside>` → complementary)
-- Explicit ARIA roles (`role="navigation"`, `role="main"`, etc.)
-- Additive ARIA attributes: `aria-label`, `aria-labelledby`, `aria-describedby`, `aria-live`, `aria-expanded`, `aria-current`, `aria-hidden`
-
-**Scoring:**
-- 10 pts — 3+ landmark regions AND at least 1 additive ARIA attribute
-- 7 pts — 3+ landmark regions, no additive ARIA
-- 5 pts — 1+ landmark AND 1+ additive ARIA attribute
-- 3 pts — Any landmark or ARIA attribute present
-- 0 pts — No landmarks or ARIA attributes found
-
-**Why it matters:** ARIA landmarks help AI agents identify page regions (navigation, main content, footer). This is the same API used by screen readers and is increasingly used by AI browsing agents.
-
-### Fix Workflow
-
-1. **Use semantic HTML first** — these provide implicit landmarks without extra attributes:
-   ```html
-   <header>   <!-- implicit role="banner" -->
-   <nav>      <!-- implicit role="navigation" -->
-   <main>     <!-- implicit role="main" -->
-   <footer>   <!-- implicit role="contentinfo" -->
-   <aside>    <!-- implicit role="complementary" -->
-   ```
-
-2. **Add ARIA attributes for disambiguation and state:**
-   ```html
-   <nav aria-label="Primary">
-     <a href="/" aria-current="page">Home</a>
-     <a href="/about">About</a>
-   </nav>
-
-   <nav aria-label="Footer">
-     <a href="/privacy">Privacy</a>
-   </nav>
-
-   <div aria-live="polite" aria-label="Search results">
-     <!-- Dynamic content area -->
-   </div>
-
-   <button aria-expanded="false" aria-label="Toggle menu">Menu</button>
-   ```
-
-3. **Do NOT add redundant roles** to semantic elements:
-   ```html
-   <!-- WRONG — redundant, not recommended by W3C -->
-   <main role="main">
-
-   <!-- CORRECT — semantic element is sufficient -->
-   <main>
-   ```
-
-4. **Verify** — check for 3+ landmark types plus at least one `aria-*` attribute.
-
-**References:**
-- [W3C Landmarks Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/)
-- [MDN ARIA Roles](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles)
-
----
-
-## Checkpoint 3.5: Image Alt Text (15 pts)
-
-**What the scanner checks:** All `<img>` tags have non-empty `alt` attributes. Score = (images with alt / total images) * 15. No images on page = full score.
-
-**Why it matters:** AI agents cannot see images. Alt text is the only way for AI systems to understand image content, context, and relevance to the surrounding text.
-
-### Fix Workflow
-
-1. **Find images missing alt text:**
-   ```bash
-   curl -s https://example.com | grep -oE '<img [^>]*>' | grep -v 'alt='
-   ```
-
-2. **Add appropriate alt text:**
-   ```html
-   <!-- Content images: describe what the image shows -->
-   <img src="team-photo.jpg" alt="Engineering team at the 2026 company offsite">
-   <img src="chart.png" alt="Revenue growth chart showing 40% increase in Q4 2025">
-   <img src="product.jpg" alt="Wireless noise-cancelling headphones in matte black">
-
-   <!-- Decorative images: use empty alt (NOT missing alt) -->
-   <img src="divider.svg" alt="">
-   <img src="bg-pattern.png" alt="">
-
-   <!-- Icons with adjacent text: use empty alt to avoid repetition -->
-   <img src="email-icon.svg" alt=""> <span>Email us</span>
-
-   <!-- Logos: use the company/brand name -->
-   <img src="logo.svg" alt="Acme Inc.">
-   ```
-
-3. **Alt text guidelines:**
-   - Be specific and concise (under 125 characters)
-   - Describe the content and function, not appearance
-   - Don't start with "Image of..." or "Picture of..."
-   - For charts/graphs, describe the key data point or trend
-   - For decorative images, use `alt=""` (empty, not missing)
-
-**References:**
-- [WCAG Non-text Content](https://www.w3.org/WAI/WCAG22/Understanding/non-text-content.html)
-- [MDN img alt attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#alt)
-
----
-
-## Checkpoint 3.6: Language Attribute (5 pts)
-
-**What the scanner checks:** `<html>` tag has a `lang` attribute with a valid BCP 47 language code.
-
-**Scoring:**
-- 5 pts — Valid BCP 47 code (e.g., `en`, `nl`, `en-US`)
-- 2 pts — `lang` attribute present but invalid value
-- 0 pts — No `lang` attribute
-
-**Why it matters:** The `lang` attribute tells AI agents what language your content is in, enabling correct text processing, translation, and language-specific understanding.
-
-### Fix Workflow
-
-1. **Check current state:**
-   ```bash
-   curl -s https://example.com | grep -oE '<html[^>]*lang="[^"]*"'
-   ```
-
-2. **Add or fix the lang attribute:**
-   ```html
-   <!-- English -->
-   <html lang="en">
-
-   <!-- Regional variants -->
-   <html lang="en-US">
-   <html lang="en-GB">
-   <html lang="nl-NL">
-   <html lang="de-DE">
-   <html lang="fr-FR">
-   <html lang="ja">
-   <html lang="zh-Hans">
-   ```
-
-3. **For multilingual content**, use `lang` on specific elements:
-   ```html
-   <html lang="en">
-   <body>
-     <p>This is English text.</p>
-     <blockquote lang="fr">Ceci est en fran&ccedil;ais.</blockquote>
-   </body>
-   </html>
-   ```
-
-**References:**
-- [MDN lang attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang)
-- [W3C Declaring language in HTML](https://www.w3.org/International/questions/qa-html-language-declarations)
-
----
-
-## Checkpoint 3.7: Descriptive Link Texts (10 pts)
-
-**What the scanner checks:** Samples up to 50 links. Flags generic text: "click here", "read more", "learn more", "here", "link", "more", "details", "info", "more details". Score = (descriptive links / total sampled) * 10.
-
-**Why it matters:** AI agents use link text to understand navigation and discover related content. Generic text like "click here" provides no context about where the link leads.
-
-### Fix Workflow
-
-1. **Find generic links:**
-   ```bash
-   curl -s https://example.com | grep -oiE '<a [^>]*>([^<]*)<\/a>' | grep -iE '>(click here|read more|learn more|here|link|more|details|info|more details)<'
-   ```
-
-2. **Replace with descriptive text:**
-   ```html
-   <!-- WRONG -->
-   <a href="/pricing">Click here</a>
-   <a href="/blog/ai-trends">Read more</a>
-   <a href="/docs">Learn more</a>
-   To sign up, <a href="/register">click here</a>.
-
-   <!-- CORRECT -->
-   <a href="/pricing">View pricing plans</a>
-   <a href="/blog/ai-trends">Read our AI trends analysis</a>
-   <a href="/docs">Explore the documentation</a>
-   <a href="/register">Create your free account</a>.
-   ```
-
-3. **Patterns for common cases:**
-   - Blog posts: "Read [article title]" instead of "Read more"
-   - CTAs: describe the action — "Start free trial", "Download the report"
-   - Navigation: use the destination name — "About us", "API documentation"
-   - Lists: "[Item name] details" instead of "Details"
-
-4. **For "Read more" in card layouts**, make the entire card clickable or use `aria-label`:
-   ```html
-   <!-- Option A: descriptive visible text -->
-   <a href="/blog/ai-trends">Read AI trends analysis</a>
-
-   <!-- Option B: aria-label when visual design requires short text -->
-   <a href="/blog/ai-trends" aria-label="Read AI trends analysis">Read more</a>
-   ```
-
-**References:**
-- [WCAG Link Purpose (In Context)](https://www.w3.org/WAI/WCAG22/Understanding/link-purpose-in-context.html)
-- [MDN Anchor element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a)
-
----
-
-## Checkpoint 3.8: Question-Based Headings (10 pts)
-
-**What the scanner checks:** H2 headings that use question format — ending with `?` or starting with a question word (how, what, why, when, where, which, who, can, does, do, is, are, will, should, would, could, shall).
-
-**Scoring:**
-- 10 pts — 2+ question-format H2 headings, or (3 or fewer total H2s and at least 30% are questions)
-- 5 pts — At least 1 question-format H2
-- 0 pts — H2 headings exist but none are questions
-- Skip (0/0) — No H2 headings present
-
-**Why it matters:** 78.4% of ChatGPT citations come from pages with question-based H2 headings. Question headings match how users query AI systems, making your content more likely to be selected as a source for AI-generated answers.
-
-### Fix Workflow
-
-1. **Audit current H2 headings:**
-   ```bash
-   curl -s https://example.com | grep -oE '<h2[^>]*>.*?</h2>'
-   ```
-
-2. **Rewrite H2 headings as questions:**
-   ```html
-   <!-- WRONG -->
-   <h2>AI Agent Readiness</h2>
-   <h2>Content Discovery by AI Systems</h2>
-
-   <!-- CORRECT -->
-   <h2>What Is AI Agent Readiness?</h2>
-   <h2>How Do AI Systems Discover Your Content?</h2>
-   <h2>Why Does Structured Data Matter for AI?</h2>
-   ```
-
-3. **Recognized question starters:** how, what, why, when, where, which, who, can, does, do, is, are, will, should, would, could, shall — or any heading ending with `?`.
-
-4. **Not all headings need to be questions** — aim for 2+ question H2s on pages with 4+ H2s, or 30%+ on pages with 3 or fewer.
-
-5. **Pair with FAQPage schema** (checkpoint 2.7) for maximum AI citation potential — match H2 questions with JSON-LD Question/Answer pairs.
-
-6. **Verify:**
-   ```bash
-   curl -s https://example.com | grep -oE '<h2[^>]*>.*?</h2>' | grep -iE '(\?|>(How|What|Why|When|Where|Which|Who|Can|Does|Do|Is|Are|Will|Should|Would|Could|Shall) )'
-   ```
-
-**References:**
-- [MDN Heading Elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements)
-
----
-
-## Quick Wins Checklist
-
-For the fastest score improvement, fix in this order:
-
-1. **Add `<html lang="en">`** — 5 pts, one line (checkpoint 3.6)
-2. **Add semantic elements** — wrap existing `<div>`s with `<header>`, `<nav>`, `<main>`, `<footer>` (checkpoint 3.3)
-3. **Fix heading hierarchy** — ensure one `<h1>`, sequential levels (checkpoint 3.2)
-4. **Add ARIA attributes** — `aria-label` on duplicate navs, `aria-current="page"` (checkpoint 3.4)
-5. **Add alt text** to all images (checkpoint 3.5)
-6. **Fix generic link texts** — replace "click here" and "read more" (checkpoint 3.7)
-7. **Rewrite H2s as questions** — match how users query AI systems (checkpoint 3.8)
-8. **Add form labels** — associate every input with a label (checkpoint 3.9)
-9. **Add autocomplete** — help agents fill forms correctly (checkpoint 3.10)
-10. **Fix document title** — descriptive, 10-70 chars (checkpoint 3.12)
-11. **Fix aria-hidden misuse** — never on focusable elements (checkpoint 3.14)
-12. **Add button names** — every button needs an accessible name (checkpoint 3.13)
-13. **Fix keyboard navigation** — no positive tabindex, proper roles on clickable divs (checkpoint 3.11)
-14. **Implement SSR** — largest effort but highest single-checkpoint score (checkpoint 3.1)
-
-## Key Gotchas
-
-Common mistakes that cause checkpoint failures:
-
-1. **Multiple `<h1>` tags** — Components that each add their own `<h1>` break hierarchy
-2. **Heading level skips** — Going from `<h1>` directly to `<h3>` without `<h2>`
-3. **SPA with empty shell** — `<div id="root"></div>` scores 0 without SSR
-4. **Missing alt vs empty alt** — `<img src="...">` (no alt) fails; `<img src="..." alt="">` (empty) is valid for decorative images
-5. **Generic link text** — "Click here" and "Read more" provide no context for AI agents
-6. **Statement headings instead of questions** — "AI Agent Readiness" scores 0; "What Is AI Agent Readiness?" scores points
-
-> See [references/gotchas.md](references/gotchas.md) for detailed correct vs incorrect examples of each.
-
-## References
-
-- [references/semantic-html-guide.md](references/semantic-html-guide.md) — Semantic elements, ARIA mapping, heading patterns, link text patterns
-- [references/ssr-strategies.md](references/ssr-strategies.md) — Framework-specific SSR implementation guides
-- [references/gotchas.md](references/gotchas.md) — Common pitfalls with correct vs incorrect examples
+- JSON-LD or FAQPage markup: use `structured-data`.
+- robots.txt, sitemap or llms.txt: use `ai-content-discovery`.
+- WebMCP tool annotations: use `agent-protocols`.
+- Visual design changes without a change to the HTML structure.
 
 ## Instructions
 
-1. **Identify failing checkpoints** from the IsAgentReady.com scan results
-2. **Follow the fix workflow** for each failing checkpoint above
-3. **Apply the code examples** — adapt HTML structure and content to the user's site
-4. **Verify each fix** using the curl commands provided in each workflow
-5. **Re-scan** at [isagentready.com](https://isagentready.com) to confirm improvements
+1. Get the failing checkpoints from the scan. Each result has a legacy id (`3.2`) and a stable id (`ia.heading-hierarchy`).
+2. Go to the fix workflow with the anchor that is equal to the stable id.
+3. Adapt the example to the site. Replace `example.com` with the domain of the site.
+4. Run the verify command. All verify commands are read-only. Some checks have no shell check. Then use the rescan command.
+5. Rescan with `isagentready results <domain> --checkpoint <stable-id>` or at [isagentready.com](https://isagentready.com).
 
-If `$ARGUMENTS` is provided, interpret it as the URL to fix or the specific checkpoint to address.
+If `$ARGUMENTS` is provided, use it as the URL to fix or as the checkpoint to fix.
+
+## Checkpoints
+
+Strength is the agentready.org spec level (MUST, SHOULD, MAY). Strength does not change the score.
+
+<!-- checkpoints:start (generated by scripts/sync-checkpoints.mjs) -->
+| Legacy | Stable ID | Name | AR IDs | Strength |
+|---|---|---|---|---|
+| 3.1 | [`ia.server-rendered-content`](#ia.server-rendered-content) | Server-side rendered content | AR-READ-01, AR-READ-03 | MUST |
+| 3.2 | [`ia.heading-hierarchy`](#ia.heading-hierarchy) | Heading hierarchy | AR-READ-03 | MUST |
+| 3.3 | [`ia.semantic-html`](#ia.semantic-html) | Semantic HTML elements | none | MUST |
+| 3.4 | [`ia.landmarks-aria`](#ia.landmarks-aria) | Landmarks and ARIA | none | SHOULD |
+| 3.5 | [`ia.image-alt`](#ia.image-alt) | Image alt text | none | MUST |
+| 3.6 | [`ia.lang-attribute`](#ia.lang-attribute) | Language attribute | none | MUST |
+| 3.7 | [`ia.link-text`](#ia.link-text) | Descriptive link texts | none | MUST |
+| 3.9 | [`ia.form-labels`](#ia.form-labels) | Form label coverage | none | SHOULD |
+| 3.10 | [`ia.form-autocomplete`](#ia.form-autocomplete) | Form field autocomplete | none | SHOULD |
+| 3.11 | [`ia.keyboard-navigation`](#ia.keyboard-navigation) | Keyboard navigability | none | SHOULD |
+| 3.12 | [`ia.document-title`](#ia.document-title) | Document title | AR-READ-03 | MUST |
+| 3.13 | [`ia.button-names`](#ia.button-names) | Button accessible names | none | SHOULD |
+| 3.14 | [`ia.aria-hidden`](#ia.aria-hidden) | aria-hidden misuse | none | SHOULD |
+| 3.15 | [`ia.widget-state`](#ia.widget-state) | Dynamic widget state | none | SHOULD |
+<!-- checkpoints:end -->
+
+## Fix Workflows
+
+<a id="ia.server-rendered-content"></a>
+### 3.1 Server-side rendered content
+
+Passes when the `<body>` of the raw HTML has more than 200 characters of visible text without JavaScript. A `<noscript>` fallback gives partial credit.
+
+1. Find an empty shell such as `<div id="root"></div>` in the raw HTML.
+2. Turn on SSR or static generation in the framework. See [references/ssr-strategies.md](references/ssr-strategies.md) for Next.js, Nuxt, Astro, Remix, SvelteKit and Angular.
+   ```js
+   // Next.js App Router: a server component renders on the server by default
+   export default async function Page() {
+     const product = await getProduct();
+     return <main><h1>{product.name}</h1><p>{product.summary}</p></main>;
+   }
+   ```
+
+Verify: `curl -sf https://example.com/ | sed -e 's/<[^>]*>//g' | tr -s ' \n' | wc -c` (expect more than 200)
+
+<a id="ia.heading-hierarchy"></a>
+### 3.2 Heading hierarchy
+
+Passes when the page has exactly one `<h1>`, does not skip levels and has no empty headings.
+
+1. Keep one `<h1>` for the page title. Change other `<h1>` elements to `<h2>`.
+2. Add the missing level when a heading jumps from `<h1>` to `<h3>`:
+   ```html
+   <h1>Planner Pro</h1>
+     <h2>Features</h2>
+       <h3>Timeline view</h3>
+     <h2>Pricing</h2>
+   ```
+3. Do not put the logo image in the `<h1>`.
+
+Verify: no read-only shell check gives a pass or fail. Use the rescan command.
+
+<a id="ia.semantic-html"></a>
+### 3.3 Semantic HTML elements
+
+Passes when the page has `<header>`, `<nav>`, `<main>`, `<article>` or `<section>`, and `<footer>`.
+
+1. Replace the layout `<div>` wrappers with semantic elements:
+   ```html
+   <body>
+     <header><nav aria-label="Primary"><a href="/">Home</a></nav></header>
+     <main><article><h1>Page title</h1><section><h2>Part</h2></section></article></main>
+     <footer><p>Example Inc</p></footer>
+   </body>
+   ```
+
+Verify: `curl -sf https://example.com/ | grep -oE '<(header|nav|main|article|section|footer)[ >]' | sort -u`
+
+<a id="ia.landmarks-aria"></a>
+### 3.4 Landmarks and ARIA
+
+Passes when the page has three or more landmark regions and one or more ARIA attributes such as `aria-label`, `aria-current` or `aria-live`.
+
+1. Use the semantic elements from 3.3 first. They give implicit landmarks.
+2. Label repeated landmarks and mark the current page:
+   ```html
+   <nav aria-label="Primary"><a href="/" aria-current="page">Home</a></nav>
+   <nav aria-label="Footer"><a href="/privacy">Privacy</a></nav>
+   ```
+3. Do not add redundant roles such as `<main role="main">`.
+
+Verify: `curl -sf https://example.com/ | grep -oE '(role|aria-[a-z]+)="' | sort -u`
+
+<a id="ia.image-alt"></a>
+### 3.5 Image alt text
+
+Passes when each `<img>` has an `alt` attribute. A page without images passes. `alt=""` is correct for decorative images.
+
+1. Write a short description for each content image. Use `alt=""` for decorative images:
+   ```html
+   <img src="team.jpg" alt="The Example Inc team at the 2026 offsite">
+   <img src="divider.svg" alt="">
+   ```
+
+Verify: `curl -sf https://example.com/ | grep -oE '<img [^>]*>' | grep -vc 'alt='` (expect 0)
+
+<a id="ia.lang-attribute"></a>
+### 3.6 Language attribute
+
+Passes when `<html>` has a `lang` attribute with a valid BCP 47 code such as `en`, `nl` or `en-US`.
+
+1. Set the language on the root element: `<html lang="en">`.
+2. Use `lang` on elements in a different language: `<blockquote lang="fr">`.
+
+Verify: `curl -sf https://example.com/ | grep -oE '<html[^>]* lang="[A-Za-z-]+"'`
+
+<a id="ia.link-text"></a>
+### 3.7 Descriptive link texts
+
+Passes when the sampled links do not use generic text such as "click here", "read more", "learn more", "here", "more", "details" or "info".
+
+1. Replace generic text with text that names the target:
+   ```html
+   <a href="/pricing">See the pricing plans</a>
+   <a href="/blog/sprints" aria-label="Read the sprint planning guide">Read more</a>
+   ```
+
+Verify: `curl -sf https://example.com/ | grep -ciE '>(click here|read more|learn more|here|more)</a>'` (expect 0)
+
+<a id="ia.form-labels"></a>
+### 3.9 Form label coverage
+
+Passes when each visible form field has a label: `<label for>`, a wrapping `<label>`, `aria-label`, `aria-labelledby`, `title` or `placeholder`. A page without fields skips this check.
+
+1. Connect a label to each field:
+   ```html
+   <label for="email">Email address</label>
+   <input id="email" name="email" type="email">
+   ```
+2. Use a visible `<label>` when possible. A `placeholder` alone is a weak label.
+
+Verify: no read-only shell check gives a pass or fail. Use the rescan command.
+
+<a id="ia.form-autocomplete"></a>
+### 3.10 Form field autocomplete
+
+Passes when 80% or more of the text, email, tel, url, password and search fields have an `autocomplete` attribute. 40% or more gives partial credit.
+
+1. Add the correct token to each field:
+   ```html
+   <input name="name" autocomplete="name">
+   <input name="email" type="email" autocomplete="email">
+   <input name="phone" type="tel" autocomplete="tel">
+   <input name="password" type="password" autocomplete="current-password">
+   ```
+
+Verify: `curl -sf https://example.com/ | grep -oE '<input[^>]*type="(text|email|tel|url|password)"[^>]*>' | grep -vc 'autocomplete='` (expect 0)
+
+<a id="ia.keyboard-navigation"></a>
+### 3.11 Keyboard navigability
+
+Passes when the page has no positive `tabindex`, no clickable `<div>` without a role and focus, and no event handler on a `<div>` or `<span>` without a role.
+
+1. Remove positive `tabindex` values. Use `tabindex="0"` or the natural order.
+2. Use native controls for click targets:
+   ```html
+   <!-- Incorrect --> <div onclick="openMenu()">Menu</div>
+   <!-- Correct -->   <button type="button" onclick="openMenu()">Menu</button>
+   ```
+
+Verify: `curl -sf https://example.com/ | grep -cE 'tabindex="[1-9]'` (expect 0)
+
+<a id="ia.document-title"></a>
+### 3.12 Document title
+
+Passes when `<title>` is present, not generic ("Home", "Untitled") and 10 to 70 characters long.
+
+1. Give each page a unique title with the page topic and the brand:
+   ```html
+   <title>Pricing plans for teams | Planner Pro</title>
+   ```
+
+Verify: `curl -sf https://example.com/ | grep -oE '<title>[^<]*</title>'`
+
+<a id="ia.button-names"></a>
+### 3.13 Button accessible names
+
+Passes when each `<button>`, `input` button and `[role="button"]` has a name from text, `aria-label`, `aria-labelledby`, `title` or `value`.
+
+1. Add text or an `aria-label` to icon buttons:
+   ```html
+   <button type="button" aria-label="Close dialog"><svg aria-hidden="true">...</svg></button>
+   <input type="submit" value="Send message">
+   ```
+
+Verify: no read-only shell check gives a pass or fail. Use the rescan command.
+
+<a id="ia.aria-hidden"></a>
+### 3.14 aria-hidden misuse
+
+Passes when `aria-hidden="true"` is not on `<body>` and not on a container with links, buttons or inputs. `aria-hidden` on `<body>` fails.
+
+1. Remove `aria-hidden` from `<body>` and from containers with focusable elements.
+2. To hide inactive content, use `hidden` or `inert`. These attributes also remove focus:
+   ```html
+   <div id="old-panel" inert>...</div>
+   ```
+
+Verify: `curl -sf https://example.com/ | grep -c '<body[^>]*aria-hidden="true"'` (expect 0)
+
+<a id="ia.widget-state"></a>
+### 3.15 Dynamic widget state
+
+Applies when the server HTML has widgets or live regions. Passes when each widget exposes its state and updates are announced.
+
+1. Expose the state on disclosures, tabs, toggles and the current item:
+   ```html
+   <button aria-expanded="false" aria-controls="faq-1">Can I cancel?</button>
+   <div id="faq-1" hidden>Yes, at any time.</div>
+
+   <div role="tablist">
+     <button role="tab" aria-selected="true" aria-controls="tab-1">Monthly</button>
+   </div>
+   <p role="status" aria-live="polite">3 results</p>
+   ```
+2. Update `aria-expanded` and `aria-selected` in the same script that changes the view.
+
+Verify: `curl -sf https://example.com/ | grep -oE 'aria-(expanded|selected|checked|pressed|current|live)=' | sort | uniq -c`
+
+## Key Gotchas
+
+1. Each component adds its own `<h1>`, so the page has many.
+2. `<img src="...">` without `alt` fails. `alt=""` is correct for decoration.
+3. A `<div id="root"></div>` shell has no text for agents.
+4. `aria-hidden="true"` on a modal backdrop that contains the modal hides the modal.
+5. A JavaScript toggle changes the view but not `aria-expanded`.
+
+See [references/gotchas.md](references/gotchas.md) for correct and incorrect examples.
+
+## References
+
+- [references/checkpoints.md](references/checkpoints.md): generated checkpoint data for each checkpoint
+- [references/semantic-html-guide.md](references/semantic-html-guide.md): semantic elements, ARIA mapping, heading and link text patterns
+- [references/ssr-strategies.md](references/ssr-strategies.md): SSR for each framework
+- [references/gotchas.md](references/gotchas.md): common errors with correct and incorrect examples
