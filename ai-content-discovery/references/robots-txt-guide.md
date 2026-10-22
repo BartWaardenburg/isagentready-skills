@@ -86,8 +86,8 @@ These are the AI crawlers checked by the IsAgentReady scanner:
 | User-Agent        | Purpose                          | Documentation |
 |-------------------|----------------------------------|---------------|
 | ClaudeBot         | Training data for Claude models  | [Anthropic ClaudeBot](https://docs.anthropic.com/en/docs/about-claude/models#web-crawling) |
-| Claude-User       | Real-time browsing in Claude     |: |
-| Claude-SearchBot  | Claude search results            |: |
+| Claude-User       | Real-time browsing in Claude     | none |
+| Claude-SearchBot  | Claude search results            | none |
 
 ### Google
 

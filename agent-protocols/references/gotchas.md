@@ -140,7 +140,7 @@ Content-Type: text/html
   ...
 </html>
 ```
-Result: fail. scanner detects HTML and skips this endpoint.
+Result: fail. Scanner detects HTML and skips this endpoint.
 
 **CORRECT: JSON spec at /openapi.json:**
 ```
@@ -163,13 +163,13 @@ The scanner requires non-empty JSON. An empty object or array scores 0.
 ```json
 {}
 ```
-Result: fail. must have at least one key-value pair.
+Result: fail. Must have at least one key-value pair.
 
 **WRONG: empty array at /.well-known/agents.json:**
 ```json
 []
 ```
-Result: fail. scanner expects a JSON object (map), not an array.
+Result: fail. Scanner expects a JSON object (map), not an array.
 
 **CORRECT: non-empty object:**
 ```json
