@@ -7,6 +7,7 @@ import { join } from "node:path";
 import {
   TABLE_END,
   TABLE_START,
+  checkReference,
   checkSkill,
   isReadOnlyCommand,
   normalizePayload,
@@ -162,6 +163,10 @@ test("validateDefinitions accepts the committed snapshot", () => {
   assert.deepEqual(validateDefinitions(normalizePayload(snapshot).definitions), []);
 });
 
+test("validateDefinitions accepts a definition without verify.rescan", () => {
+  assert.deepEqual(validateDefinitions([definition({ verify: { command: null, expect: null } })]), []);
+});
+
 test("checkSkill passes a skill that lists every active checkpoint", () => {
   assert.deepEqual(check(validSkill()), []);
 });
@@ -200,6 +205,52 @@ test("checkSkill fails when the methodology version is missing or old", () => {
 test("checkSkill fails when a verify step in SKILL.md sends data", () => {
   const markdown = `${validSkill()}\n\`\`\`bash\ncurl -X POST https://example.com/mcp\n\`\`\`\n`;
   assert.ok(check(markdown).some((error) => error.includes("read-only")));
+});
+
+test("checkSkill fails when a multi-line curl in SKILL.md sends data", () => {
+  const markdown = `${validSkill()}\n\`\`\`bash\ncurl https://example.com/mcp \\\n  -X POST -d x\n\`\`\`\n`;
+  assert.ok(check(markdown).some((error) => error.includes("read-only")));
+});
+
+test("checkSkill allows a multi-line read-only curl", () => {
+  const markdown = `${validSkill()}\n\`\`\`bash\ncurl -sf \\\n  https://example.com/robots.txt\n\`\`\`\n`;
+  assert.deepEqual(check(markdown), []);
+});
+
+test("checkReference fails when a reference file mentions a retired checkpoint", () => {
+  const errors = checkReference({ skill: "agent-protocols", file: "gotchas.md", markdown: "Do not use ia.webmcp-manifest.\n", definitions });
+  assert.ok(errors.some((error) => error.startsWith("agent-protocols/references/gotchas.md") && error.includes("ia.webmcp-manifest")));
+  assert.deepEqual(checkReference({ skill: "agent-protocols", file: "gotchas.md", markdown: "Use ia.webmcp-declarative.\n", definitions }), []);
+});
+
+test("renderReference shows why, references, evidence source, applicability and aggregate data", () => {
+  const rich = definition({
+    why: "Agents read robots.txt first.",
+    evidence_source: { title: "agentready.org AR-FIND-01", url: "https://www.agentready.org/#reachable" },
+    references: [{ title: "RFC 9309", url: "https://www.rfc-editor.org/rfc/rfc9309", kind: "spec" }],
+    applicability: { mode: "always", surfaces: ["website"], condition: null },
+    aggregate: {
+      benchmark_version: "2026-10",
+      denominator: 1000,
+      rates: { pass: 0.7, partial: 0.1, fail: 0.15, skip: 0.05 },
+      applicable_denominator: 950,
+      applicable_fail_rate: 0.1579,
+      source_url: "https://isagentready.com/en/research/state-of-agent-ready-web/2026-10",
+    },
+  });
+  const output = renderReference("ai-content-discovery", [rich], VERSION);
+  assert.match(output, /Agents read robots\.txt first\./);
+  assert.match(output, /\[agentready\.org AR-FIND-01\]\(https:\/\/www\.agentready\.org\/#reachable\)/);
+  assert.match(output, /\[RFC 9309\]\(https:\/\/www\.rfc-editor\.org\/rfc\/rfc9309\) \(spec\)/);
+  assert.match(output, /Applicability: always \(website\)/);
+  assert.match(output, /fail 15\.0%/);
+  assert.match(output, /Applicable fail rate: 15\.8% of 950 sites/);
+  assert.match(output, /2026-10/);
+});
+
+test("renderReference derives the rescan command when verify.rescan is missing", () => {
+  const output = renderReference("ai-content-discovery", [definition({ verify: { command: null, expect: null } })], VERSION);
+  assert.match(output, /isagentready results \{domain\} --checkpoint ia\.robots-txt/);
 });
 
 test("renderReference marks the file as generated and lists anchors and verify commands", () => {

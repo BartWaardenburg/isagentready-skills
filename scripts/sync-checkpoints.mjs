@@ -9,11 +9,12 @@
  * the generated references/checkpoints.md file of each skill.
  * With --check, the script writes nothing. It exits with code 1 when a file is
  * out of date, when a SKILL.md lists a retired checkpoint, or when a SKILL.md
- * misses an active checkpoint of its category.
+ * misses an active checkpoint of its category. It also fails when another
+ * reference file of a skill mentions a retired checkpoint.
  *
  * Exit codes: 0 = pass, 1 = check or validation failure, 2 = source or usage error.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -49,7 +50,13 @@ const STABLE_ID = /^ia\.[a-z0-9]+(-[a-z0-9]+)*$/;
 const LEGACY_ID = /^(\d+\.\d+|te\.\d+)$/;
 const AR_ID = /^AR-(FIND|READ|ACT)-\d{2}$/;
 
+const GENERATED_REFERENCE = "checkpoints.md";
+
 const isRetired = (definition) => Boolean(definition.lifecycle?.retired);
+
+/** Returns the rescan command. The catalog files have no rescan field, so the command comes from the stable id when it is missing. */
+export const rescanCommand = (definition) =>
+  definition.verify?.rescan ?? `isagentready results {domain} --checkpoint ${definition.id}`;
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const capitalize = (value) => value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -178,7 +185,8 @@ const definitionErrors = (definition) => {
     const unknown = [...command.matchAll(/(?<!%)\{([a-z_]+)\}/g)].map(([, name]) => name).filter((name) => !PLACEHOLDERS.includes(name));
     if (unknown.length > 0) add(`verify.command has unknown placeholders: ${unknown.join(", ")}`);
   }
-  if (typeof definition.verify?.rescan !== "string") add("verify.rescan is missing");
+  const rescan = definition.verify?.rescan;
+  if (rescan !== undefined && rescan !== null && typeof rescan !== "string") add("verify.rescan must be a string");
   return errors;
 };
 
@@ -220,10 +228,33 @@ const renderSteps = (steps) =>
     .flatMap((step, index) => {
       const lines = [`${index + 1}. ${step.action}`];
       if (step.code_example) {
-        lines.push("", `   \`\`\`${step.language ?? ""}`, ...step.code_example.split("\n").map((line) => `   ${line}`), "   ```");
+        lines.push("", `   \`\`\`${step.language ?? ""}`, ...step.code_example.split("\n").map((line) => (line ? `   ${line}` : "")), "   ```");
       }
       return lines;
     });
+
+const link = ({ title, url }) => `[${title ?? url}](${url})`;
+const percent = (rate) => `${(rate * 100).toFixed(1)}%`;
+const RATE_ORDER = ["pass", "partial", "fail", "skip"];
+
+const applicabilityText = ({ mode, surfaces, condition }) => {
+  const scope = Array.isArray(surfaces) && surfaces.length > 0 ? ` (${surfaces.join(", ")})` : "";
+  return `${mode}${scope}${condition ? `, when ${condition}` : ""}`;
+};
+
+const renderAggregate = (aggregate) => {
+  const rates = RATE_ORDER.filter((status) => typeof aggregate.rates?.[status] === "number")
+    .map((status) => `${status} ${percent(aggregate.rates[status])}`)
+    .join(", ");
+  const source = aggregate.source_url ? `[benchmark ${aggregate.benchmark_version}](${aggregate.source_url})` : `benchmark ${aggregate.benchmark_version}`;
+  const lines = [`Scanner data (${source}):`, "", `- Rates of ${aggregate.denominator} sites: ${rates}`];
+  if (typeof aggregate.applicable_fail_rate === "number") {
+    lines.push(`- Applicable fail rate: ${percent(aggregate.applicable_fail_rate)} of ${aggregate.applicable_denominator} sites`);
+  } else if (typeof aggregate.applicable_denominator === "number") {
+    lines.push(`- Applicable fail rate: not given (${aggregate.applicable_denominator} applicable sites is too few)`);
+  }
+  return lines;
+};
 
 const renderDetail = (definition, { linkSkill }) => {
   const lines = [
@@ -239,9 +270,19 @@ const renderDetail = (definition, { linkSkill }) => {
     `- Fix: ${definition.fix.summary}`,
   ];
   if (linkSkill) lines.push(`- Fix workflow: [SKILL.md](../SKILL.md#${definition.id})`);
+  if (definition.evidence_source?.url) lines.push(`- Evidence source: ${link(definition.evidence_source)}`);
+  if (definition.applicability?.mode) lines.push(`- Applicability: ${applicabilityText(definition.applicability)}`);
+  if (definition.expected) lines.push(`- Pass condition: ${definition.expected}`);
   if (definition.verify.expect) lines.push(`- Expected result: ${definition.verify.expect}`);
-  lines.push(`- Rescan: \`${definition.verify.rescan}\``);
+  lines.push(`- Rescan: \`${rescanCommand(definition)}\``);
   if (definition.detail_url) lines.push(`- Details: ${definition.detail_url}`);
+  if (definition.why) lines.push("", `Why: ${definition.why}`);
+  if (definition.aggregate) lines.push("", ...renderAggregate(definition.aggregate));
+
+  const references = (definition.references ?? []).filter((reference) => reference?.url);
+  if (references.length > 0) {
+    lines.push("", "References:", "", ...references.map((reference) => `- ${link(reference)}${reference.kind ? ` (${reference.kind})` : ""}`));
+  }
 
   const steps = definition.fix.steps ?? [];
   if (steps.length > 0) lines.push("", "Steps:", "", ...renderSteps(steps));
@@ -276,6 +317,7 @@ export const renderReference = (skill, definitions, version) => {
     `- Scoring: ${scoringUrl(version)}`,
     "- Replace `{domain}` with the domain of the site. Each verify command is read-only.",
     "- Strength and evidence type are spec values. They do not change the score.",
+    "- Scanner data comes from the latest published benchmark. A snapshot has no scanner data.",
     "",
     "## Checkpoints",
     "",
@@ -322,7 +364,7 @@ const tableRows = (markdown) =>
     .map(([, legacyId, stableCell]) => ({ legacyId, stableId: stableCell.match(/ia\.[a-z0-9-]+/)?.[0] ?? null }));
 
 const codeSpans = (markdown) => {
-  const fenced = [...markdown.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].flatMap(([, body]) => body.split("\n"));
+  const fenced = [...markdown.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].flatMap(([, body]) => body.replace(/\\\r?\n[ \t]*/g, " ").split("\n"));
   const withoutFences = markdown.replace(/```[\s\S]*?```/g, "");
   const inline = [...withoutFences.matchAll(/`([^`\n]+)`/g)].map(([, span]) => span);
   return [...fenced, ...inline];
@@ -374,6 +416,19 @@ export const checkSkill = ({ skill, markdown, definitions, version }) => {
   return errors.map((error) => `${skill}/SKILL.md: ${error}`);
 };
 
+/** Lints one hand-written reference file of a skill. It must not mention a retired checkpoint. */
+export const checkReference = ({ skill, file, markdown, definitions }) =>
+  definitions.filter(isRetired).flatMap((definition) => retiredMentions(markdown, definition)).map((error) => `${skill}/references/${file}: ${error}`);
+
+const referenceErrors = ({ skill, root, definitions }) => {
+  const directory = join(root, skill, "references");
+  if (!existsSync(directory)) return [];
+  return readdirSync(directory)
+    .filter((file) => file.endsWith(".md") && file !== GENERATED_REFERENCE)
+    .sort()
+    .flatMap((file) => checkReference({ skill, file, markdown: readFileSync(join(directory, file), "utf8"), definitions }));
+};
+
 const parseArgs = (argv) => {
   const options = { check: false, snapshot: null, source: DEFAULT_SOURCE, root: null, skills: SKILLS };
   for (let index = 0; index < argv.length; index += 1) {
@@ -406,7 +461,7 @@ const syncSkill = ({ skill, root, check, definitions, version }) => {
   if (!existsSync(skillPath)) return [`${skill}/SKILL.md does not exist`];
 
   let markdown = readFileSync(skillPath, "utf8");
-  const referencePath = join(root, skill, "references", "checkpoints.md");
+  const referencePath = join(root, skill, "references", GENERATED_REFERENCE);
   const reference = renderReference(skill, definitions, version);
 
   if (check) {
@@ -421,7 +476,7 @@ const syncSkill = ({ skill, root, check, definitions, version }) => {
     mkdirSync(dirname(referencePath), { recursive: true });
     writeFileSync(referencePath, reference);
   }
-  return [...errors, ...checkSkill({ skill, markdown, definitions, version })];
+  return [...errors, ...checkSkill({ skill, markdown, definitions, version }), ...referenceErrors({ skill, root, definitions })];
 };
 
 /** Runs the command line interface. Returns the exit code. */

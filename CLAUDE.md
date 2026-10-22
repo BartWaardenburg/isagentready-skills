@@ -60,8 +60,10 @@ The IsAgentReady checkpoint catalog is the source of truth. `scripts/sync-checkp
 
 - Run `node scripts/sync-checkpoints.mjs` after a methodology change. It writes the table between the `checkpoints:start` and `checkpoints:end` markers in each SKILL.md, and each `references/checkpoints.md`.
 - Do not edit the generated table or `references/checkpoints.md` by hand.
-- `node scripts/sync-checkpoints.mjs --check --snapshot scripts/checkpoints.snapshot.json` fails when a generated file is out of date, when a SKILL.md lists a retired checkpoint, or when a SKILL.md misses an active checkpoint of its category.
+- `node scripts/sync-checkpoints.mjs --check --snapshot scripts/checkpoints.snapshot.json` fails when a generated file is out of date, when a SKILL.md or a reference file lists a retired checkpoint, when a curl command in SKILL.md is not read-only, or when a SKILL.md misses an active checkpoint of its category.
 - When the live endpoint is deployed, replace the snapshot with its response and run the sync.
+- The catalog files have no `verify.rescan` field. The script then uses `isagentready results {domain} --checkpoint <stable id>`.
+- The generated `references/checkpoints.md` shows `why`, the references, the evidence source, the applicability and the scanner data (`aggregate`) when the catalog gives them.
 - Category to skill: `discovery` = ai-content-discovery, `structured_data` = structured-data, `semantics` = content-semantics, `agent_protocols` = agent-protocols, `security` = security-trust. Training exposure checks (`te.*`) are informational. They appear only in `ai-content-discovery/references/checkpoints.md`.
 - Never copy points or weights into a skill. Link to `https://isagentready.com/api/v2/methodology/<version>/scoring`.
 
