@@ -12,6 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: Validate JSON files
         run: |
           echo "Validating JSON files..."
@@ -103,3 +107,9 @@ jobs:
             exit 1
           fi
           echo "  ✓ Versions in sync."
+
+      - name: Test checkpoint sync script
+        run: node --test scripts/sync-checkpoints.test.mjs
+
+      - name: Check skills against the checkpoint catalog
+        run: node scripts/sync-checkpoints.mjs --check --snapshot scripts/checkpoints.snapshot.json
