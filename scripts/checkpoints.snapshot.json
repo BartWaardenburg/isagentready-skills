@@ -1,0 +1,2633 @@
+{
+  "description": "Hand-built snapshot of GET /api/v2/checkpoints?include_retired=true. Replace it with the live response when the endpoint is deployed.",
+  "methodology_version": "2026-11-02",
+  "spec_alignment": {
+    "agentready_spec": "2.0",
+    "url": "https://www.agentready.org/",
+    "license": "MIT"
+  },
+  "checkpoints": [
+    {
+      "id": "ia.robots-txt",
+      "legacy_id": "1.1",
+      "ar_practice_ids": [
+        "AR-FIND-01"
+      ],
+      "ar_mapping": "full",
+      "name": "robots.txt present",
+      "category": "discovery",
+      "stage": "find",
+      "strength": "MUST",
+      "evidence_type": "scanner_data",
+      "fix": {
+        "summary": "Serve a plain-text robots.txt at the site root.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.robots-txt"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI https://{domain}/robots.txt | grep -i '^content-type: text/plain'",
+        "expect": "one content-type line with text/plain",
+        "rescan": "isagentready results {domain} --checkpoint ia.robots-txt"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.robots-txt"
+    },
+    {
+      "id": "ia.ai-crawler-directives",
+      "legacy_id": "1.2",
+      "ar_practice_ids": [
+        "AR-FIND-01"
+      ],
+      "ar_mapping": "full",
+      "name": "AI crawler directives",
+      "category": "discovery",
+      "stage": "find",
+      "strength": "MUST",
+      "evidence_type": "scanner_data",
+      "fix": {
+        "summary": "Add explicit Allow groups for the AI user agents in robots.txt.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.ai-crawler-directives"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/robots.txt | grep -iE '^user-agent: *(GPTBot|OAI-SearchBot|ClaudeBot|Claude-User|PerplexityBot)'",
+        "expect": "one line per AI user agent",
+        "rescan": "isagentready results {domain} --checkpoint ia.ai-crawler-directives"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.ai-crawler-directives"
+    },
+    {
+      "id": "ia.xml-sitemap",
+      "legacy_id": "1.3",
+      "ar_practice_ids": [
+        "AR-FIND-03"
+      ],
+      "ar_mapping": "full",
+      "name": "XML sitemap",
+      "category": "discovery",
+      "stage": "find",
+      "strength": "SHOULD",
+      "evidence_type": "measured_study",
+      "fix": {
+        "summary": "Publish an XML sitemap and list it in robots.txt.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.xml-sitemap"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/sitemap.xml | grep -qE '<(urlset|sitemapindex)'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.xml-sitemap"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.xml-sitemap"
+    },
+    {
+      "id": "ia.llms-txt",
+      "legacy_id": "1.4",
+      "ar_practice_ids": [
+        "AR-READ-07"
+      ],
+      "ar_mapping": "full",
+      "name": "llms.txt",
+      "category": "discovery",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "measured_study",
+      "fix": {
+        "summary": "Publish /llms.txt with a # heading and links to the key pages.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.llms-txt"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/llms.txt | head -1 | grep -q '^# '",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.llms-txt"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.llms-txt"
+    },
+    {
+      "id": "ia.meta-robots",
+      "legacy_id": "1.5",
+      "ar_practice_ids": [
+        "AR-FIND-01"
+      ],
+      "ar_mapping": "partial",
+      "name": "Meta robots / X-Robots-Tag",
+      "category": "discovery",
+      "stage": "find",
+      "strength": "MUST",
+      "evidence_type": "scanner_data",
+      "fix": {
+        "summary": "Remove noindex, noai and other restrictive robots directives.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.meta-robots"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI https://{domain}/ | grep -i '^x-robots-tag'",
+        "expect": "no line, or a line without noindex, noai or noimageai",
+        "rescan": "isagentready results {domain} --checkpoint ia.meta-robots"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.meta-robots"
+    },
+    {
+      "id": "ia.content-freshness",
+      "legacy_id": "1.6",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Content freshness signals",
+      "category": "discovery",
+      "stage": "find",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Add dateModified to the JSON-LD or an article:modified_time meta tag.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.content-freshness"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -qE 'dateModified|article:modified_time'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.content-freshness"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.content-freshness"
+    },
+    {
+      "id": "ia.markdown-negotiation",
+      "legacy_id": "1.7",
+      "ar_practice_ids": [
+        "AR-READ-09"
+      ],
+      "ar_mapping": "full",
+      "name": "Content negotiation (text/markdown)",
+      "category": "discovery",
+      "stage": "read",
+      "strength": "MAY",
+      "evidence_type": "measured_study",
+      "fix": {
+        "summary": "Return text/markdown and Vary: Accept when the request asks for Markdown.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.markdown-negotiation"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI -H 'Accept: text/markdown' https://{domain}/ | grep -iE '^(content-type: text/markdown|vary:.*accept)'",
+        "expect": "two lines: the content type and the Vary header",
+        "rescan": "isagentready results {domain} --checkpoint ia.markdown-negotiation"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.markdown-negotiation"
+    },
+    {
+      "id": "ia.bot-accessibility",
+      "legacy_id": "1.8",
+      "ar_practice_ids": [
+        "AR-FIND-01"
+      ],
+      "ar_mapping": "full",
+      "name": "HTTP bot accessibility",
+      "category": "discovery",
+      "stage": "find",
+      "strength": "MUST",
+      "evidence_type": "scanner_data",
+      "fix": {
+        "summary": "Let AI user agents get a 2xx response from the homepage.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.bot-accessibility"
+        }
+      },
+      "verify": {
+        "command": "curl -s -o /dev/null -w '%{http_code}' -A 'Mozilla/5.0 (compatible; GPTBot/1.0)' https://{domain}/",
+        "expect": "a 2xx status code",
+        "rescan": "isagentready results {domain} --checkpoint ia.bot-accessibility"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.bot-accessibility"
+    },
+    {
+      "id": "ia.link-headers",
+      "legacy_id": "1.9",
+      "ar_practice_ids": [
+        "AR-FIND-04",
+        "AR-READ-06"
+      ],
+      "ar_mapping": "partial",
+      "name": "Link response headers",
+      "category": "discovery",
+      "stage": "find",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Send Link response headers with two or more agent rel values.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.link-headers"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI https://{domain}/ | grep -i '^link:'",
+        "expect": "rel values such as api-catalog, service-desc, service-doc or sitemap",
+        "rescan": "isagentready results {domain} --checkpoint ia.link-headers"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.link-headers"
+    },
+    {
+      "id": "ia.content-usage",
+      "legacy_id": "1.10",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Content-Usage preferences",
+      "category": "discovery",
+      "stage": "find",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Add a Content-Signal line with search, ai-input or ai-train to robots.txt.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.content-usage"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/robots.txt | grep -i '^content-signal:'",
+        "expect": "one or more Content-Signal lines",
+        "rescan": "isagentready results {domain} --checkpoint ia.content-usage"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.content-usage"
+    },
+    {
+      "id": "ia.agents-md",
+      "legacy_id": "1.11",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "AGENTS.md",
+      "category": "discovery",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Publish /AGENTS.md with a # heading that tells agents how to use the site.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.agents-md"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/AGENTS.md | head -1 | grep -q '^# '",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.agents-md"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agents-md"
+    },
+    {
+      "id": "ia.agent-content-contracts",
+      "legacy_id": "1.12",
+      "ar_practice_ids": [
+        "AR-READ-11",
+        "AR-ACT-01"
+      ],
+      "ar_mapping": "partial",
+      "name": "Agent content contracts",
+      "category": "discovery",
+      "stage": "read",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Publish /auth.md and /pricing.md when the site has a login, an app or prices.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.agent-content-contracts"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI https://{domain}/pricing.md | grep -iE '^content-type: text/(markdown|plain)'",
+        "expect": "one content-type line for each contract",
+        "rescan": "isagentready results {domain} --checkpoint ia.agent-content-contracts"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agent-content-contracts"
+    },
+    {
+      "id": "ia.soft-404",
+      "legacy_id": "1.13",
+      "ar_practice_ids": [
+        "AR-READ-02"
+      ],
+      "ar_mapping": "full",
+      "name": "Soft-404 hygiene",
+      "category": "discovery",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Return HTTP 404 or 410 for paths that do not exist.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.soft-404"
+        }
+      },
+      "verify": {
+        "command": "curl -s -o /dev/null -w '%{http_code}' https://{domain}/.well-known/isagentready-missing-check",
+        "expect": "404 or 410",
+        "rescan": "isagentready results {domain} --checkpoint ia.soft-404"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.soft-404"
+    },
+    {
+      "id": "ia.dns-aid",
+      "legacy_id": "1.14",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "DNS-AID agent records",
+      "category": "discovery",
+      "stage": "find",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Publish SVCB records under _agents for the MCP or A2A endpoint.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.dns-aid"
+        }
+      },
+      "verify": {
+        "command": "curl -s 'https://dns.google/resolve?name=_mcp._agents.{domain}&type=SVCB' | jq -e '.Answer | length > 0'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.dns-aid"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.dns-aid"
+    },
+    {
+      "id": "ia.pricing-page",
+      "legacy_id": "1.15",
+      "ar_practice_ids": [
+        "AR-READ-11"
+      ],
+      "ar_mapping": "full",
+      "name": "First-party pricing page",
+      "category": "discovery",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "measured_study",
+      "fix": {
+        "summary": "Publish a server-rendered /pricing page that shows the prices as text.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.pricing-page"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/pricing | grep -qE '[$€£] ?[0-9]'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.pricing-page"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.pricing-page"
+    },
+    {
+      "id": "ia.json-ld",
+      "legacy_id": "2.1",
+      "ar_practice_ids": [
+        "AR-READ-08"
+      ],
+      "ar_mapping": "full",
+      "name": "JSON-LD present",
+      "category": "structured_data",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Add a JSON-LD block with a schema.org @context to the server HTML.",
+        "steps": [],
+        "skill": {
+          "name": "structured-data",
+          "anchor": "ia.json-ld"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -q 'application/ld+json'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.json-ld"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.json-ld"
+    },
+    {
+      "id": "ia.organization-schema",
+      "legacy_id": "2.2",
+      "ar_practice_ids": [
+        "AR-READ-08"
+      ],
+      "ar_mapping": "full",
+      "name": "Organization / WebSite schema",
+      "category": "structured_data",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Add Organization or WebSite JSON-LD with name and url.",
+        "steps": [],
+        "skill": {
+          "name": "structured-data",
+          "anchor": "ia.organization-schema"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -qE '\"@type\": *\"(Organization|WebSite)\"'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.organization-schema"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.organization-schema"
+    },
+    {
+      "id": "ia.high-value-schema",
+      "legacy_id": "2.3",
+      "ar_practice_ids": [
+        "AR-READ-08"
+      ],
+      "ar_mapping": "full",
+      "name": "High-value schema types",
+      "category": "structured_data",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Add a high-value type such as Article, Product or Service with its required properties.",
+        "steps": [],
+        "skill": {
+          "name": "structured-data",
+          "anchor": "ia.high-value-schema"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -oE '\"@type\": *\"[A-Za-z]+\"' | sort -u",
+        "expect": "one or more high-value types",
+        "rescan": "isagentready results {domain} --checkpoint ia.high-value-schema"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.high-value-schema"
+    },
+    {
+      "id": "ia.entity-linking",
+      "legacy_id": "2.4",
+      "ar_practice_ids": [
+        "AR-READ-08"
+      ],
+      "ar_mapping": "full",
+      "name": "Entity linking via @id",
+      "category": "structured_data",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Give each entity an @id and refer to other entities by @id.",
+        "steps": [],
+        "skill": {
+          "name": "structured-data",
+          "anchor": "ia.entity-linking"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -c '\"@id\"'",
+        "expect": "2 or more",
+        "rescan": "isagentready results {domain} --checkpoint ia.entity-linking"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.entity-linking"
+    },
+    {
+      "id": "ia.breadcrumb-list",
+      "legacy_id": "2.5",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "BreadcrumbList markup",
+      "category": "structured_data",
+      "stage": "read",
+      "strength": null,
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Retired. No fix is necessary.",
+        "steps": [],
+        "skill": null
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.breadcrumb-list"
+      },
+      "lifecycle": {
+        "retired": "2026-09-02"
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.breadcrumb-list"
+    },
+    {
+      "id": "ia.schema-validation",
+      "legacy_id": "2.6",
+      "ar_practice_ids": [
+        "AR-READ-08"
+      ],
+      "ar_mapping": "full",
+      "name": "Schema validation",
+      "category": "structured_data",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Remove duplicate types and empty required properties from the JSON-LD.",
+        "steps": [],
+        "skill": {
+          "name": "structured-data",
+          "anchor": "ia.schema-validation"
+        }
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.schema-validation"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.schema-validation"
+    },
+    {
+      "id": "ia.faq-schema",
+      "legacy_id": "2.7",
+      "ar_practice_ids": [
+        "AR-READ-08"
+      ],
+      "ar_mapping": "full",
+      "name": "FAQPage schema",
+      "category": "structured_data",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Mark up visible FAQ content as FAQPage with Question and acceptedAnswer items.",
+        "steps": [],
+        "skill": {
+          "name": "structured-data",
+          "anchor": "ia.faq-schema"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -q '\"FAQPage\"'",
+        "expect": "exit code 0 on a page with a visible FAQ",
+        "rescan": "isagentready results {domain} --checkpoint ia.faq-schema"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.faq-schema"
+    },
+    {
+      "id": "ia.author-attribution",
+      "legacy_id": "2.8",
+      "ar_practice_ids": [
+        "AR-READ-08"
+      ],
+      "ar_mapping": "partial",
+      "name": "Author attribution",
+      "category": "structured_data",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Add a JSON-LD author with @type and name.",
+        "steps": [],
+        "skill": {
+          "name": "structured-data",
+          "anchor": "ia.author-attribution"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -qE '\"author\"|name=\"author\"|rel=\"author\"'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.author-attribution"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.author-attribution"
+    },
+    {
+      "id": "ia.trust-pages",
+      "legacy_id": "2.9",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Trust anchor pages",
+      "category": "structured_data",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Publish about, contact and privacy pages and link them from the homepage.",
+        "steps": [],
+        "skill": {
+          "name": "structured-data",
+          "anchor": "ia.trust-pages"
+        }
+      },
+      "verify": {
+        "command": "curl -sI https://{domain}/about https://{domain}/contact https://{domain}/privacy | grep -i '^HTTP/'",
+        "expect": "three 200 status lines",
+        "rescan": "isagentready results {domain} --checkpoint ia.trust-pages"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.trust-pages"
+    },
+    {
+      "id": "ia.server-rendered-content",
+      "legacy_id": "3.1",
+      "ar_practice_ids": [
+        "AR-READ-01",
+        "AR-READ-03"
+      ],
+      "ar_mapping": "full",
+      "name": "Server-side rendered content",
+      "category": "semantics",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "measured_study",
+      "fix": {
+        "summary": "Render the main content on the server so the HTML has text without JavaScript.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.server-rendered-content"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | sed -e 's/<[^>]*>//g' | tr -s ' \\n' | wc -c",
+        "expect": "more than 200 characters of text",
+        "rescan": "isagentready results {domain} --checkpoint ia.server-rendered-content"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.server-rendered-content"
+    },
+    {
+      "id": "ia.heading-hierarchy",
+      "legacy_id": "3.2",
+      "ar_practice_ids": [
+        "AR-READ-03"
+      ],
+      "ar_mapping": "partial",
+      "name": "Heading hierarchy",
+      "category": "semantics",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Use one h1 and do not skip heading levels.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.heading-hierarchy"
+        }
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.heading-hierarchy"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.heading-hierarchy"
+    },
+    {
+      "id": "ia.semantic-html",
+      "legacy_id": "3.3",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Semantic HTML elements",
+      "category": "semantics",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Use header, nav, main, article or section, and footer elements.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.semantic-html"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -oE '<(header|nav|main|article|section|footer)[ >]' | sort -u",
+        "expect": "five element types",
+        "rescan": "isagentready results {domain} --checkpoint ia.semantic-html"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.semantic-html"
+    },
+    {
+      "id": "ia.landmarks-aria",
+      "legacy_id": "3.4",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Landmarks and ARIA",
+      "category": "semantics",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Use landmark elements and add ARIA labels and states where they help.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.landmarks-aria"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -oE '(role|aria-[a-z]+)=\"' | sort -u",
+        "expect": "3 or more different roles or attributes",
+        "rescan": "isagentready results {domain} --checkpoint ia.landmarks-aria"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.landmarks-aria"
+    },
+    {
+      "id": "ia.image-alt",
+      "legacy_id": "3.5",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Image alt text",
+      "category": "semantics",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Give each content image a short alt text and each decorative image alt=\"\".",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.image-alt"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -oE '<img [^>]*>' | grep -vc 'alt='",
+        "expect": "0",
+        "rescan": "isagentready results {domain} --checkpoint ia.image-alt"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.image-alt"
+    },
+    {
+      "id": "ia.lang-attribute",
+      "legacy_id": "3.6",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Language attribute",
+      "category": "semantics",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Add a valid BCP 47 lang attribute to the html element.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.lang-attribute"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -oE '<html[^>]* lang=\"[A-Za-z-]+\"'",
+        "expect": "one match",
+        "rescan": "isagentready results {domain} --checkpoint ia.lang-attribute"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.lang-attribute"
+    },
+    {
+      "id": "ia.link-text",
+      "legacy_id": "3.7",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Descriptive link texts",
+      "category": "semantics",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Replace generic link texts such as read more with text that names the target.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.link-text"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -ciE '>(click here|read more|learn more|here|more)</a>'",
+        "expect": "0",
+        "rescan": "isagentready results {domain} --checkpoint ia.link-text"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.link-text"
+    },
+    {
+      "id": "ia.question-headings",
+      "legacy_id": "3.8",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Question-based headings",
+      "category": "semantics",
+      "stage": "read",
+      "strength": null,
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Retired. No fix is necessary.",
+        "steps": [],
+        "skill": null
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.question-headings"
+      },
+      "lifecycle": {
+        "retired": "2026-09-02"
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.question-headings"
+    },
+    {
+      "id": "ia.form-labels",
+      "legacy_id": "3.9",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Form label coverage",
+      "category": "semantics",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Give each form field a label element or an aria-label.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.form-labels"
+        }
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.form-labels"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.form-labels"
+    },
+    {
+      "id": "ia.form-autocomplete",
+      "legacy_id": "3.10",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Form field autocomplete",
+      "category": "semantics",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Add autocomplete tokens to text, email, tel, url and password fields.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.form-autocomplete"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -oE '<input[^>]*type=\"(text|email|tel|url|password)\"[^>]*>' | grep -vc 'autocomplete='",
+        "expect": "0",
+        "rescan": "isagentready results {domain} --checkpoint ia.form-autocomplete"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.form-autocomplete"
+    },
+    {
+      "id": "ia.keyboard-navigation",
+      "legacy_id": "3.11",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Keyboard navigability",
+      "category": "semantics",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Remove positive tabindex values and use buttons and links for click targets.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.keyboard-navigation"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -cE 'tabindex=\"[1-9]'",
+        "expect": "0",
+        "rescan": "isagentready results {domain} --checkpoint ia.keyboard-navigation"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.keyboard-navigation"
+    },
+    {
+      "id": "ia.document-title",
+      "legacy_id": "3.12",
+      "ar_practice_ids": [
+        "AR-READ-03"
+      ],
+      "ar_mapping": "partial",
+      "name": "Document title",
+      "category": "semantics",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Give each page a unique title of 10 to 70 characters.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.document-title"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -oE '<title>[^<]*</title>'",
+        "expect": "a descriptive title of 10 to 70 characters",
+        "rescan": "isagentready results {domain} --checkpoint ia.document-title"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.document-title"
+    },
+    {
+      "id": "ia.button-names",
+      "legacy_id": "3.13",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Button accessible names",
+      "category": "semantics",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Give each button visible text, an aria-label or a value.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.button-names"
+        }
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.button-names"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.button-names"
+    },
+    {
+      "id": "ia.aria-hidden",
+      "legacy_id": "3.14",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "aria-hidden misuse",
+      "category": "semantics",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Do not put aria-hidden on the body or on containers with focusable elements.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.aria-hidden"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -c '<body[^>]*aria-hidden=\"true\"'",
+        "expect": "0",
+        "rescan": "isagentready results {domain} --checkpoint ia.aria-hidden"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.aria-hidden"
+    },
+    {
+      "id": "ia.widget-state",
+      "legacy_id": "3.15",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Dynamic widget state",
+      "category": "semantics",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Expose widget state with aria-expanded, aria-selected or aria-checked, and announce updates with a live region.",
+        "steps": [],
+        "skill": {
+          "name": "content-semantics",
+          "anchor": "ia.widget-state"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -oE 'aria-(expanded|selected|checked|pressed|current|live)=' | sort | uniq -c",
+        "expect": "a state attribute for each widget",
+        "rescan": "isagentready results {domain} --checkpoint ia.widget-state"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.widget-state"
+    },
+    {
+      "id": "ia.page-token-budget",
+      "legacy_id": "3.16",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Page token budget",
+      "category": "semantics",
+      "stage": "read",
+      "strength": null,
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Retired. No fix is necessary.",
+        "steps": [],
+        "skill": null
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.page-token-budget"
+      },
+      "lifecycle": {
+        "retired": "2026-09-02"
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.page-token-budget"
+    },
+    {
+      "id": "ia.webmcp-declarative",
+      "legacy_id": "4.1",
+      "ar_practice_ids": [
+        "AR-ACT-07"
+      ],
+      "ar_mapping": "full",
+      "name": "WebMCP declarative API",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Add toolname and tooldescription to forms, or register tools with document.modelContext.registerTool().",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.webmcp-declarative"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -oE '<form[^>]*toolname=\"[^\"]*\"'",
+        "expect": "one match for each tool form",
+        "rescan": "isagentready results {domain} --checkpoint ia.webmcp-declarative"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.webmcp-declarative"
+    },
+    {
+      "id": "ia.webmcp-manifest",
+      "legacy_id": "4.2",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "WebMCP manifest",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": null,
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Retired. No fix is necessary.",
+        "steps": [],
+        "skill": null
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.webmcp-manifest"
+      },
+      "lifecycle": {
+        "retired": "2026-08-27"
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.webmcp-manifest"
+    },
+    {
+      "id": "ia.a2a-agent-card",
+      "legacy_id": "4.3",
+      "ar_practice_ids": [
+        "AR-READ-06"
+      ],
+      "ar_mapping": "partial",
+      "name": "A2A Agent Card",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Publish an A2A 1.0 Agent Card at /.well-known/agent-card.json with supportedInterfaces.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.a2a-agent-card"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/agent-card.json | jq -e '.name and .description and .version and .capabilities and (.supportedInterfaces | length > 0)'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.a2a-agent-card"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.a2a-agent-card"
+    },
+    {
+      "id": "ia.mcp-discovery",
+      "legacy_id": "4.4",
+      "ar_practice_ids": [
+        "AR-ACT-03",
+        "AR-ACT-10"
+      ],
+      "ar_mapping": "partial",
+      "name": "MCP discovery",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "scanner_data",
+      "fix": {
+        "summary": "Publish an MCP server card at /.well-known/mcp/server-card.json.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.mcp-discovery"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/mcp/server-card.json | jq -e '.name // .serverInfo.name'",
+        "expect": "the server name",
+        "rescan": "isagentready results {domain} --checkpoint ia.mcp-discovery"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.mcp-discovery"
+    },
+    {
+      "id": "ia.openapi",
+      "legacy_id": "4.5",
+      "ar_practice_ids": [
+        "AR-ACT-02"
+      ],
+      "ar_mapping": "full",
+      "name": "OpenAPI / API docs",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "measured_study",
+      "fix": {
+        "summary": "Serve an OpenAPI 3.x document at /openapi.json.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.openapi"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/openapi.json | jq -e '.openapi | startswith(\"3.\")'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.openapi"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.openapi"
+    },
+    {
+      "id": "ia.agents-json",
+      "legacy_id": "4.6",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "agents.json",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Publish a non-empty agents.json at /.well-known/agents.json.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.agents-json"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/agents.json | jq -e 'length > 0'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.agents-json"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agents-json"
+    },
+    {
+      "id": "ia.webmcp-form-quality",
+      "legacy_id": "4.7",
+      "ar_practice_ids": [
+        "AR-ACT-07"
+      ],
+      "ar_mapping": "full",
+      "name": "Declarative form quality",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Use snake_case toolname values, clear tooldescription text, named and labelled fields and toolparamdescription.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.webmcp-form-quality"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -oE 'tool(name|description|paramdescription)=\"[^\"]*\"'",
+        "expect": "a snake_case name and descriptions of 10 or more characters",
+        "rescan": "isagentready results {domain} --checkpoint ia.webmcp-form-quality"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.webmcp-form-quality"
+    },
+    {
+      "id": "ia.webmcp-manifest-quality",
+      "legacy_id": "4.8",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "WebMCP manifest quality",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": null,
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Retired. No fix is necessary.",
+        "steps": [],
+        "skill": null
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.webmcp-manifest-quality"
+      },
+      "lifecycle": {
+        "retired": "2026-08-27"
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.webmcp-manifest-quality"
+    },
+    {
+      "id": "ia.interactive-surface-coverage",
+      "legacy_id": "4.9",
+      "ar_practice_ids": [
+        "AR-ACT-07"
+      ],
+      "ar_mapping": "full",
+      "name": "Interactive surface coverage",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Annotate the search, filter and action forms that agents need.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.interactive-surface-coverage"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -c '<form'",
+        "expect": "the same count as the tool forms from 4.1",
+        "rescan": "isagentready results {domain} --checkpoint ia.interactive-surface-coverage"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.interactive-surface-coverage"
+    },
+    {
+      "id": "ia.api-catalog",
+      "legacy_id": "4.10",
+      "ar_practice_ids": [
+        "AR-READ-06",
+        "AR-ACT-02"
+      ],
+      "ar_mapping": "full",
+      "name": "API Catalog (RFC 9727)",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Publish an RFC 9727 linkset at /.well-known/api-catalog.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.api-catalog"
+        }
+      },
+      "verify": {
+        "command": "curl -sf -H 'Accept: application/linkset+json' https://{domain}/.well-known/api-catalog | jq -e '.linkset | length > 0'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.api-catalog"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.api-catalog"
+    },
+    {
+      "id": "ia.agent-skills-index",
+      "legacy_id": "4.11",
+      "ar_practice_ids": [
+        "AR-ACT-06"
+      ],
+      "ar_mapping": "partial",
+      "name": "Agent Skills index",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Publish an Agent Skills index at /.well-known/agent-skills/index.json.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.agent-skills-index"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/agent-skills/index.json | jq -e '.skills | all(.name and .type and .description and .url and .digest)'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.agent-skills-index"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agent-skills-index"
+    },
+    {
+      "id": "ia.x402",
+      "legacy_id": "4.12",
+      "ar_practice_ids": [
+        "AR-ACT-08"
+      ],
+      "ar_mapping": "partial",
+      "name": "x402 payments",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Return HTTP 402 with an x402 payment challenge on paid API endpoints.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.x402"
+        }
+      },
+      "verify": {
+        "command": "curl -s -o /dev/null -w '%{http_code}' https://{domain}/api",
+        "expect": "402 on a paid endpoint",
+        "rescan": "isagentready results {domain} --checkpoint ia.x402"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.x402"
+    },
+    {
+      "id": "ia.mpp",
+      "legacy_id": "4.13",
+      "ar_practice_ids": [
+        "AR-ACT-08"
+      ],
+      "ar_mapping": "partial",
+      "name": "MPP (x-payment-info)",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Add x-payment-info to the paid operations in the OpenAPI document.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.mpp"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/openapi.json | jq -e '[.paths[][] | objects | has(\"x-payment-info\")] | any'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.mpp"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.mpp"
+    },
+    {
+      "id": "ia.ucp",
+      "legacy_id": "4.14",
+      "ar_practice_ids": [
+        "AR-ACT-08",
+        "AR-READ-06"
+      ],
+      "ar_mapping": "partial",
+      "name": "UCP",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Publish a Universal Commerce Protocol profile at /.well-known/ucp.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.ucp"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/ucp | jq -e '.version and (.capabilities | length > 0)'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.ucp"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.ucp"
+    },
+    {
+      "id": "ia.acp-manifest",
+      "legacy_id": "4.15",
+      "ar_practice_ids": [
+        "AR-ACT-08",
+        "AR-READ-06"
+      ],
+      "ar_mapping": "partial",
+      "name": "ACP manifest",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Publish an Agentic Commerce Protocol document at /.well-known/acp.json.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.acp-manifest"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/acp.json | jq -e '(.flows | length > 0) and (.capabilities | type == \"object\")'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.acp-manifest"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.acp-manifest"
+    },
+    {
+      "id": "ia.ap2",
+      "legacy_id": "4.16",
+      "ar_practice_ids": [
+        "AR-ACT-08"
+      ],
+      "ar_mapping": "partial",
+      "name": "AP2",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Declare the AP2 extension in the A2A Agent Card.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.ap2"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/agent-card.json | jq -e '[.extensions[]?.uri] | any(test(\"ap2\"))'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.ap2"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.ap2"
+    },
+    {
+      "id": "ia.openapi-quality",
+      "legacy_id": "4.17",
+      "ar_practice_ids": [
+        "AR-ACT-02"
+      ],
+      "ar_mapping": "full",
+      "name": "OpenAPI actionability quality",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Give each operation an operationId, a summary, typed parameters, response schemas and error models.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.openapi-quality"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/openapi.json | jq '[.paths[][] | objects | select(.operationId == null)] | length'",
+        "expect": "0",
+        "rescan": "isagentready results {domain} --checkpoint ia.openapi-quality"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.openapi-quality"
+    },
+    {
+      "id": "ia.mcp-server-card",
+      "legacy_id": "4.18",
+      "ar_practice_ids": [
+        "AR-ACT-04"
+      ],
+      "ar_mapping": "full",
+      "name": "MCP server card quality",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Add version, transport, capabilities, auth and a description to the MCP server card.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.mcp-server-card"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/mcp/server-card.json | jq -e '.version and .description and (.remotes | length > 0)'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.mcp-server-card"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.mcp-server-card"
+    },
+    {
+      "id": "ia.openapi-live",
+      "legacy_id": "4.19",
+      "ar_practice_ids": [
+        "AR-ACT-02"
+      ],
+      "ar_mapping": "full",
+      "name": "Live OpenAPI verification",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "measured_study",
+      "fix": {
+        "summary": "Document one public GET operation without parameters that returns the documented 2xx response.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.openapi-live"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/openapi.json | jq -r '.paths | to_entries[] | select(.value.get) | .key' | head -5",
+        "expect": "a GET path that also returns 2xx",
+        "rescan": "isagentready results {domain} --checkpoint ia.openapi-live"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.openapi-live"
+    },
+    {
+      "id": "ia.mcp-live",
+      "legacy_id": "4.20",
+      "ar_practice_ids": [
+        "AR-ACT-03"
+      ],
+      "ar_mapping": "full",
+      "name": "Live MCP verification",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "scanner_data",
+      "fix": {
+        "summary": "Serve a same-origin Streamable HTTP MCP endpoint that answers discovery and list requests.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.mcp-live"
+        }
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.mcp-live"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.mcp-live"
+    },
+    {
+      "id": "ia.ai-catalog",
+      "legacy_id": "4.21",
+      "ar_practice_ids": [
+        "AR-FIND-04"
+      ],
+      "ar_mapping": "full",
+      "name": "AI Catalog",
+      "category": "agent_protocols",
+      "stage": "find",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Publish an AI Catalog at /.well-known/ai-catalog.json with specVersion and entries.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.ai-catalog"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/ai-catalog.json | jq -e '.specVersion and (.entries | length > 0)'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.ai-catalog"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.ai-catalog"
+    },
+    {
+      "id": "ia.api-errors",
+      "legacy_id": "4.22",
+      "ar_practice_ids": [
+        "AR-ACT-02"
+      ],
+      "ar_mapping": "partial",
+      "name": "API error responses",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Return 404 with a JSON or problem+json body for unknown API paths.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.api-errors"
+        }
+      },
+      "verify": {
+        "command": "curl -s -H 'Accept: application/json' https://{domain}/api/isagentready-missing-check",
+        "expect": "a JSON body with title, detail, error or message",
+        "rescan": "isagentready results {domain} --checkpoint ia.api-errors"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.api-errors"
+    },
+    {
+      "id": "ia.api-rate-limits",
+      "legacy_id": "4.23",
+      "ar_practice_ids": [
+        "AR-ACT-02"
+      ],
+      "ar_mapping": "partial",
+      "name": "API rate-limit headers",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Send RateLimit and RateLimit-Policy headers on API responses.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.api-rate-limits"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI https://{domain}/api | grep -iE '^(ratelimit|ratelimit-policy|ratelimit-limit):'",
+        "expect": "one or more RateLimit lines",
+        "rescan": "isagentready results {domain} --checkpoint ia.api-rate-limits"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.api-rate-limits"
+    },
+    {
+      "id": "ia.developer-docs-link",
+      "legacy_id": "4.24",
+      "ar_practice_ids": [
+        "AR-FIND-02",
+        "AR-READ-04"
+      ],
+      "ar_mapping": "partial",
+      "name": "Developer docs discoverability",
+      "category": "agent_protocols",
+      "stage": "find",
+      "strength": "MAY",
+      "evidence_type": "measured_study",
+      "fix": {
+        "summary": "Link the developer docs from the homepage.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.developer-docs-link"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -oE 'href=\"/(docs|developers|api|api-docs|documentation|reference)[/\"]'",
+        "expect": "one or more matches",
+        "rescan": "isagentready results {domain} --checkpoint ia.developer-docs-link"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.developer-docs-link"
+    },
+    {
+      "id": "ia.mcp-apps",
+      "legacy_id": "4.25",
+      "ar_practice_ids": [
+        "AR-ACT-05"
+      ],
+      "ar_mapping": "full",
+      "name": "MCP Apps UI resources",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Declare ui:// resources for MCP tools that return an interface.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.mcp-apps"
+        }
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.mcp-apps"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.mcp-apps"
+    },
+    {
+      "id": "ia.nlweb-ask",
+      "legacy_id": "4.26",
+      "ar_practice_ids": [
+        "AR-ACT-09"
+      ],
+      "ar_mapping": "full",
+      "name": "NLWeb ask endpoint",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Serve an NLWeb /ask endpoint that returns schema.org results as JSON.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.nlweb-ask"
+        }
+      },
+      "verify": {
+        "command": "curl -sf 'https://{domain}/ask?query=help' | jq -e '.results | type == \"array\"'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.nlweb-ask"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.nlweb-ask"
+    },
+    {
+      "id": "ia.agent-checkout",
+      "legacy_id": "4.27",
+      "ar_practice_ids": [
+        "AR-ACT-08"
+      ],
+      "ar_mapping": "full",
+      "name": "Agent checkout (Link, ACP checkout)",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "measured_study",
+      "fix": {
+        "summary": "Support Stripe Link or Shared Payment Tokens at checkout, or declare checkout_sessions in the ACP document.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.agent-checkout"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/acp.json | jq -e '.. | strings | select(test(\"checkout_sessions\"))'",
+        "expect": "one or more matches",
+        "rescan": "isagentready results {domain} --checkpoint ia.agent-checkout"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agent-checkout"
+    },
+    {
+      "id": "ia.sdk-cli",
+      "legacy_id": "4.28",
+      "ar_practice_ids": [
+        "AR-ACT-06"
+      ],
+      "ar_mapping": "full",
+      "name": "SDKs and CLI",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Publish an SDK or CLI and link it with an install command from the docs or llms.txt.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.sdk-cli"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/llms.txt | grep -iE 'npm|pypi|crates.io|brew|cli'",
+        "expect": "one or more package or CLI lines",
+        "rescan": "isagentready results {domain} --checkpoint ia.sdk-cli"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.sdk-cli"
+    },
+    {
+      "id": "ia.agent-task-access",
+      "legacy_id": "4.29",
+      "ar_practice_ids": [
+        "AR-ACT-10"
+      ],
+      "ar_mapping": "full",
+      "name": "MCP server or CLI for task sites",
+      "category": "agent_protocols",
+      "stage": "act",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Give task sites a verified MCP server or a CLI.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.agent-task-access"
+        }
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.agent-task-access"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agent-task-access"
+    },
+    {
+      "id": "ia.docs-answer",
+      "legacy_id": "4.30",
+      "ar_practice_ids": [
+        "AR-READ-04",
+        "AR-FIND-02",
+        "AR-READ-05"
+      ],
+      "ar_mapping": "full",
+      "name": "Docs pages that answer",
+      "category": "agent_protocols",
+      "stage": "read",
+      "strength": "SHOULD",
+      "evidence_type": "measured_study",
+      "fix": {
+        "summary": "Serve docs pages as server HTML with headings and fenced code that has a language class.",
+        "steps": [],
+        "skill": {
+          "name": "agent-protocols",
+          "anchor": "ia.docs-answer"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/docs | grep -cE '<code[^>]*class=\"[^\"]*language-'",
+        "expect": "one or more code blocks with a language class",
+        "rescan": "isagentready results {domain} --checkpoint ia.docs-answer"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.docs-answer"
+    },
+    {
+      "id": "ia.https",
+      "legacy_id": "5.1",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "HTTPS",
+      "category": "security",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Serve the site over HTTPS with a valid certificate.",
+        "steps": [],
+        "skill": {
+          "name": "security-trust",
+          "anchor": "ia.https"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI https://{domain}/ | head -1",
+        "expect": "a 2xx status line without certificate errors",
+        "rescan": "isagentready results {domain} --checkpoint ia.https"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.https"
+    },
+    {
+      "id": "ia.hsts",
+      "legacy_id": "5.3",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "HSTS",
+      "category": "security",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Send Strict-Transport-Security with max-age=31536000 and includeSubDomains.",
+        "steps": [],
+        "skill": {
+          "name": "security-trust",
+          "anchor": "ia.hsts"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI https://{domain}/ | grep -i '^strict-transport-security'",
+        "expect": "max-age=31536000 or more",
+        "rescan": "isagentready results {domain} --checkpoint ia.hsts"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.hsts"
+    },
+    {
+      "id": "ia.csp",
+      "legacy_id": "5.4",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Content-Security-Policy",
+      "category": "security",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Send a Content-Security-Policy with real directives such as default-src and script-src.",
+        "steps": [],
+        "skill": {
+          "name": "security-trust",
+          "anchor": "ia.csp"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI https://{domain}/ | grep -i '^content-security-policy'",
+        "expect": "a policy with default-src or script-src",
+        "rescan": "isagentready results {domain} --checkpoint ia.csp"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.csp"
+    },
+    {
+      "id": "ia.x-content-type-options",
+      "legacy_id": "5.5",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "X-Content-Type-Options",
+      "category": "security",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Send X-Content-Type-Options: nosniff.",
+        "steps": [],
+        "skill": {
+          "name": "security-trust",
+          "anchor": "ia.x-content-type-options"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI https://{domain}/ | grep -i '^x-content-type-options: nosniff'",
+        "expect": "one line",
+        "rescan": "isagentready results {domain} --checkpoint ia.x-content-type-options"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.x-content-type-options"
+    },
+    {
+      "id": "ia.frame-protection",
+      "legacy_id": "5.6",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "X-Frame-Options / frame-ancestors",
+      "category": "security",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Send X-Frame-Options or a CSP frame-ancestors directive.",
+        "steps": [],
+        "skill": {
+          "name": "security-trust",
+          "anchor": "ia.frame-protection"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI https://{domain}/ | grep -iE '^x-frame-options|frame-ancestors'",
+        "expect": "one or more lines",
+        "rescan": "isagentready results {domain} --checkpoint ia.frame-protection"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.frame-protection"
+    },
+    {
+      "id": "ia.cors",
+      "legacy_id": "5.7",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "CORS",
+      "category": "security",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Answer CORS preflight requests on the public API with exact origins and Vary: Origin.",
+        "steps": [],
+        "skill": {
+          "name": "security-trust",
+          "anchor": "ia.cors"
+        }
+      },
+      "verify": {
+        "command": "curl -sI -H 'Origin: https://agent.example' https://{domain}/api | grep -iE '^(access-control-|vary)'",
+        "expect": "Access-Control-Allow-Origin and Vary: Origin",
+        "rescan": "isagentready results {domain} --checkpoint ia.cors"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.cors"
+    },
+    {
+      "id": "ia.referrer-policy",
+      "legacy_id": "5.9",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Referrer-Policy",
+      "category": "security",
+      "stage": "read",
+      "strength": "MUST",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Send Referrer-Policy: strict-origin-when-cross-origin.",
+        "steps": [],
+        "skill": {
+          "name": "security-trust",
+          "anchor": "ia.referrer-policy"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI https://{domain}/ | grep -i '^referrer-policy'",
+        "expect": "a value other than unsafe-url",
+        "rescan": "isagentready results {domain} --checkpoint ia.referrer-policy"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.referrer-policy"
+    },
+    {
+      "id": "ia.tool-definition-security",
+      "legacy_id": "5.10",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Tool definition security",
+      "category": "security",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Remove secrets from tool definitions and mark read-only tools with readOnlyHint.",
+        "steps": [],
+        "skill": {
+          "name": "security-trust",
+          "anchor": "ia.tool-definition-security"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -ciE 'tool(name|description)=\"[^\"]*(token|password|secret|api[_-]?key)'",
+        "expect": "0",
+        "rescan": "isagentready results {domain} --checkpoint ia.tool-definition-security"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.tool-definition-security"
+    },
+    {
+      "id": "ia.auto-submit-risk",
+      "legacy_id": "5.11",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Auto-submit risk",
+      "category": "security",
+      "stage": "act",
+      "strength": "MAY",
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Use toolautosubmit only on search and filter forms.",
+        "steps": [],
+        "skill": {
+          "name": "security-trust",
+          "anchor": "ia.auto-submit-risk"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/ | grep -oE '<form[^>]*toolautosubmit[^>]*>'",
+        "expect": "only search or filter forms",
+        "rescan": "isagentready results {domain} --checkpoint ia.auto-submit-risk"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.auto-submit-risk"
+    },
+    {
+      "id": "ia.oauth-discovery",
+      "legacy_id": "5.12",
+      "ar_practice_ids": [
+        "AR-ACT-01"
+      ],
+      "ar_mapping": "full",
+      "name": "OAuth discovery",
+      "category": "security",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "scanner_data",
+      "fix": {
+        "summary": "Publish OAuth authorization server metadata with issuer and endpoints.",
+        "steps": [],
+        "skill": {
+          "name": "security-trust",
+          "anchor": "ia.oauth-discovery"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/oauth-authorization-server | jq -e '.issuer and .authorization_endpoint and .token_endpoint'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.oauth-discovery"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.oauth-discovery"
+    },
+    {
+      "id": "ia.oauth-protected-resource",
+      "legacy_id": "5.13",
+      "ar_practice_ids": [
+        "AR-ACT-01"
+      ],
+      "ar_mapping": "full",
+      "name": "OAuth protected resource",
+      "category": "security",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "scanner_data",
+      "fix": {
+        "summary": "Publish OAuth protected resource metadata with resource and authorization_servers.",
+        "steps": [],
+        "skill": {
+          "name": "security-trust",
+          "anchor": "ia.oauth-protected-resource"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/oauth-protected-resource | jq -e '.resource and (.authorization_servers | length > 0)'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.oauth-protected-resource"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.oauth-protected-resource"
+    },
+    {
+      "id": "ia.agent-auth-readiness",
+      "legacy_id": "5.14",
+      "ar_practice_ids": [
+        "AR-ACT-01"
+      ],
+      "ar_mapping": "full",
+      "name": "Agent auth readiness",
+      "category": "security",
+      "stage": "act",
+      "strength": "SHOULD",
+      "evidence_type": "scanner_data",
+      "fix": {
+        "summary": "Support PKCE S256, publish scopes, and describe agent access in /auth.md.",
+        "steps": [],
+        "skill": {
+          "name": "security-trust",
+          "anchor": "ia.agent-auth-readiness"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/oauth-authorization-server | jq -e '.code_challenge_methods_supported | index(\"S256\")'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.agent-auth-readiness"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.agent-auth-readiness"
+    },
+    {
+      "id": "ia.common-crawl-presence",
+      "legacy_id": "te.1",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Common Crawl presence",
+      "category": "training_exposure",
+      "stage": "find",
+      "strength": null,
+      "evidence_type": "scanner_data",
+      "fix": {
+        "summary": "Informational. Shows if the domain is in the latest Common Crawl index.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.common-crawl-presence"
+        }
+      },
+      "verify": {
+        "command": null,
+        "expect": null,
+        "rescan": "isagentready results {domain} --checkpoint ia.common-crawl-presence"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.common-crawl-presence"
+    },
+    {
+      "id": "ia.training-crawler-blocking",
+      "legacy_id": "te.2",
+      "ar_practice_ids": [
+        "AR-FIND-01"
+      ],
+      "ar_mapping": "partial",
+      "name": "Training crawler blocking",
+      "category": "training_exposure",
+      "stage": "find",
+      "strength": null,
+      "evidence_type": "scanner_data",
+      "fix": {
+        "summary": "Informational. Shows which training crawlers robots.txt blocks.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.training-crawler-blocking"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/robots.txt | grep -iA2 -E '^user-agent: *(GPTBot|CCBot|Google-Extended|ClaudeBot)'",
+        "expect": "the rules for each training crawler",
+        "rescan": "isagentready results {domain} --checkpoint ia.training-crawler-blocking"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.training-crawler-blocking"
+    },
+    {
+      "id": "ia.tdmrep",
+      "legacy_id": "te.3",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "TDMRep",
+      "category": "training_exposure",
+      "stage": "find",
+      "strength": null,
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Informational. Publish /.well-known/tdmrep.json to state text and data mining rights.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.tdmrep"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/tdmrep.json | jq -e 'type == \"array\"'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.tdmrep"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.tdmrep"
+    },
+    {
+      "id": "ia.ai-txt",
+      "legacy_id": "te.4",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "ai.txt",
+      "category": "training_exposure",
+      "stage": "find",
+      "strength": null,
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Informational. Publish /ai.txt to state an AI usage policy.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.ai-txt"
+        }
+      },
+      "verify": {
+        "command": "curl -sfI https://{domain}/ai.txt",
+        "expect": "HTTP 200",
+        "rescan": "isagentready results {domain} --checkpoint ia.ai-txt"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.ai-txt"
+    },
+    {
+      "id": "ia.web-bot-auth",
+      "legacy_id": "te.5",
+      "ar_practice_ids": [],
+      "ar_mapping": "none",
+      "name": "Web Bot Auth",
+      "category": "training_exposure",
+      "stage": "find",
+      "strength": null,
+      "evidence_type": "recommendation",
+      "fix": {
+        "summary": "Informational. Publish a Web Bot Auth key directory for signed agent requests.",
+        "steps": [],
+        "skill": {
+          "name": "ai-content-discovery",
+          "anchor": "ia.web-bot-auth"
+        }
+      },
+      "verify": {
+        "command": "curl -sf https://{domain}/.well-known/http-message-signatures-directory | jq -e '.keys | length > 0'",
+        "expect": "exit code 0",
+        "rescan": "isagentready results {domain} --checkpoint ia.web-bot-auth"
+      },
+      "lifecycle": {
+        "retired": null
+      },
+      "methodology_version": "2026-11-02",
+      "detail_url": "https://isagentready.com/en/methodology/checkpoints/ia.web-bot-auth"
+    }
+  ]
+}
