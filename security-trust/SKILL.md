@@ -7,8 +7,8 @@ description: Fixes security and trust issues. Configures HTTPS, HSTS, Content-Se
 
 Fixes the Security & Trust category of [IsAgentReady.com](https://isagentready.com). These checkpoints test the security baseline that agent protocols need, and the auth metadata that agents use to sign in.
 
-- Methodology version: `2026-10-22`. Methodology: https://isagentready.com/en/methodology
-- Scoring (weights and points): https://isagentready.com/api/v2/methodology/2026-10-22/scoring
+- Methodology version: `2026-10-30`. Methodology: https://isagentready.com/en/methodology
+- Scoring (weights and points): https://isagentready.com/api/v2/methodology/2026-10-30/scoring
 - Full checkpoint data (stage, evidence type, verify command, rescan command): [references/checkpoints.md](references/checkpoints.md)
 
 ## When to Use
