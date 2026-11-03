@@ -63,7 +63,7 @@ jobs:
           HOME="$RUNNER_TEMP/skills-home" \
             XDG_CONFIG_HOME="$RUNNER_TEMP/skills-config" \
             XDG_CACHE_HOME="$RUNNER_TEMP/skills-cache" \
-            npx -y skills@1.5.3 add . --list
+            npx -y skills@1.7.6 add . --list
 
       - name: Check SKILL.md line count
         run: |
