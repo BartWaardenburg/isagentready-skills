@@ -151,7 +151,7 @@ Verify: no read-only shell check exists. Use the validator and the rescan comman
 <a id="ia.faq-schema"></a>
 ### 2.7 FAQPage schema
 
-Applies when the page shows FAQ content or has FAQPage JSON-LD. Passes when each `Question` has an `acceptedAnswer` and the questions are also visible on the page.
+Applies when the page shows FAQ content or has FAQPage JSON-LD. Passes when each `Question` has an `acceptedAnswer`, and each question and answer text is also visible on the page. The scanner compares the text without whitespace and tags. An answer can span several `<p>` elements, and HTML in `Answer.text` counts as its text. The number of schema questions must equal the number of visible FAQ questions.
 
 1. Mark up the visible questions and answers:
    ```json
@@ -166,6 +166,7 @@ Applies when the page shows FAQ content or has FAQPage JSON-LD. Passes when each
    }
    ```
 2. Do not mark up questions that the page does not show.
+3. Do not put answers in panels with `hidden`, `inert` or `aria-hidden="true"`. The scanner does not read that text as visible.
 
 Verify: `curl -sf https://example.com/ | grep -q '"FAQPage"'` (on a page with a visible FAQ)
 
@@ -208,7 +209,7 @@ Verify: `curl -sI https://example.com/about https://example.com/contact https://
 2. A trailing comma makes the whole block invalid.
 3. Two Organization entities in one `@graph` cause a validation issue.
 4. `"author": "Jane Smith"` (a string) fails. Use an object with `@type` and `name`.
-5. FAQPage markup for questions that are not visible on the page gives partial credit.
+5. FAQPage markup for questions or answers that are not visible on the page fails with `faq_schema_mismatch`.
 
 See [references/gotchas.md](references/gotchas.md) for correct and incorrect examples.
 
