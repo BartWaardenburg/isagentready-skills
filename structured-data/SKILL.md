@@ -166,7 +166,7 @@ Applies when the page shows FAQ content or has FAQPage JSON-LD. Passes when each
    }
    ```
 2. Do not mark up questions that the page does not show.
-3. Do not put answers in panels with `hidden`, `inert` or `aria-hidden="true"`. The scanner does not read that text as visible.
+3. Collapsed answer panels with `inert` or `hidden="until-found"` count as visible inside the FAQ. Panels with `hidden` or `aria-hidden="true"` do not count. Keep the questions themselves out of `inert` elements.
 
 Verify: `curl -sf https://example.com/ | grep -q '"FAQPage"'` (on a page with a visible FAQ)
 
