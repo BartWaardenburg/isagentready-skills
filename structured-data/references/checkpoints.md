@@ -47,9 +47,11 @@ Why: JSON-LD expresses page facts in a machine-readable vocabulary. Syntax and s
 
 References:
 
-- [Schema.org Person](https://schema.org/Person) (spec)
-- [Schema.org author property](https://schema.org/author) (spec)
-- [Google E-E-A-T guidelines](https://developers.google.com/search/docs/fundamentals/creating-helpful-content) (guide)
+- [Schema.org Getting Started](https://schema.org/docs/gs.html) (spec)
+- [Google Structured Data Guide](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data) (guide)
+- [W3C JSON-LD Specification](https://www.w3.org/TR/json-ld11/) (spec)
+- [Ahrefs: schema markup and AI citations (2026)](https://ahrefs.com/blog/schema-ai-citations/) (study)
+- [searchVIU: what AI assistants actually parse (2025)](https://www.searchviu.com/en/schema-markup-and-ai-in-2025-what-chatgpt-claude-perplexity-gemini-really-see/) (study)
 
 Steps:
 
@@ -90,9 +92,9 @@ Why: Organization and WebSite schemas establish the brand identity in the knowle
 
 References:
 
-- [Schema.org Person](https://schema.org/Person) (spec)
-- [Schema.org author property](https://schema.org/author) (spec)
-- [Google E-E-A-T guidelines](https://developers.google.com/search/docs/fundamentals/creating-helpful-content) (guide)
+- [Schema.org Organization](https://schema.org/Organization) (spec)
+- [Schema.org WebSite](https://schema.org/WebSite) (spec)
+- [Google Structured Data Guide](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data) (guide)
 
 Steps:
 
@@ -134,9 +136,9 @@ Why: Schema types such as Article, Product and FAQPage give agents typed entitie
 
 References:
 
-- [Schema.org Person](https://schema.org/Person) (spec)
-- [Schema.org author property](https://schema.org/author) (spec)
-- [Google E-E-A-T guidelines](https://developers.google.com/search/docs/fundamentals/creating-helpful-content) (guide)
+- [Google Search Gallery](https://developers.google.com/search/docs/appearance/structured-data/search-gallery) (guide)
+- [Schema.org Getting Started](https://schema.org/docs/gs.html) (spec)
+- [Google Structured Data Guide](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data) (guide)
 
 Steps:
 
@@ -176,9 +178,9 @@ Why: Entity links through @id make a connected graph of your content. AI systems
 
 References:
 
-- [Schema.org Person](https://schema.org/Person) (spec)
-- [Schema.org author property](https://schema.org/author) (spec)
-- [Google E-E-A-T guidelines](https://developers.google.com/search/docs/fundamentals/creating-helpful-content) (guide)
+- [W3C JSON-LD Specification](https://www.w3.org/TR/json-ld11/) (spec)
+- [Schema.org Getting Started](https://schema.org/docs/gs.html) (spec)
+- [Google Structured Data Guide](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data) (guide)
 
 Steps:
 
@@ -217,9 +219,9 @@ Why: Search engines and AI systems ignore structured data that is not valid. Err
 
 References:
 
-- [Schema.org Person](https://schema.org/Person) (spec)
-- [Schema.org author property](https://schema.org/author) (spec)
-- [Google E-E-A-T guidelines](https://developers.google.com/search/docs/fundamentals/creating-helpful-content) (guide)
+- [Schema.org Validator](https://validator.schema.org/) (guide)
+- [Schema.org Getting Started](https://schema.org/docs/gs.html) (spec)
+- [Google Structured Data Guide](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data) (guide)
 
 Steps:
 
@@ -251,9 +253,8 @@ Why: FAQPage schema exposes questions and answers as separate machine-readable p
 
 References:
 
-- [Schema.org Person](https://schema.org/Person) (spec)
-- [Schema.org author property](https://schema.org/author) (spec)
-- [Google E-E-A-T guidelines](https://developers.google.com/search/docs/fundamentals/creating-helpful-content) (guide)
+- [Schema.org FAQPage](https://schema.org/FAQPage) (spec)
+- [Google structured data guidelines](https://developers.google.com/search/docs/appearance/structured-data/sd-policies) (guide)
 
 Steps:
 
