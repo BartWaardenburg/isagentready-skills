@@ -1552,19 +1552,29 @@
       "aggregate": null,
       "references": [
         {
-          "title": "Schema.org Person",
+          "title": "Schema.org Getting Started",
           "kind": "spec",
-          "url": "https://schema.org/Person"
+          "url": "https://schema.org/docs/gs.html"
         },
         {
-          "title": "Schema.org author property",
-          "kind": "spec",
-          "url": "https://schema.org/author"
-        },
-        {
-          "title": "Google E-E-A-T guidelines",
+          "title": "Google Structured Data Guide",
           "kind": "guide",
-          "url": "https://developers.google.com/search/docs/fundamentals/creating-helpful-content"
+          "url": "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data"
+        },
+        {
+          "title": "W3C JSON-LD Specification",
+          "kind": "spec",
+          "url": "https://www.w3.org/TR/json-ld11/"
+        },
+        {
+          "title": "Ahrefs: schema markup and AI citations (2026)",
+          "kind": "study",
+          "url": "https://ahrefs.com/blog/schema-ai-citations/"
+        },
+        {
+          "title": "searchVIU: what AI assistants actually parse (2025)",
+          "kind": "study",
+          "url": "https://www.searchviu.com/en/schema-markup-and-ai-in-2025-what-chatgpt-claude-perplexity-gemini-really-see/"
         }
       ],
       "stage": "read",
@@ -1651,19 +1661,19 @@
       "aggregate": null,
       "references": [
         {
-          "title": "Schema.org Person",
+          "title": "Schema.org Organization",
           "kind": "spec",
-          "url": "https://schema.org/Person"
+          "url": "https://schema.org/Organization"
         },
         {
-          "title": "Schema.org author property",
+          "title": "Schema.org WebSite",
           "kind": "spec",
-          "url": "https://schema.org/author"
+          "url": "https://schema.org/WebSite"
         },
         {
-          "title": "Google E-E-A-T guidelines",
+          "title": "Google Structured Data Guide",
           "kind": "guide",
-          "url": "https://developers.google.com/search/docs/fundamentals/creating-helpful-content"
+          "url": "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data"
         }
       ],
       "stage": "read",
@@ -1750,19 +1760,19 @@
       "aggregate": null,
       "references": [
         {
-          "title": "Schema.org Person",
-          "kind": "spec",
-          "url": "https://schema.org/Person"
-        },
-        {
-          "title": "Schema.org author property",
-          "kind": "spec",
-          "url": "https://schema.org/author"
-        },
-        {
-          "title": "Google E-E-A-T guidelines",
+          "title": "Google Search Gallery",
           "kind": "guide",
-          "url": "https://developers.google.com/search/docs/fundamentals/creating-helpful-content"
+          "url": "https://developers.google.com/search/docs/appearance/structured-data/search-gallery"
+        },
+        {
+          "title": "Schema.org Getting Started",
+          "kind": "spec",
+          "url": "https://schema.org/docs/gs.html"
+        },
+        {
+          "title": "Google Structured Data Guide",
+          "kind": "guide",
+          "url": "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data"
         }
       ],
       "stage": "read",
@@ -1852,19 +1862,19 @@
       "aggregate": null,
       "references": [
         {
-          "title": "Schema.org Person",
+          "title": "W3C JSON-LD Specification",
           "kind": "spec",
-          "url": "https://schema.org/Person"
+          "url": "https://www.w3.org/TR/json-ld11/"
         },
         {
-          "title": "Schema.org author property",
+          "title": "Schema.org Getting Started",
           "kind": "spec",
-          "url": "https://schema.org/author"
+          "url": "https://schema.org/docs/gs.html"
         },
         {
-          "title": "Google E-E-A-T guidelines",
+          "title": "Google Structured Data Guide",
           "kind": "guide",
-          "url": "https://developers.google.com/search/docs/fundamentals/creating-helpful-content"
+          "url": "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data"
         }
       ],
       "stage": "read",
@@ -2035,19 +2045,19 @@
       "aggregate": null,
       "references": [
         {
-          "title": "Schema.org Person",
-          "kind": "spec",
-          "url": "https://schema.org/Person"
-        },
-        {
-          "title": "Schema.org author property",
-          "kind": "spec",
-          "url": "https://schema.org/author"
-        },
-        {
-          "title": "Google E-E-A-T guidelines",
+          "title": "Schema.org Validator",
           "kind": "guide",
-          "url": "https://developers.google.com/search/docs/fundamentals/creating-helpful-content"
+          "url": "https://validator.schema.org/"
+        },
+        {
+          "title": "Schema.org Getting Started",
+          "kind": "spec",
+          "url": "https://schema.org/docs/gs.html"
+        },
+        {
+          "title": "Google Structured Data Guide",
+          "kind": "guide",
+          "url": "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data"
         }
       ],
       "stage": "read",
@@ -2135,19 +2145,14 @@
       "aggregate": null,
       "references": [
         {
-          "title": "Schema.org Person",
+          "title": "Schema.org FAQPage",
           "kind": "spec",
-          "url": "https://schema.org/Person"
+          "url": "https://schema.org/FAQPage"
         },
         {
-          "title": "Schema.org author property",
-          "kind": "spec",
-          "url": "https://schema.org/author"
-        },
-        {
-          "title": "Google E-E-A-T guidelines",
+          "title": "Google structured data guidelines",
           "kind": "guide",
-          "url": "https://developers.google.com/search/docs/fundamentals/creating-helpful-content"
+          "url": "https://developers.google.com/search/docs/appearance/structured-data/sd-policies"
         }
       ],
       "stage": "read",
