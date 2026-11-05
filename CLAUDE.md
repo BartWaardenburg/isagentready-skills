@@ -50,6 +50,7 @@ scripts/
 .github/
   workflows/
     validate.yml            # CI: JSON, frontmatter, line counts, paths, version sync, sync tests, drift check
+    catalog-drift.yml       # Daily: fails when the skills no longer match the live catalog
 ```
 
 For the current checkpoints of a skill, see its `references/checkpoints.md`. Do not write checkpoint counts in docs. Counts change with each methodology version.
